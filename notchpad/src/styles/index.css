@@ -1,6 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&display=swap');
+/* ============================================
+   Notchpad Design System — "Deep Field"
+   See DESIGN.md for full specification
+   ============================================ */
 
-/* Departure Mono via local or CDN fallback */
+/* Typography imports */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=B612+Mono:wght@400;700&display=swap');
+
 @font-face {
   font-family: 'DepartureMono';
   src: url('https://departuremono.com/assets/DepartureMono-Regular.woff2') format('woff2');
@@ -15,27 +20,67 @@
 }
 
 :root {
-  --bg: #0a0c0e;
-  --bg-elevated: #111417;
-  --bg-panel: #141820;
-  --border: rgba(255,255,255,0.07);
-  --border-bright: rgba(255,255,255,0.14);
+  /* Backgrounds — cool blue-gray undertone */
+  --bg-base: #13161C;
+  --bg-surface: #1A1E26;
+  --bg-elevated: #232830;
+  --bg-raised: #2C323C;
 
-  --green: #39d353;
-  --green-dim: rgba(57,211,83,0.18);
-  --green-glow: rgba(57,211,83,0.35);
-  --amber: #f0a020;
-  --amber-dim: rgba(240,160,32,0.18);
-  --red: #f05050;
-  --red-dim: rgba(240,80,80,0.18);
-  --blue: #58a6ff;
-  --blue-dim: rgba(88,166,255,0.15);
+  /* Borders */
+  --stroke: #3A4050;
+  --border-subtle: #2A2E38;
+  --border-active: #38A89A;
 
-  --text-primary: rgba(255,255,255,0.92);
-  --text-secondary: rgba(255,255,255,0.45);
-  --text-dim: rgba(255,255,255,0.25);
+  /* Text — warm cream and sage */
+  --text-1: #E0D8D0;
+  --text-2: #B0B8B4;
+  --text-3: #6A7080;
+  --text-dim: #3E4655;
 
-  --mono: 'DepartureMono', 'JetBrains Mono', 'SF Mono', monospace;
+  /* Signal colors — desaturated, purposeful */
+  --teal: #38A89A;
+  --teal-dim: rgba(56,168,154,0.08);
+  --teal-border: rgba(56,168,154,0.20);
+  --coral: #E08870;
+  --coral-dim: rgba(224,136,112,0.06);
+  --coral-border: rgba(224,136,112,0.15);
+  --gold: #D4AE48;
+  --gold-dim: rgba(212,174,72,0.06);
+  --gold-border: rgba(212,174,72,0.12);
+  --steel: #5B7EA0;
+  --steel-dim: rgba(91,126,160,0.08);
+  --ripple: #9ABF40;
+  --ripple-dim: rgba(154,191,64,0.06);
+
+  /* Typography stacks */
+  --font-ui: 'Sora', system-ui, -apple-system, sans-serif;
+  --font-data: 'B612 Mono', 'SF Mono', monospace;
+  --font-label: 'DepartureMono', 'B612 Mono', monospace;
+
+  /* Spacing scale (4px base) */
+  --sp-1: 2px;
+  --sp-2: 4px;
+  --sp-3: 6px;
+  --sp-4: 8px;
+  --sp-5: 12px;
+  --sp-6: 16px;
+  --sp-7: 20px;
+  --sp-8: 24px;
+  --sp-9: 32px;
+
+  /* Radius scale — outer warm, inner sharp */
+  --radius-window: 12px;
+  --radius-panel: 8px;
+  --radius-pill: 6px;
+  --radius-button: 4px;
+  --radius-badge: 3px;
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --transition-notch-pill: 120ms var(--ease-out);
+  --transition-pill-cc: 200ms var(--ease-out);
+  --transition-dismiss: 150ms var(--ease-in);
 }
 
 html, body {
@@ -43,8 +88,9 @@ html, body {
   height: 100%;
   overflow: hidden;
   background: transparent;
-  font-family: var(--mono);
+  font-family: var(--font-ui);
   font-size: 13px;
+  color: var(--text-1);
   -webkit-font-smoothing: antialiased;
   user-select: none;
   cursor: default;
@@ -56,24 +102,58 @@ html, body {
 }
 
 /* Tauri drag region */
-[data-tauri-drag-region] {
-  cursor: grab;
-}
-[data-tauri-drag-region]:active {
-  cursor: grabbing;
-}
+[data-tauri-drag-region] { cursor: grab; }
+[data-tauri-drag-region]:active { cursor: grabbing; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--stroke); }
 
-/* Animations */
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+/* ============================================
+   Orbital Frequency Animations
+   Each agent state has a distinct signature
+   ============================================ */
+
+/* Idle — slow single-ring breath, 3.5s */
+@keyframes orbit-idle {
+  0%, 100% { transform: scale(1); opacity: 0; }
+  50% { transform: scale(1.8); opacity: 0.2; }
 }
 
+/* Writing — double-ring pulse, 0.9s */
+@keyframes orbit-write {
+  0%, 100% { transform: scale(1); opacity: 0; }
+  50% { transform: scale(1.6); opacity: 0.35; }
+}
+
+/* Waiting — tension-hold-snap, 2.4s */
+@keyframes orbit-wait {
+  0%, 60% { transform: scale(1); opacity: 0.15; }
+  70% { transform: scale(1.4); opacity: 0.3; }
+  80%, 100% { transform: scale(1); opacity: 0.15; }
+}
+
+/* Executing — bioluminescent ripple, 2s */
+@keyframes orbit-exec {
+  0% { transform: scale(1); opacity: 0.3; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Error — lateral tremor, 0.3s */
+@keyframes orbit-error {
+  0% { transform: translateX(-1px); opacity: 0.3; }
+  100% { transform: translateX(1px); opacity: 0.5; }
+}
+
+/* Bioluminescent glow pulse for executing orbs */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.06; }
+}
+
+/* UI transitions */
 @keyframes slide-down {
   from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: translateY(0); }
@@ -84,7 +164,11 @@ html, body {
   to { opacity: 1; }
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
