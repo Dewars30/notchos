@@ -1,0 +1,38 @@
+# NotchPad — Agent Hook Configs
+# Snippets for wiring up each supported agent.
+# The setup.sh script handles Claude Code automatically.
+# For Codex and Gemini, apply these manually or extend setup.sh.
+
+# ─── Claude Code (~/.claude/settings.json) ─────────────────────────────────
+# Handled automatically by scripts/setup.sh
+
+# ─── OpenAI Codex CLI (~/.codex/config.toml) ───────────────────────────────
+# Add to ~/.codex/config.toml:
+
+[hooks]
+pre_tool_use  = "node /path/to/notchpad/scripts/notchpad-bridge.js --agent codex"
+post_tool_use = "node /path/to/notchpad/scripts/notchpad-bridge.js --agent codex"
+notification  = "node /path/to/notchpad/scripts/notchpad-bridge.js --agent codex"
+
+# ─── Gemini CLI (~/.gemini/settings.json) ──────────────────────────────────
+# Gemini uses the same hook structure as Claude Code:
+
+{
+  "hooks": {
+    "PreToolUse":  [{ "matcher": "", "hooks": [{ "type": "command", "command": "node /path/to/notchpad/scripts/notchpad-bridge.js --agent gemini" }] }],
+    "PostToolUse": [{ "matcher": "", "hooks": [{ "type": "command", "command": "node /path/to/notchpad/scripts/notchpad-bridge.js --agent gemini" }] }],
+    "Notification":[{ "matcher": "", "hooks": [{ "type": "command", "command": "node /path/to/notchpad/scripts/notchpad-bridge.js --agent gemini" }] }],
+    "Stop":        [{ "matcher": "", "hooks": [{ "type": "command", "command": "node /path/to/notchpad/scripts/notchpad-bridge.js --agent gemini" }] }]
+  }
+}
+
+# ─── Approval response protocol ────────────────────────────────────────────
+# For PreToolUse hooks, NotchPad writes a JSON line back to the bridge's
+# stdout, which the bridge forwards to the agent's hook process stdout:
+#
+#   {"decision":"approve"}        — allow the tool call
+#   {"decision":"deny"}           — block the tool call
+#   {"decision":"deny","reason":"explanation"}
+#
+# Claude Code reads the hook's stdout and respects the decision.
+# Codex and Gemini use the same protocol.
