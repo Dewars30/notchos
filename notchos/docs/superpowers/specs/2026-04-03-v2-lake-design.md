@@ -36,11 +36,18 @@ Each layer builds on the previous. Layer 1 is required before all others. Layers
 - `App.tsx` uses Tauri's `listen("sessions_updated", callback)` to subscribe to backend events
 - On each event, calls `invoke("get_sessions")` to get the current `Session[]`
 - A new `useSessionBridge()` hook maps `Session` (backend type) to `Agent` (frontend type):
-  - `session.status` → `AgentStatus` (map "running" → "executing", "waiting" → "waiting", etc.)
+  - `session.status` → `AgentStatus` mapping:
+    - `"running"` + `currentTool` is Write/Edit/MultiEdit → `"writing"`
+    - `"running"` + `currentTool` is Bash/other → `"executing"`
+    - `"running"` + no `currentTool` → `"idle"`
+    - `"waiting"` → `"waiting"`
+    - `"error"` → `"error"`
+    - `"done"` → `"idle"`
   - `session.pending_approval` → `PendingApproval` with auto-scored `riskTier`
   - `session.agent` → agent name, abbreviation, model (looked up from agent registry)
+  - `session.cost` / `session.elapsedSeconds` → set to `0` initially; real cost tracking deferred to Layer 3 (section 3.3). `elapsedSeconds` computed as `now - session.started_at`.
 - Mock data remains as fallback when `!isTauri` (browser dev mode)
-- Metrics computed from live session data: total cost, total tokens, approval counts
+- Metrics computed from live session data: approval counts, elapsed time. Cost/token tracking deferred to Layer 3.
 
 **New Tauri command:**
 ```rust
@@ -96,8 +103,38 @@ fn classify_risk(tool: &str, input: &serde_json::Value) -> RiskTier {
 }
 ```
 
+**Rust type definition:**
+```rust
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum RiskTier { Low, Medium, High }
+```
+
 **Files:**
-- Modify: `src-tauri/src/lib.rs` (add `classify_risk`, include `risk_tier` in `PendingApproval`)
+- Modify: `src-tauri/src/lib.rs` (add `RiskTier` enum, `classify_risk`, include `risk_tier` in `PendingApproval`)
+
+### 1.2b Extend HookEvent and Session for V2
+
+**Add fields to `HookEvent`:**
+```rust
+pub struct HookEvent {
+    // ... existing fields ...
+    pub cwd: Option<String>,            // working directory (injected by bridge)
+    pub question: Option<String>,       // for AskUser events
+    pub options: Option<Vec<String>>,   // for AskUser events
+    pub plan_markdown: Option<String>,  // for PlanReview events
+}
+```
+
+**Add fields to `Session`:**
+```rust
+pub struct Session {
+    // ... existing fields ...
+    pub cwd: Option<String>,            // working directory
+}
+```
+
+The `cwd` field is foundational — used by terminal jump (Layer 2) and team orchestration (Layer 3). The bridge script injects `cwd` from the agent's working directory. Question/plan fields enable Layer 2 features.
 
 ### 1.3 Universal Agent Discovery + Hook Injection
 
@@ -149,20 +186,47 @@ agents/
 }
 ```
 
-Any future agent CLI can integrate by sending this JSON to `/tmp/notchos.sock`.
+Any future agent CLI can integrate by sending this JSON to the NotchOS socket. The protocol also includes `cwd` for working directory context.
+
+**Launch scope:** Ship with `claude.rs` and `codex.rs` (both have documented, stable hook APIs) plus `universal.rs` (the generic protocol). `gemini.rs` added when Gemini CLI's hook system is confirmed. `cursor.rs`, `opencode.rs`, `droid.rs` are post-launch adapters — their hook APIs are speculative.
+
+**Discovery failure handling:**
+- Config file not found → skip silently (agent not installed)
+- Config file parse error → log warning + show one-time notification: "Could not configure [agent] — manual setup available in Settings"
+- Permission error → same notification
+- Per-agent toggle in settings: "Monitor hooks for [agent]" (default: on)
+- Clean uninstall: `notchos uninstall` command removes all injected hooks
+
+**Hook tamper detection specifics:** Uses `notify` crate for file watching. Re-injection rate-limited to 3/hour. Disabled per-agent via settings toggle.
 
 **Files:**
-- Create: `src-tauri/src/agents/` (module with per-agent adapters)
+- Create: `src-tauri/src/agents/` (module: `claude.rs`, `codex.rs`, `universal.rs`, + stubs for others)
 - Create: `~/.notchos/bin/notchos-bridge` (replaces `scripts/notchos-bridge.js`)
 - Modify: `src-tauri/src/lib.rs` (add discovery on startup)
+- Add dependency: `notify` crate for file watching
 
-### 1.4 Cross-Platform Window Management
+### 1.4 Cross-Platform Window Management + Socket Transport
 
-**Current state:** macOS-only with `macos-private-api` features. Frameless, transparent, always-on-top, non-activating.
+**Current state:** macOS-only with `macos-private-api` features. Frameless, transparent, always-on-top, non-activating. Backend uses `tokio::net::UnixListener` at `/tmp/notchos.sock` — Unix-only.
 
-**Design:**
+**Design — Socket Transport:**
 
-Tauri 2 supports per-platform window configuration in `tauri.conf.json`:
+`UnixListener` does not exist on Windows. Use the `interprocess` crate for cross-platform IPC:
+- **macOS/Linux:** Unix domain socket at `/tmp/notchos.sock` (current behavior, zero changes)
+- **Windows:** Named pipe at `\\.\pipe\notchos` (equivalent security model to Unix sockets)
+
+Abstract the transport behind a trait so the rest of the code is platform-agnostic:
+```rust
+// src-tauri/src/transport.rs
+#[cfg(unix)]
+pub fn listen() -> impl Stream<Item = Connection> { /* UnixListener */ }
+#[cfg(windows)]
+pub fn listen() -> impl Stream<Item = Connection> { /* NamedPipeListener */ }
+```
+
+**Design — Window Management:**
+
+Tauri 2 supports per-platform window configuration. The `MODE_SIZES` in `App.tsx` (notch: 220x48, pill: 400x200, command-center: 720x420) remain the source of truth for dynamic resizing via `set_window_size`.
 
 - **macOS:** Current behavior. NSPanel via private API. Notch-anchored position. Transparent.
 - **Windows:** Always-on-top window, top-center of primary monitor. Rounded corners via CSS (Windows 11 has native rounded, Windows 10 uses CSS). Non-activating via `WS_EX_NOACTIVATE` window style.
@@ -179,9 +243,11 @@ React uses this to adjust the container:
 - Windows/Linux: floating panel with 12px all-around radius, subtle drop shadow
 
 **Files:**
+- Create: `src-tauri/src/transport.rs` (cross-platform socket/pipe abstraction)
 - Modify: `src-tauri/tauri.conf.json` (per-platform window config)
-- Modify: `src-tauri/src/lib.rs` (platform-aware positioning)
+- Modify: `src-tauri/src/lib.rs` (use transport abstraction, platform-aware positioning)
 - Modify: `src/App.tsx` (conditional container styling)
+- Add dependency: `interprocess` crate
 
 ---
 
@@ -195,8 +261,8 @@ React uses this to adjust the container:
 
 New hook event type: `AskUser`
 
-When an agent asks a question:
-1. Backend creates a oneshot channel (same pattern as approval)
+When an agent asks a question (hook event with `event: "AskUser"`):
+1. Backend matches `AskUser` in `handle_connection`, creates oneshot channel (same as `PreToolUse`)
 2. Frontend renders the question text + numbered option buttons in the center bay
 3. Gravitational weight applies: production-related questions → high weight (coral treatment)
 4. Keyboard shortcuts: ⌘1, ⌘2, ⌘3, ⌘4 for options
@@ -217,8 +283,8 @@ Reuses the same risk-tier styling from `ActiveSession.tsx`. Questions about prod
 
 New hook event type: `PlanReview`
 
-When an agent submits a plan:
-1. Backend receives plan Markdown + approval channel
+When an agent submits a plan (hook event with `event: "PlanReview"`):
+1. Backend matches `PlanReview` in `handle_connection`, creates oneshot channel. Response format: `{"decision": "approve" | "deny" | "changes", "feedback": "string?"}`
 2. Frontend renders Markdown in the center bay using a lightweight renderer (no heavy deps — parse Markdown to React elements in a `MarkdownRenderer.tsx` component)
 3. Three action buttons: Approve, Deny, Request Changes (with text input)
 4. Scrollable, with section headings highlighted
@@ -246,7 +312,7 @@ Sound events:
 
 Implementation:
 - Web Audio API (works cross-platform in Tauri's WebView)
-- Default sound pack: procedurally generated 8-bit tones (no audio files needed)
+- Default sound pack: procedurally generated Web Audio oscillators (sine/square wave, 200-800Hz, all sounds < 300ms, non-intrusive, each event type distinguishable by ear)
 - Custom packs: JSON manifest + audio files in `~/.notchos/sounds/<pack-name>/`
 - Mute toggle in TopBar (persisted to `~/.notchos/settings.json`)
 - Volume control in settings
@@ -341,6 +407,7 @@ CREATE INDEX idx_events_timestamp ON events(timestamp);
 
 **Files:**
 - Create: `src-tauri/src/history.rs` (SQLite persistence)
+- Add dependency: `tauri-plugin-sql` with `sqlite` feature flag
 - Create: `src/components/command-center/HistoryView.tsx`
 - Create: `src/components/command-center/SessionSearch.tsx`
 
@@ -366,7 +433,7 @@ PROJECT: ~/other-repo (feature/x)
 **Team features:**
 - Shared timeline: all agents' events on one timeline, color-coded by agent
 - Aggregate metrics: combined cost, combined tokens, combined approvals
-- Conflict detection: if two agents submit edits to the same file, highlight in coral with "CONFLICT: both agents editing auth.ts"
+- Conflict detection: at `PreToolUse` time, if a session submits Write/Edit/MultiEdit for a path that another active session has a pending or recently-completed (last 60s) edit on, show a CONFLICT badge in coral. Advisory only — does not block. Paths compared after normalizing to absolute paths using session `cwd`.
 - Team health murmuration: particle ring encodes combined team activity
 
 **Files:**
@@ -462,18 +529,11 @@ Apply gravitational weight to:
 
 The visual language is consistent: heavy things take up more space, get warmer colors, demand more attention.
 
-### 4.4 Session History Gravity Wells
+### 4.4 Session History Gravity Wells (V3 Future Enhancement)
 
-**Current state:** Timeline is a bar chart.
+> **Deferred to V3.** Session history (3.1) needs to ship and accumulate real user data before designing advanced visualizations. For V2, session history uses a standard sortable list view with cost/risk color coding.
 
-**Design:**
-
-Historical timeline as a gravity-well visualization:
-- Each session is a node on a horizontal timeline
-- Node size scales with cost (more expensive = larger)
-- Node color encodes peak risk tier (teal/gold/coral)
-- Dense clusters of nodes create visible "gravity wells" — you can spot cost spikes visually
-- Hover a node → murmuration particles flow toward it, revealing session details
+**V3 concept:** Historical timeline as a gravity-well visualization where node size scales with cost, color encodes risk, and dense clusters reveal cost spike patterns visually.
 
 ---
 
@@ -481,7 +541,7 @@ Historical timeline as a gravity-well visualization:
 
 The layers are ordered by dependency, but within each layer, work can be parallelized.
 
-**Phase 1 (Foundation):** 1.1 (wire backend) → 1.2 (risk scoring) → 1.3 (agent discovery) + 1.4 (cross-platform) in parallel
+**Phase 1 (Foundation):** 1.1 (wire backend) + 1.2 (risk scoring) + 1.2b (extend HookEvent) in parallel → 1.3 (agent discovery) + 1.4 (cross-platform + transport) in parallel
 
 **Phase 2 (Table Stakes):** 2.1 (questions) + 2.2 (plan review) + 2.3 (sound) + 2.4 (terminal jump) — all in parallel
 
