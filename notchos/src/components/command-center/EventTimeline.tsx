@@ -68,7 +68,7 @@ export function EventTimeline({ events }: EventTimelineProps) {
         marginLeft: 'auto',
         fontFamily: 'var(--font-data)',
         fontSize: 7,
-        color: 'var(--bg-raised)',
+        color: 'var(--text-dim)',
         flexShrink: 0,
         alignSelf: 'center',
       }}>

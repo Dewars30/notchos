@@ -1,5 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+// Safe invoke wrapper — falls back to console.log when running outside Tauri
+const isTauri = '__TAURI_INTERNALS__' in window;
+async function tauriInvoke(cmd: string, args?: Record<string, unknown>) {
+  if (!isTauri) {
+    console.log(`[dev] invoke("${cmd}",`, args, ')');
+    return;
+  }
+  const { invoke } = await import('@tauri-apps/api/core');
+  return invoke(cmd, args);
+}
 import { NotchBar } from './components/NotchBar';
 import { ExpandedPill } from './components/ExpandedPill';
 import { CommandCenter } from './components/command-center/CommandCenter';
@@ -22,9 +31,9 @@ export default function App() {
   // Resize Tauri window on mode change
   useEffect(() => {
     const { width, height } = MODE_SIZES[mode];
-    invoke('set_window_size', { width, height }).catch(() => {
+    tauriInvoke('set_window_size', { width, height }).catch(() => {
       // Fallback: try height-only resize from old API
-      invoke('set_window_height', { height }).catch(() => {});
+      tauriInvoke('set_window_height', { height }).catch(() => {});
     });
   }, [mode]);
 
@@ -124,7 +133,7 @@ export default function App() {
 
   const handleApprove = useCallback(async (approvalId: string) => {
     try {
-      await invoke('approve', { approvalId, reason: null });
+      await tauriInvoke('approve', { approvalId, reason: null });
     } catch (e) {
       console.error('approve error', e);
     }
@@ -132,7 +141,7 @@ export default function App() {
 
   const handleDeny = useCallback(async (approvalId: string) => {
     try {
-      await invoke('deny', { approvalId, reason: null });
+      await tauriInvoke('deny', { approvalId, reason: null });
     } catch (e) {
       console.error('deny error', e);
     }

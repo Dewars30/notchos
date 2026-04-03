@@ -35,6 +35,7 @@ export function StatusOrb({ status, size = 5 }: StatusOrbProps) {
       width: containerSize,
       height: containerSize,
       flexShrink: 0,
+      overflow: 'hidden',
     }}>
       {/* Primary orbital ring */}
       <span style={{
