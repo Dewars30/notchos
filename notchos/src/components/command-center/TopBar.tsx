@@ -54,6 +54,7 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent }: TopB
               key={agent.id}
               onClick={() => onSelectAgent(agent.id)}
               aria-pressed={isSelected}
+              aria-label={agent.name}
               style={{
                 display: 'flex',
                 alignItems: 'center',

@@ -58,6 +58,7 @@ export function AgentRoster({ agents, selectedAgentId, onSelectAgent }: AgentRos
               key={agent.id}
               role="option"
               aria-selected={isSelected}
+              aria-label={agent.name}
               onClick={() => onSelectAgent(agent.id)}
               style={{
                 display: 'flex',
