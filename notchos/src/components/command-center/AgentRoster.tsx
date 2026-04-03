@@ -44,7 +44,7 @@ export function AgentRoster({ agents, selectedAgentId, onSelectAgent }: AgentRos
     }}>
       <ZoneLabel>AGENTS</ZoneLabel>
 
-      <div style={{
+      <div role="listbox" aria-label="Agent list" style={{
         marginTop: 8,
         display: 'flex',
         flexDirection: 'column',
@@ -56,6 +56,8 @@ export function AgentRoster({ agents, selectedAgentId, onSelectAgent }: AgentRos
           return (
             <button
               key={agent.id}
+              role="option"
+              aria-selected={isSelected}
               onClick={() => onSelectAgent(agent.id)}
               style={{
                 display: 'flex',

@@ -15,20 +15,3 @@
   overflow: hidden;
   position: relative;
 }
-
-/* Spacetime grid — V1 static CSS (28px cells, teal at ~1.5% opacity) */
-.command-center::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    linear-gradient(rgba(56, 168, 154, 0.015) 0.5px, transparent 0.5px),
-    linear-gradient(90deg, rgba(56, 168, 154, 0.015) 0.5px, transparent 0.5px);
-  background-size: 28px 28px;
-  pointer-events: none;
-  z-index: 0;
-  border-radius: inherit;
-}

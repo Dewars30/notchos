@@ -5,6 +5,7 @@ import { AgentRoster } from './AgentRoster';
 import { ActiveSession } from './ActiveSession';
 import { MetricsRail } from './MetricsRail';
 import { EventTimeline } from './EventTimeline';
+import { SpacetimeGrid } from './SpacetimeGrid';
 
 interface CommandCenterProps {
   agents: Agent[];
@@ -29,6 +30,7 @@ export function CommandCenter({
 
   return (
     <div className="command-center">
+      <SpacetimeGrid riskTier={selectedAgent?.pendingApproval?.riskTier ?? 'low'} />
       <TopBar
         agents={agents}
         selectedAgentId={selectedAgentId}

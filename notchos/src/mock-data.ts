@@ -57,6 +57,29 @@ export const MOCK_AGENTS: Agent[] = [
     currentTool: null,
     pendingApproval: null,
   },
+  {
+    id: 'cx-2',
+    name: 'Codex (prod)',
+    abbreviation: 'CP',
+    model: 'o3',
+    status: 'writing',
+    cost: 3.21,
+    elapsedSeconds: 180,
+    currentTool: 'Bash',
+    pendingApproval: {
+      approvalId: 'apr-2',
+      toolName: 'Bash',
+      toolInput: { command: 'rm -rf /var/data/cache && systemctl restart api' },
+      summary: 'Destructive cache purge + service restart on production',
+      riskTier: 'high',
+      filePath: 'production',
+      impactFiles: 0,
+      impactDeps: 12,
+      diff: [
+        { type: 'context', content: '$ rm -rf /var/data/cache && systemctl restart api', lineNumber: 1 },
+      ],
+    },
+  },
 ];
 
 const now = Date.now() / 1000;

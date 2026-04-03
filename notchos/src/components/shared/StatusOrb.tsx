@@ -27,18 +27,22 @@ export function StatusOrb({ status, size = 5 }: StatusOrbProps) {
   const containerSize = size + 12;
 
   return (
-    <span style={{
-      position: 'relative',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: containerSize,
-      height: containerSize,
-      flexShrink: 0,
-      overflow: 'hidden',
-    }}>
+    <span
+      role="img"
+      aria-label={`Status: ${status}`}
+      style={{
+        position: 'relative',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: containerSize,
+        height: containerSize,
+        flexShrink: 0,
+        overflow: 'hidden',
+      }}
+    >
       {/* Primary orbital ring */}
-      <span style={{
+      <span className="orb-ring" style={{
         position: 'absolute',
         top: 0,
         left: 0,
@@ -52,7 +56,7 @@ export function StatusOrb({ status, size = 5 }: StatusOrbProps) {
 
       {/* Second ring for writing state (double-ring pulse) */}
       {status === 'writing' && (
-        <span style={{
+        <span className="orb-ring" style={{
           position: 'absolute',
           top: -2,
           left: -2,
@@ -67,7 +71,7 @@ export function StatusOrb({ status, size = 5 }: StatusOrbProps) {
 
       {/* Bioluminescent glow for executing state */}
       {status === 'executing' && (
-        <span style={{
+        <span className="orb-glow" style={{
           position: 'absolute',
           top: -1,
           left: -1,

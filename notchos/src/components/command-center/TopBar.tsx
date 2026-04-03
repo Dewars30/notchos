@@ -46,13 +46,14 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent }: TopB
       </span>
 
       {/* Agent mini-pills */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <div role="toolbar" aria-label="Agent selector" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         {agents.map(agent => {
           const isSelected = agent.id === selectedAgentId;
           return (
             <button
               key={agent.id}
               onClick={() => onSelectAgent(agent.id)}
+              aria-pressed={isSelected}
               style={{
                 display: 'flex',
                 alignItems: 'center',

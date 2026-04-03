@@ -33,10 +33,42 @@ const RISK_LABELS: Record<RiskTier, string> = {
 };
 
 // Gravitational weight — risk controls density
-const RISK_PADDING: Record<RiskTier, number> = {
-  low: 6,
-  medium: 8,
-  high: 12,
+const RISK_WEIGHT: Record<RiskTier, {
+  padding: number;
+  fontSize: number;
+  maxDiffHeight: number | undefined;
+  borderLeft: string;
+  hintOpacity: number;
+  showHints: boolean;
+  bgTint: string;
+}> = {
+  low: {
+    padding: 6,
+    fontSize: 8,
+    maxDiffHeight: 48,
+    borderLeft: '0.5px solid transparent',
+    hintOpacity: 0,
+    showHints: false,
+    bgTint: 'transparent',
+  },
+  medium: {
+    padding: 8,
+    fontSize: 10,
+    maxDiffHeight: 220,
+    borderLeft: '0.5px solid var(--gold)',
+    hintOpacity: 0.4,
+    showHints: true,
+    bgTint: 'transparent',
+  },
+  high: {
+    padding: 12,
+    fontSize: 11,
+    maxDiffHeight: undefined,
+    borderLeft: '0.5px solid var(--coral)',
+    hintOpacity: 0.8,
+    showHints: true,
+    bgTint: 'var(--coral-dim)',
+  },
 };
 
 function DiffLineRow({ line }: { line: DiffLine }) {
@@ -83,6 +115,7 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
   const approval = agent?.pendingApproval ?? null;
   const riskTier = approval?.riskTier ?? 'low';
   const risk = RISK_STYLES[riskTier];
+  const weight = RISK_WEIGHT[riskTier];
 
   // Keyboard shortcuts: ⌘Y approve, ⌘N deny
   useEffect(() => {
@@ -140,7 +173,12 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
       </div>
 
       {approval ? (
-        <>
+        <div aria-live="polite" style={{
+          borderLeft: weight.borderLeft,
+          paddingLeft: riskTier !== 'low' ? 8 : 0,
+          background: weight.bgTint,
+          borderRadius: riskTier === 'high' ? 4 : 0,
+        }}>
           {/* Risk badge + impact summary */}
           <div style={{
             display: 'flex',
@@ -174,16 +212,30 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
             )}
           </div>
 
+          {/* High-risk impact summary */}
+          {riskTier === 'high' && approval.summary && (
+            <div style={{
+              fontFamily: 'var(--font-ui)',
+              fontSize: 10,
+              fontWeight: 500,
+              color: 'var(--coral)',
+              padding: '4px 0',
+              marginBottom: 4,
+            }}>
+              ⚠ {approval.summary}
+            </div>
+          )}
+
           {/* Diff block */}
           {approval.diff && approval.diff.length > 0 && (
             <div style={{
               background: 'var(--bg-base)',
               borderRadius: 4,
               border: '0.5px solid var(--bg-elevated)',
-              padding: RISK_PADDING[riskTier],
+              padding: weight.padding,
               marginBottom: 8,
               overflow: 'auto',
-              maxHeight: 220,
+              maxHeight: weight.maxDiffHeight,
             }}>
               {approval.diff.map((line, i) => (
                 <DiffLineRow key={i} line={line} />
@@ -197,7 +249,7 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
               onClick={() => onApprove(approval.approvalId)}
               style={{
                 fontFamily: 'var(--font-ui)',
-                fontSize: 10,
+                fontSize: weight.fontSize,
                 fontWeight: 500,
                 color: 'rgba(56,168,154,0.85)',
                 background: 'rgba(56,168,154,0.08)',
@@ -212,20 +264,22 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
               }}
             >
               Approve
-              <span style={{
-                fontFamily: 'var(--font-data)',
-                fontSize: 8,
-                opacity: 0.4,
-              }}>
-                ⌘Y
-              </span>
+              {weight.showHints && (
+                <span style={{
+                  fontFamily: 'var(--font-data)',
+                  fontSize: 8,
+                  opacity: weight.hintOpacity,
+                }}>
+                  ⌘Y
+                </span>
+              )}
             </button>
 
             <button
               onClick={() => onDeny(approval.approvalId)}
               style={{
                 fontFamily: 'var(--font-ui)',
-                fontSize: 10,
+                fontSize: weight.fontSize,
                 fontWeight: 500,
                 color: 'rgba(224,136,112,0.70)',
                 background: 'rgba(224,136,112,0.05)',
@@ -240,16 +294,18 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
               }}
             >
               Deny
-              <span style={{
-                fontFamily: 'var(--font-data)',
-                fontSize: 8,
-                opacity: 0.4,
-              }}>
-                ⌘N
-              </span>
+              {weight.showHints && (
+                <span style={{
+                  fontFamily: 'var(--font-data)',
+                  fontSize: 8,
+                  opacity: weight.hintOpacity,
+                }}>
+                  ⌘N
+                </span>
+              )}
             </button>
           </div>
-        </>
+        </div>
       ) : (
         <div style={{
           fontFamily: 'var(--font-data)',

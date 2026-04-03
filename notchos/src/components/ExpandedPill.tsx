@@ -31,6 +31,7 @@ function AgentRow({ agent, onClick }: { agent: Agent; onClick: () => void }) {
 
   return (
     <button
+      role="menuitem"
       onClick={onClick}
       style={{
         width: '100%',
@@ -131,7 +132,7 @@ export function ExpandedPill({
       }}
     >
       {/* Agent rows — 28px each, 2px gap */}
-      <div style={{
+      <div role="menu" style={{
         padding: '8px 12px',
         display: 'flex',
         flexDirection: 'column',
