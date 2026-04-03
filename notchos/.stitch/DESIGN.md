@@ -1,7 +1,7 @@
-# DESIGN.md — Notchpad Design System
+# DESIGN.md — NotchOS Design System
 
 ## Atmosphere
-Notchpad is an air traffic control interface for AI coding agents on macOS. The visual mood is a staffed deep-space observatory at night — cool, calm, mathematically precise. Not a hacker terminal. Not a gaming HUD. The first emotion is relief: someone competent is already watching.
+NotchOS is an air traffic control interface for AI coding agents on macOS. The visual mood is a staffed deep-space observatory at night — cool, calm, mathematically precise. Not a hacker terminal. Not a gaming HUD. The first emotion is relief: someone competent is already watching.
 
 ## Color Palette
 
@@ -42,7 +42,7 @@ A geometric sans-serif with Japanese-influenced precision. Used for all interfac
 Designed by Airbus for flight-deck displays. Used for all operational data: timestamps, costs, token counts, model IDs, file paths, code diffs. This is the evidence font — if the data can be verified, it's in B612 Mono.
 
 ### Departure Mono (Identity and Labels)
-High-character personality font. Single weight. Used for section labels (AGENTS, METRICS, ACTIVE), risk badges, status tags, and the NP brand mark. This is the branding voice — it makes Notchpad recognizable.
+High-character personality font. Single weight. Used for section labels (AGENTS, METRICS, ACTIVE), risk badges, status tags, and the NP brand mark. This is the branding voice — it makes NotchOS recognizable.
 
 Rule: Sora speaks. B612 measures. Departure brands. The interface never goes all-monospace.
 

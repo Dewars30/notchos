@@ -1,4 +1,4 @@
-# Notchpad — Creative Brief
+# NotchOS — Creative Brief
 
 > **Design system:** See `DESIGN.md` for the canonical specification.
 > **Stitch integration:** See `.stitch/DESIGN.md` for the Stitch-optimized design system.

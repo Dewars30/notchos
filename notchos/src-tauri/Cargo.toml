@@ -1,16 +1,16 @@
 [package]
-name = "notchpad"
+name = "notchos"
 version = "0.1.0"
 description = "AI agent HUD for Claude Code and friends"
 authors = ["Tony"]
 edition = "2021"
 
 [lib]
-name = "notchpad_lib"
+name = "notchos_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [[bin]]
-name = "notchpad"
+name = "notchos"
 path = "src/main.rs"
 
 [build-dependencies]

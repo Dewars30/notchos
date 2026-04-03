@@ -1,4 +1,4 @@
-# NotchPad
+# NotchOS
 
 A floating agent HUD for Claude Code, Codex, and Gemini CLI. Lives at the top of your screen. Surfaces approval requests without context-switching.
 
@@ -13,7 +13,7 @@ Built with Tauri 2 (Rust + React). Native macOS, no Electron, ~40MB RAM.
 - **Allow / Deny** with `⌘Y` / `⌘N` — no terminal focus needed
 - **Session detail** on click — status, last message, tool in progress
 - **Multi-agent** — Claude Code, Codex CLI, and Gemini CLI in one view
-- **Zero cloud** — everything over a local Unix socket at `/tmp/notchpad.sock`
+- **Zero cloud** — everything over a local Unix socket at `/tmp/notchos.sock`
 
 ---
 
@@ -32,7 +32,7 @@ Built with Tauri 2 (Rust + React). Native macOS, no Electron, ~40MB RAM.
 
 ```bash
 # 1. Clone / cd into project
-cd notchpad
+cd notchos
 
 # 2. Install JS dependencies
 npm install
@@ -45,7 +45,7 @@ npm run tauri dev
 
 # 5. Production build
 npm run tauri build
-# → src-tauri/target/release/bundle/macos/NotchPad.app
+# → src-tauri/target/release/bundle/macos/NotchOS.app
 ```
 
 ---
@@ -64,7 +64,7 @@ That's it. The script writes hook entries into `~/.claude/settings.json` pointin
 ```bash
 # Simulate a notification event
 echo '{"hookEventName":"Notification","sessionId":"test-1","message":"hello from test","agent":"claude"}' \
-  | node scripts/notchpad-bridge.js --agent claude
+  | node scripts/notchos-bridge.js --agent claude
 ```
 
 You should see the session appear in the HUD.
@@ -96,8 +96,8 @@ node scripts/dev-simulate.js stress
 ```
 Claude Code
   └─ hook (PreToolUse/PostToolUse/Notification/Stop)
-       └─ notchpad-bridge.js   ← node script, reads stdin, writes to socket
-            └─ /tmp/notchpad.sock
+       └─ notchos-bridge.js   ← node script, reads stdin, writes to socket
+            └─ /tmp/notchos.sock
                  └─ Rust socket server (lib.rs)
                       ├─ updates AppState (sessions vec)
                       ├─ emits "sessions_updated" to frontend
@@ -154,7 +154,7 @@ Claude Code
 ## File map
 
 ```
-notchpad/
+notchos/
 ├── src-tauri/
 │   ├── Cargo.toml
 │   ├── build.rs
@@ -172,7 +172,7 @@ notchpad/
 │       ├── ApprovalPanel.tsx allow/deny UI
 │       └── SessionDetail.tsx expanded session info
 └── scripts/
-    ├── notchpad-bridge.js   hook bridge (called by agents)
+    ├── notchos-bridge.js   hook bridge (called by agents)
     ├── setup.sh             Claude Code hook installer
     ├── dev-simulate.js      event simulator for dev
     ├── gen-icons.js         placeholder icon generator

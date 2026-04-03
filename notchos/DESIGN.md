@@ -1,13 +1,13 @@
-# DESIGN.md — Notchpad Design Specification
+# DESIGN.md — NotchOS Design Specification
 ## Version 1.0 · April 2026
 
-> Canonical design reference for Notchpad — a macOS desktop app (Tauri 2) that monitors and controls AI coding agents from a single floating interface. This document serves as both the **Stitch prompt foundation** (import as DESIGN.md) and the **Claude Code build reference**.
+> Canonical design reference for NotchOS — a macOS desktop app (Tauri 2) that monitors and controls AI coding agents from a single floating interface. This document serves as both the **Stitch prompt foundation** (import as DESIGN.md) and the **Claude Code build reference**.
 
 ---
 
 ## Identity
 
-**Name:** Notchpad
+**Name:** NotchOS
 **Tagline:** Air traffic control for your AI agents.
 **Mood:** The feeling of walking into a staffed control room where every screen is green. Calm authority. Competence. Relief.
 **Design language:** "Deep Field" — named for the Hubble/JWST deep field images. Cool darkness with warm light. Mathematical fabric, not void. Physics-based information architecture.
@@ -334,7 +334,7 @@ These are pre-written prompts optimized for Google Stitch. Use them screen-by-sc
 
 ### Stitch Prompt 0: Design System Setup
 
-> Design a dark-theme macOS desktop application called "Notchpad" — an air traffic control interface for AI coding agents. Use this design system:
+> Design a dark-theme macOS desktop application called "NotchOS" — an air traffic control interface for AI coding agents. Use this design system:
 >
 > Background colors (cool blue-gray): base #13161C, surface #1A1E26, elevated #232830, raised #2C323C.
 > Text colors (warm cream): primary #E0D8D0, secondary #B0B8B4, tertiary #6A7080, dim #3E4655.
@@ -348,7 +348,7 @@ These are pre-written prompts optimized for Google Stitch. Use them screen-by-sc
 
 ### Stitch Prompt 1: Notch Compact Mode
 
-> Design the compact notch mode for Notchpad. This is a tiny ambient display that fits inside the MacBook notch (200px wide, 32px tall). It shows:
+> Design the compact notch mode for NotchOS. This is a tiny ambient display that fits inside the MacBook notch (200px wide, 32px tall). It shows:
 > - 3 small status dots (7px circles) representing AI agents, each a different color: teal (idle), gold (writing), steel blue (waiting)
 > - A small agent count number "3" in monospace
 > - A session cost "$2.47" in monospace
@@ -359,7 +359,7 @@ These are pre-written prompts optimized for Google Stitch. Use them screen-by-sc
 
 ### Stitch Prompt 2: Expanded Pill Mode
 
-> Design the expanded pill mode for Notchpad. This panel drops down below the MacBook notch, 380px wide, connecting visually to the notch above.
+> Design the expanded pill mode for NotchOS. This panel drops down below the MacBook notch, 380px wide, connecting visually to the notch above.
 >
 > It contains a list of 3 AI agent sessions, each as a row (28px tall):
 > - Row 1: Teal dot + "Claude Code" (Sora font, 11px) + "opus-4 · idle · 4m" (monospace 9px, dim) + "$0.82" (monospace, right-aligned)
@@ -372,7 +372,7 @@ These are pre-written prompts optimized for Google Stitch. Use them screen-by-sc
 
 ### Stitch Prompt 3: Command Center
 
-> Design the full command center for Notchpad — a four-zone operational dashboard for monitoring AI coding agents. This is a floating window (approximately 700x400px), dark theme, 12px border-radius, 0.5px border in #3A4050 on a #13161C background.
+> Design the full command center for NotchOS — a four-zone operational dashboard for monitoring AI coding agents. This is a floating window (approximately 700x400px), dark theme, 12px border-radius, 0.5px border in #3A4050 on a #13161C background.
 >
 > **Top bar (36px):** Left: "NP" logo text in monospace. Center: three small agent pills (4px dot + 2-letter abbreviation). Right: "$2.47 · 38.2k tok" in monospace, plus a green "● LIVE" indicator.
 >
@@ -390,7 +390,7 @@ These are pre-written prompts optimized for Google Stitch. Use them screen-by-sc
 
 ## Competitive Differentiation vs. Vibe Island
 
-| Dimension          | Vibe Island                        | Notchpad                                     |
+| Dimension          | Vibe Island                        | NotchOS                                     |
 |--------------------|------------------------------------|----------------------------------------------|
 | Modes              | 2 (notch pill → dropdown list)     | 3 (notch → pill → command center)            |
 | Approval           | Binary allow/deny                  | 3-tier risk-scored, learning over time        |
@@ -433,7 +433,7 @@ These are pre-written prompts optimized for Google Stitch. Use them screen-by-sc
 
 ## Stitch MCP Integration — Design-to-Code Pipeline
 
-Notchpad uses Google Stitch as the design generation layer, connected to Claude Code via MCP for direct design-to-React conversion.
+NotchOS uses Google Stitch as the design generation layer, connected to Claude Code via MCP for direct design-to-React conversion.
 
 ### Setup
 
@@ -480,7 +480,7 @@ Use the Stitch canvas (stitch.withgoogle.com) or Claude Code with the stitch-des
 Claude Code can pull screen HTML/CSS directly:
 ```
 # In Claude Code:
-"Use the Stitch MCP to fetch the Notchpad command center screen and show me the code."
+"Use the Stitch MCP to fetch the NotchOS command center screen and show me the code."
 ```
 Key MCP tools: `get_screen_code`, `get_screen_image`, `build_site`
 
@@ -496,7 +496,7 @@ For generating all three modes (notch, pill, command center) autonomously, use t
 
 ### File Structure
 ```
-notchpad/
+notchos/
 ├── .stitch/
 │   └── DESIGN.md          ← Stitch-optimized design system (semantic language)
 ├── DESIGN.md               ← Full canonical spec (this file — human + CC reference)

@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 /**
- * notchpad-bridge.js
+ * notchos-bridge.js
  * Called by Claude Code (and other agents) as a hook command.
- * Reads hook JSON from stdin, forwards to NotchPad over Unix socket,
+ * Reads hook JSON from stdin, forwards to NotchOS over Unix socket,
  * waits for response (for PreToolUse approvals), writes response to stdout.
  *
  * Usage in ~/.claude/settings.json:
- *   "command": "/path/to/notchpad-bridge.js --agent claude"
+ *   "command": "/path/to/notchos-bridge.js --agent claude"
  */
 
 const net = require("net");
 const fs = require("fs");
 const path = require("path");
 
-const SOCKET_PATH = "/tmp/notchpad.sock";
+const SOCKET_PATH = "/tmp/notchos.sock";
 const TIMEOUT_MS = 120_000; // 2 min - generous for human approval
 
 // Parse --agent flag
@@ -36,7 +36,7 @@ process.stdin.on("end", () => {
   // Inject agent name
   event.agent = agent;
 
-  // If NotchPad isn't running, pass through silently
+  // If NotchOS isn't running, pass through silently
   if (!fs.existsSync(SOCKET_PATH)) {
     process.exit(0);
   }

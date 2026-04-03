@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "NotchPad",
+  "productName": "NotchOS",
   "version": "0.1.0",
-  "identifier": "app.notchpad",
+  "identifier": "app.notchos",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "hud",
-        "title": "NotchPad",
+        "title": "NotchOS",
         "width": 640,
         "height": 72,
         "minWidth": 400,

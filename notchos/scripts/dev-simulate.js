@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * dev-simulate.js
- * Sends fake hook events to NotchPad over the Unix socket.
+ * Sends fake hook events to NotchOS over the Unix socket.
  * Use this to develop and test the UI without running Claude Code.
  *
  * Usage:
@@ -16,7 +16,7 @@
 
 const net = require("net");
 
-const SOCKET_PATH = "/tmp/notchpad.sock";
+const SOCKET_PATH = "/tmp/notchos.sock";
 
 function send(event) {
   return new Promise((resolve, reject) => {
@@ -170,6 +170,6 @@ if (!fn) {
 
 fn().catch(e => {
   console.error("Error:", e.message);
-  console.error("Is NotchPad running?");
+  console.error("Is NotchOS running?");
   process.exit(1);
 });

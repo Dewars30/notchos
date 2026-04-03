@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# setup.sh - Configure Claude Code hooks to talk to NotchPad
+# setup.sh - Configure Claude Code hooks to talk to NotchOS
 # Run once after building the app.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BRIDGE="$SCRIPT_DIR/notchpad-bridge.js"
+BRIDGE="$SCRIPT_DIR/notchos-bridge.js"
 CLAUDE_SETTINGS="$HOME/.claude/settings.json"
 
 # ── Make bridge executable ────────────────────────────────────────────────────
@@ -43,7 +43,7 @@ const events = ["PreToolUse", "PostToolUse", "Notification", "Stop"];
 for (const ev of events) {
   settings.hooks[ev] = settings.hooks[ev] ?? [];
   const alreadyAdded = settings.hooks[ev].some(
-    h => h.hooks?.some(cmd => cmd.command?.includes("notchpad-bridge"))
+    h => h.hooks?.some(cmd => cmd.command?.includes("notchos-bridge"))
   );
   if (!alreadyAdded) {
     settings.hooks[ev].push(hookCmd(ev));
@@ -56,7 +56,7 @@ EOF
 
 # ── Verify ────────────────────────────────────────────────────────────────────
 echo ""
-echo "Done. Launch NotchPad.app, then start a Claude Code session."
+echo "Done. Launch NotchOS.app, then start a Claude Code session."
 echo ""
 echo "To test the socket manually:"
 echo "  echo '{\"hookEventName\":\"Notification\",\"sessionId\":\"test-123\",\"message\":\"hello\",\"agent\":\"claude\"}' | node $BRIDGE"

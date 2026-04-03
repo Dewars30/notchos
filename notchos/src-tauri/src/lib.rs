@@ -133,7 +133,7 @@ async fn set_window_height(height: f64, app: AppHandle) {
 
 // ─── Socket server ───────────────────────────────────────────────────────────
 
-const SOCKET_PATH: &str = "/tmp/notchpad.sock";
+const SOCKET_PATH: &str = "/tmp/notchos.sock";
 
 async fn handle_connection(
     stream: UnixStream,
