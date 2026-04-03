@@ -1,216 +1,186 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
-import type { Session } from "./types";
-import { AgentPill } from "./components/AgentPill";
-import { ApprovalPanel } from "./components/ApprovalPanel";
-import { SessionDetail } from "./components/SessionDetail";
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { invoke } from '@tauri-apps/api/core';
+import { NotchBar } from './components/NotchBar';
+import { ExpandedPill } from './components/ExpandedPill';
+import { CommandCenter } from './components/command-center/CommandCenter';
+import { MOCK_AGENTS, MOCK_METRICS, MOCK_TIMELINE } from './mock-data';
 
-type PanelMode = "none" | "approval" | "detail";
+type AppMode = 'notch' | 'pill' | 'command-center';
+
+// Window dimensions per mode
+const MODE_SIZES: Record<AppMode, { width: number; height: number }> = {
+  notch: { width: 220, height: 48 },
+  pill: { width: 400, height: 200 },
+  'command-center': { width: 720, height: 420 },
+};
 
 export default function App() {
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [activeSession, setActiveSession] = useState<Session | null>(null);
-  const [panelMode, setPanelMode] = useState<PanelMode>("none");
+  const [mode, setMode] = useState<AppMode>('notch');
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
+  const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchSessions = useCallback(async () => {
-    try {
-      const result = await invoke<Session[]>("get_sessions");
-      setSessions(result);
-
-      // Auto-surface approval panels
-      const waiting = result.find(s => s.status === "waiting" && s.pendingApproval);
-      if (waiting && panelMode !== "approval") {
-        setActiveSession(waiting);
-        setPanelMode("approval");
-      }
-    } catch (e) {
-      console.error("get_sessions error", e);
-    }
-  }, [panelMode]);
-
+  // Resize Tauri window on mode change
   useEffect(() => {
-    fetchSessions();
-
-    const unlisten = listen("sessions_updated", () => {
-      fetchSessions();
+    const { width, height } = MODE_SIZES[mode];
+    invoke('set_window_size', { width, height }).catch(() => {
+      // Fallback: try height-only resize from old API
+      invoke('set_window_height', { height }).catch(() => {});
     });
+  }, [mode]);
 
-    return () => {
-      unlisten.then(fn => fn());
-    };
-  }, [fetchSessions]);
-
-  // Resize window based on panel state
+  // Global keyboard shortcuts
   useEffect(() => {
-    const height = panelMode === "none" ? 72 : panelMode === "approval" ? 320 : 200;
-    invoke("set_window_height", { height }).catch(() => {});
-  }, [panelMode]);
-
-  function handlePillClick(session: Session) {
-    if (activeSession?.id === session.id && panelMode !== "none") {
-      // Toggle closed
-      setActiveSession(null);
-      setPanelMode("none");
-      return;
+    function handler(e: KeyboardEvent) {
+      // ⌘⇧N — toggle command center
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'N' || e.key === 'n')) {
+        e.preventDefault();
+        setMode(m => m === 'command-center' ? 'pill' : 'command-center');
+        return;
+      }
+      // Esc — dismiss one level
+      if (e.key === 'Escape') {
+        setMode(m => {
+          if (m === 'command-center') return 'pill';
+          if (m === 'pill') return 'notch';
+          return m;
+        });
+        return;
+      }
+      // ⌘] — next agent
+      if ((e.metaKey || e.ctrlKey) && e.key === ']') {
+        e.preventDefault();
+        setSelectedAgentId(prev => {
+          const idx = MOCK_AGENTS.findIndex(a => a.id === prev);
+          const next = (idx + 1) % MOCK_AGENTS.length;
+          return MOCK_AGENTS[next].id;
+        });
+        return;
+      }
+      // ⌘[ — previous agent
+      if ((e.metaKey || e.ctrlKey) && e.key === '[') {
+        e.preventDefault();
+        setSelectedAgentId(prev => {
+          const idx = MOCK_AGENTS.findIndex(a => a.id === prev);
+          const next = idx <= 0 ? MOCK_AGENTS.length - 1 : idx - 1;
+          return MOCK_AGENTS[next].id;
+        });
+        return;
+      }
     }
-    setActiveSession(session);
-    if (session.pendingApproval) {
-      setPanelMode("approval");
-    } else {
-      setPanelMode("detail");
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
+  // Auto-expand on high-risk approval
+  useEffect(() => {
+    const highRisk = MOCK_AGENTS.find(
+      a => a.pendingApproval?.riskTier === 'high'
+    );
+    if (highRisk && mode !== 'command-center') {
+      setSelectedAgentId(highRisk.id);
+      setMode('command-center');
+    }
+  }, [mode]);
+
+  // --- Mode transition handlers ---
+
+  function clearCollapseTimer() {
+    if (collapseTimer.current) {
+      clearTimeout(collapseTimer.current);
+      collapseTimer.current = null;
     }
   }
 
-  function closePanel() {
-    setActiveSession(null);
-    setPanelMode("none");
+  // Notch → Pill (hover or click)
+  function expandToPill() {
+    clearCollapseTimer();
+    setMode('pill');
   }
 
-  const hasWaiting = sessions.some(s => s.status === "waiting");
-  const allDone = sessions.length > 0 && sessions.every(s => s.status === "done");
-  const isEmpty = sessions.length === 0;
+  // Pill → Notch (mouse leave with 300ms delay)
+  function startPillCollapse() {
+    clearCollapseTimer();
+    collapseTimer.current = setTimeout(() => {
+      setMode('notch');
+    }, 300);
+  }
+
+  function cancelPillCollapse() {
+    clearCollapseTimer();
+  }
+
+  // Pill → Command Center (click agent)
+  function handlePillAgentClick(agentId: string) {
+    clearCollapseTimer();
+    setSelectedAgentId(agentId);
+    setMode('command-center');
+  }
+
+  // Pill → Command Center (⌘⇧N button)
+  function expandToCommandCenter() {
+    clearCollapseTimer();
+    setMode('command-center');
+  }
+
+  const handleApprove = useCallback(async (approvalId: string) => {
+    try {
+      await invoke('approve', { approvalId, reason: null });
+    } catch (e) {
+      console.error('approve error', e);
+    }
+  }, []);
+
+  const handleDeny = useCallback(async (approvalId: string) => {
+    try {
+      await invoke('deny', { approvalId, reason: null });
+    } catch (e) {
+      console.error('deny error', e);
+    }
+  }, []);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => clearCollapseTimer();
+  }, []);
 
   return (
     <div style={{
-      width: "100%",
-      height: "100%",
-      background: "var(--bg)",
-      border: "1px solid var(--border)",
-      borderRadius: "10px",
-      overflow: "hidden",
-      display: "flex",
-      flexDirection: "column",
-      boxShadow: "0 8px 32px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.04) inset",
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
     }}>
-      {/* ── Main bar ── */}
-      <div
-        data-tauri-drag-region
-        style={{
-          height: "72px",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 12px",
-          gap: "4px",
-          flexShrink: 0,
-          position: "relative",
-        }}
-      >
-        {/* Logo / name */}
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "7px",
-          marginRight: "8px",
-          paddingRight: "10px",
-          borderRight: "1px solid var(--border)",
-        }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="1" y="1" width="14" height="14" rx="3" stroke="rgba(255,255,255,0.2)" strokeWidth="1"/>
-            <circle cx="5" cy="8" r="1.5" fill="var(--green)" opacity="0.9"/>
-            <circle cx="8" cy="8" r="1.5" fill="var(--amber)" opacity="0.9"/>
-            <circle cx="11" cy="8" r="1.5" fill="var(--blue)" opacity="0.9"/>
-          </svg>
-          <span style={{
-            fontSize: "11px",
-            fontFamily: "var(--mono)",
-            color: "var(--text-dim)",
-            letterSpacing: "0.06em",
-          }}>
-            NP
-          </span>
-        </div>
-
-        {/* Session pills */}
-        {isEmpty && (
-          <span style={{
-            fontSize: "11px",
-            fontFamily: "var(--mono)",
-            color: "var(--text-dim)",
-            letterSpacing: "0.04em",
-            padding: "0 4px",
-          }}>
-            no active agents
-          </span>
-        )}
-
-        {sessions.map(s => (
-          <AgentPill
-            key={s.id}
-            session={s}
-            isActive={activeSession?.id === s.id}
-            onClick={() => handlePillClick(s)}
-          />
-        ))}
-
-        {/* Right side status */}
-        <div style={{
-          marginLeft: "auto",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-        }}>
-          {hasWaiting && (
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "5px",
-              background: "var(--amber-dim)",
-              border: "1px solid rgba(240,160,32,0.3)",
-              borderRadius: "5px",
-              padding: "3px 8px",
-            }}>
-              <span style={{
-                width: "5px", height: "5px", borderRadius: "50%",
-                background: "var(--amber)",
-                animation: "pulse-dot 1s ease-in-out infinite",
-                boxShadow: "0 0 6px var(--amber)",
-              }} />
-              <span style={{
-                fontSize: "10px",
-                color: "var(--amber)",
-                fontFamily: "var(--mono)",
-                letterSpacing: "0.08em",
-              }}>
-                APPROVAL
-              </span>
-            </div>
-          )}
-
-          {allDone && (
-            <span style={{
-              fontSize: "10px",
-              color: "var(--green)",
-              fontFamily: "var(--mono)",
-              letterSpacing: "0.08em",
-              opacity: 0.7,
-            }}>
-              ALL DONE
-            </span>
-          )}
-
-          {/* Session count */}
-          {sessions.length > 0 && (
-            <span style={{
-              fontSize: "10px",
-              color: "var(--text-dim)",
-              fontFamily: "var(--mono)",
-              minWidth: "14px",
-              textAlign: "right",
-            }}>
-              {sessions.filter(s => s.status !== "done").length}/{sessions.length}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* ── Expanded panel ── */}
-      {panelMode === "approval" && activeSession?.pendingApproval && (
-        <ApprovalPanel session={activeSession} onClose={closePanel} />
+      {mode === 'notch' && (
+        <NotchBar
+          agents={MOCK_AGENTS}
+          metrics={MOCK_METRICS}
+          onHover={expandToPill}
+          onClick={expandToPill}
+        />
       )}
 
-      {panelMode === "detail" && activeSession && (
-        <SessionDetail session={activeSession} onClose={closePanel} />
+      {mode === 'pill' && (
+        <ExpandedPill
+          agents={MOCK_AGENTS}
+          metrics={MOCK_METRICS}
+          onSelectAgent={handlePillAgentClick}
+          onExpandFull={expandToCommandCenter}
+          onMouseEnter={cancelPillCollapse}
+          onMouseLeave={startPillCollapse}
+        />
+      )}
+
+      {mode === 'command-center' && (
+        <CommandCenter
+          agents={MOCK_AGENTS}
+          selectedAgentId={selectedAgentId}
+          metrics={MOCK_METRICS}
+          timeline={MOCK_TIMELINE}
+          onSelectAgent={setSelectedAgentId}
+          onApprove={handleApprove}
+          onDeny={handleDeny}
+        />
       )}
     </div>
   );

@@ -4,14 +4,7 @@
    ============================================ */
 
 /* Typography imports */
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=B612+Mono:wght@400;700&display=swap');
-
-@font-face {
-  font-family: 'DepartureMono';
-  src: url('https://departuremono.com/assets/DepartureMono-Regular.woff2') format('woff2');
-  font-weight: normal;
-  font-style: normal;
-}
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=B612+Mono:wght@400;700&family=Space+Mono&display=swap');
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -55,7 +48,7 @@
   /* Typography stacks */
   --font-ui: 'Sora', system-ui, -apple-system, sans-serif;
   --font-data: 'B612 Mono', 'SF Mono', monospace;
-  --font-label: 'DepartureMono', 'B612 Mono', monospace;
+  --font-label: 'Space Mono', 'B612 Mono', monospace;
 
   /* Spacing scale (4px base) */
   --sp-1: 2px;
