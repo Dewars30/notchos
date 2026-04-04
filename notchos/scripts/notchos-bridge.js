@@ -16,9 +16,18 @@ const path = require("path");
 const SOCKET_PATH = "/tmp/notchos.sock";
 const TIMEOUT_MS = 120_000; // 2 min - generous for human approval
 
+// --version flag
+if (process.argv.includes("--version")) {
+  process.stdout.write("notchos-bridge v2\n");
+  process.exit(0);
+}
+
 // Parse --agent flag
 const agentIdx = process.argv.indexOf("--agent");
 const agent = agentIdx !== -1 ? process.argv[agentIdx + 1] : "claude";
+
+// Event types that require a blocking response from NotchOS
+const BLOCKING_EVENTS = new Set(["PreToolUse", "AskUser", "PlanReview"]);
 
 // Read stdin
 let raw = "";
@@ -33,13 +42,16 @@ process.stdin.on("end", () => {
     process.exit(0);
   }
 
-  // Inject agent name
+  // Inject agent name and working directory
   event.agent = agent;
+  event.cwd = process.cwd();
 
   // If NotchOS isn't running, pass through silently
   if (!fs.existsSync(SOCKET_PATH)) {
     process.exit(0);
   }
+
+  const isBlocking = BLOCKING_EVENTS.has(event.event);
 
   const client = net.createConnection(SOCKET_PATH);
   let responded = false;
@@ -56,9 +68,17 @@ process.stdin.on("end", () => {
 
   client.on("connect", () => {
     client.write(JSON.stringify(event) + "\n");
+
+    // Non-blocking events: fire-and-forget, exit immediately
+    if (!isBlocking) {
+      clearTimeout(timeout);
+      responded = true;
+      client.destroy();
+      process.exit(0);
+    }
   });
 
-  // For PreToolUse: wait for approval response
+  // For blocking events (PreToolUse, AskUser, PlanReview): wait for response
   let buf = "";
   client.on("data", data => {
     buf += data.toString();
@@ -68,7 +88,7 @@ process.stdin.on("end", () => {
       if (line) {
         clearTimeout(timeout);
         responded = true;
-        // Write approval decision to stdout for Claude Code to read
+        // Write decision/response to stdout for the agent to read
         process.stdout.write(line + "\n");
         client.destroy();
         process.exit(0);

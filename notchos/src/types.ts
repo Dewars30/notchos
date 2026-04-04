@@ -50,6 +50,31 @@ export interface SessionMetrics {
   approvalsDenied: number;
 }
 
+// Backend session type — matches Rust Session struct exactly
+export interface BackendSession {
+  id: string;
+  agent: string;
+  status: string;
+  currentTool: string | null;
+  pendingApproval: {
+    approvalId: string;
+    toolName: string;
+    toolInput: Record<string, unknown>;
+    summary: string;
+    riskTier: RiskTier;
+  } | null;
+  lastMessage: string | null;
+  startedAt: number;
+  updatedAt: number;
+  cwd: string | null;
+}
+
+export interface AgentRegistryEntry {
+  name: string;
+  abbreviation: string;
+  model: string;
+}
+
 // Legacy — existing Tauri backend commands
 export interface Session {
   id: string;

@@ -13,6 +13,7 @@ import { NotchBar } from './components/NotchBar';
 import { ExpandedPill } from './components/ExpandedPill';
 import { CommandCenter } from './components/command-center/CommandCenter';
 import { MOCK_AGENTS, MOCK_METRICS, MOCK_TIMELINE } from './mock-data';
+import { useSessionBridge } from './hooks/useSessionBridge';
 
 type AppMode = 'notch' | 'pill' | 'command-center';
 
@@ -26,6 +27,10 @@ const MODE_SIZES: Record<AppMode, { width: number; height: number }> = {
 export default function App() {
   const [mode, setMode] = useState<AppMode>('notch');
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
+  const { agents: liveAgents, metrics: liveMetrics, timeline: liveTimeline, isLive } = useSessionBridge();
+  const agents = isLive && liveAgents.length > 0 ? liveAgents : MOCK_AGENTS;
+  const metrics = isLive ? liveMetrics : MOCK_METRICS;
+  const timeline = isLive ? liveTimeline : MOCK_TIMELINE;
   const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Resize Tauri window on mode change
@@ -59,9 +64,9 @@ export default function App() {
       if ((e.metaKey || e.ctrlKey) && e.key === ']') {
         e.preventDefault();
         setSelectedAgentId(prev => {
-          const idx = MOCK_AGENTS.findIndex(a => a.id === prev);
-          const next = (idx + 1) % MOCK_AGENTS.length;
-          return MOCK_AGENTS[next].id;
+          const idx = agents.findIndex(a => a.id === prev);
+          const next = (idx + 1) % agents.length;
+          return agents[next].id;
         });
         return;
       }
@@ -69,27 +74,27 @@ export default function App() {
       if ((e.metaKey || e.ctrlKey) && e.key === '[') {
         e.preventDefault();
         setSelectedAgentId(prev => {
-          const idx = MOCK_AGENTS.findIndex(a => a.id === prev);
-          const next = idx <= 0 ? MOCK_AGENTS.length - 1 : idx - 1;
-          return MOCK_AGENTS[next].id;
+          const idx = agents.findIndex(a => a.id === prev);
+          const next = idx <= 0 ? agents.length - 1 : idx - 1;
+          return agents[next].id;
         });
         return;
       }
     }
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, []);
+  }, [agents]);
 
   // Auto-expand on high-risk approval
   useEffect(() => {
-    const highRisk = MOCK_AGENTS.find(
+    const highRisk = agents.find(
       a => a.pendingApproval?.riskTier === 'high'
     );
     if (highRisk && mode !== 'command-center') {
       setSelectedAgentId(highRisk.id);
       setMode('command-center');
     }
-  }, [mode]);
+  }, [agents, mode]);
 
   // --- Mode transition handlers ---
 
@@ -162,8 +167,8 @@ export default function App() {
     }}>
       {mode === 'notch' && (
         <NotchBar
-          agents={MOCK_AGENTS}
-          metrics={MOCK_METRICS}
+          agents={agents}
+          metrics={metrics}
           onHover={expandToPill}
           onClick={expandToPill}
         />
@@ -171,8 +176,8 @@ export default function App() {
 
       {mode === 'pill' && (
         <ExpandedPill
-          agents={MOCK_AGENTS}
-          metrics={MOCK_METRICS}
+          agents={agents}
+          metrics={metrics}
           onSelectAgent={handlePillAgentClick}
           onExpandFull={expandToCommandCenter}
           onMouseEnter={cancelPillCollapse}
@@ -182,10 +187,10 @@ export default function App() {
 
       {mode === 'command-center' && (
         <CommandCenter
-          agents={MOCK_AGENTS}
+          agents={agents}
           selectedAgentId={selectedAgentId}
-          metrics={MOCK_METRICS}
-          timeline={MOCK_TIMELINE}
+          metrics={metrics}
+          timeline={timeline}
           onSelectAgent={setSelectedAgentId}
           onApprove={handleApprove}
           onDeny={handleDeny}
