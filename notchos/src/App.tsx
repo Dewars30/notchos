@@ -152,6 +152,16 @@ export default function App() {
     }
   }, []);
 
+  const handleJumpToTerminal = useCallback(async (agentId: string) => {
+    const agent = agents.find(a => a.id === agentId);
+    if (!agent) return;
+    try {
+      await tauriInvoke('jump_to_terminal', { cwd: agentId });
+    } catch (e) {
+      console.error('terminal jump error', e);
+    }
+  }, [agents]);
+
   // Cleanup timer on unmount
   useEffect(() => {
     return () => clearCollapseTimer();
@@ -194,6 +204,7 @@ export default function App() {
           onSelectAgent={setSelectedAgentId}
           onApprove={handleApprove}
           onDeny={handleDeny}
+          onJumpToTerminal={handleJumpToTerminal}
         />
       )}
     </div>

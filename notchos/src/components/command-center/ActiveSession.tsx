@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import type { Agent, RiskTier, DiffLine } from '../../types';
 import { ZoneLabel } from '../shared/ZoneLabel';
+import { ClickablePath } from '../shared/ClickablePath';
 
 interface ActiveSessionProps {
   agent: Agent | null;
@@ -106,7 +107,7 @@ function DiffLineRow({ line }: { line: DiffLine }) {
       <span style={{ color: 'var(--text-dim)', marginRight: 4 }}>
         {prefixes[line.type]}
       </span>
-      {line.content}
+      <ClickablePath text={line.content} />
     </div>
   );
 }

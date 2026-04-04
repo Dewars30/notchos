@@ -6,6 +6,7 @@ interface AgentRosterProps {
   agents: Agent[];
   selectedAgentId: string | null;
   onSelectAgent: (id: string) => void;
+  onJumpToTerminal?: (agentId: string) => void;
 }
 
 const STATUS_COLORS: Record<AgentStatus, string> = {
@@ -28,7 +29,7 @@ function formatCost(cost: number): string {
   return `$${cost.toFixed(2)}`;
 }
 
-export function AgentRoster({ agents, selectedAgentId, onSelectAgent }: AgentRosterProps) {
+export function AgentRoster({ agents, selectedAgentId, onSelectAgent, onJumpToTerminal }: AgentRosterProps) {
   const totalCost = agents.reduce((sum, a) => sum + a.cost, 0);
 
   return (
@@ -60,6 +61,7 @@ export function AgentRoster({ agents, selectedAgentId, onSelectAgent }: AgentRos
               aria-selected={isSelected}
               aria-label={agent.name}
               onClick={() => onSelectAgent(agent.id)}
+              onDoubleClick={() => onJumpToTerminal?.(agent.id)}
               style={{
                 display: 'flex',
                 flexDirection: 'column',

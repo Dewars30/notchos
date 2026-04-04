@@ -15,6 +15,7 @@ interface CommandCenterProps {
   onSelectAgent: (id: string) => void;
   onApprove: (approvalId: string) => void;
   onDeny: (approvalId: string) => void;
+  onJumpToTerminal?: (agentId: string) => void;
 }
 
 export function CommandCenter({
@@ -25,6 +26,7 @@ export function CommandCenter({
   onSelectAgent,
   onApprove,
   onDeny,
+  onJumpToTerminal,
 }: CommandCenterProps) {
   const selectedAgent = agents.find(a => a.id === selectedAgentId) ?? null;
 
@@ -41,6 +43,7 @@ export function CommandCenter({
         agents={agents}
         selectedAgentId={selectedAgentId}
         onSelectAgent={onSelectAgent}
+        onJumpToTerminal={onJumpToTerminal}
       />
       <ActiveSession
         agent={selectedAgent}
