@@ -1,8 +1,10 @@
+import { useState, useEffect } from 'react';
 import './CommandCenter.css';
 import type { Agent, TimelineEvent, SessionMetrics } from '../../types';
 import { TopBar } from './TopBar';
 import { AgentRoster } from './AgentRoster';
 import { ActiveSession } from './ActiveSession';
+import { HistoryView } from './HistoryView';
 import { MetricsRail } from './MetricsRail';
 import { EventTimeline } from './EventTimeline';
 import { SpacetimeGrid } from './SpacetimeGrid';
@@ -29,6 +31,18 @@ export function CommandCenter({
   onJumpToTerminal,
 }: CommandCenterProps) {
   const selectedAgent = agents.find(a => a.id === selectedAgentId) ?? null;
+  const [showHistory, setShowHistory] = useState(false);
+
+  useEffect(() => {
+    function handler(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'h') {
+        e.preventDefault();
+        setShowHistory(prev => !prev);
+      }
+    }
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   return (
     <div className="command-center">
@@ -45,11 +59,15 @@ export function CommandCenter({
         onSelectAgent={onSelectAgent}
         onJumpToTerminal={onJumpToTerminal}
       />
-      <ActiveSession
-        agent={selectedAgent}
-        onApprove={onApprove}
-        onDeny={onDeny}
-      />
+      {showHistory ? (
+        <HistoryView />
+      ) : (
+        <ActiveSession
+          agent={selectedAgent}
+          onApprove={onApprove}
+          onDeny={onDeny}
+        />
+      )}
       <MetricsRail metrics={metrics} />
       <EventTimeline events={timeline} />
     </div>

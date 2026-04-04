@@ -6,6 +6,10 @@ interface SpacetimeGridProps {
   /** Normalized warp center (0-1 range for x and y within the grid area) */
   warpX?: number;
   warpY?: number;
+  /** Number of currently active agents */
+  activeAgentCount?: number;
+  /** Any high-risk approval pending */
+  hasHighRiskPending?: boolean;
 }
 
 const RISK_CONFIG: Record<RiskTier, { opacity: number; cellSize: number; warpStrength: number }> = {
@@ -14,7 +18,7 @@ const RISK_CONFIG: Record<RiskTier, { opacity: number; cellSize: number; warpStr
   high:   { opacity: 0.035, cellSize: 22, warpStrength: 24 },
 };
 
-export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4 }: SpacetimeGridProps) {
+export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4, activeAgentCount = 1, hasHighRiskPending = false }: SpacetimeGridProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
 
@@ -39,7 +43,19 @@ export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4 }: SpacetimeG
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const { opacity, cellSize, warpStrength } = RISK_CONFIG[riskTier];
+    const config = RISK_CONFIG[riskTier];
+
+    // Team-activity modifiers
+    let warpStrength = config.warpStrength;
+    let cellSize = config.cellSize;
+    const baseOpacity = config.opacity;
+
+    if (activeAgentCount > 1) {
+      warpStrength *= 1 + (activeAgentCount - 1) * 0.5;
+    }
+    if (activeAgentCount > 2) {
+      cellSize -= 2;
+    }
 
     function draw() {
       const w = canvas!.width / dpr;
@@ -49,6 +65,15 @@ export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4 }: SpacetimeG
 
       const centerX = warpX * w;
       const centerY = warpY * h;
+
+      // Opacity oscillation when high-risk approval is pending
+      let opacity = baseOpacity;
+      if (hasHighRiskPending) {
+        const pulse = Math.sin(Date.now() / 1000);  // -1 to 1
+        // Map from [base, base * 1.5]: remap pulse from [-1,1] to [0,1] then scale
+        const t = (pulse + 1) / 2;  // 0 to 1
+        opacity = baseOpacity + t * (baseOpacity * 0.5);
+      }
 
       ctx!.strokeStyle = `rgba(56, 168, 154, ${opacity})`;
       ctx!.lineWidth = 0.5;
@@ -98,7 +123,7 @@ export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4 }: SpacetimeG
       cancelAnimationFrame(rafRef.current);
       observer.disconnect();
     };
-  }, [riskTier, warpX, warpY]);
+  }, [riskTier, warpX, warpY, activeAgentCount, hasHighRiskPending]);
 
   return (
     <canvas
