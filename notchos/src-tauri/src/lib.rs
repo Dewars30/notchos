@@ -504,7 +504,7 @@ pub fn run() {
             }
 
             // Start Unix socket server
-            tokio::spawn(async move {
+            tauri::async_runtime::spawn(async move {
                 // Remove stale socket
                 let _ = std::fs::remove_file(SOCKET_PATH);
                 let listener = UnixListener::bind(SOCKET_PATH)
@@ -514,7 +514,7 @@ pub fn run() {
                     if let Ok((stream, _)) = listener.accept().await {
                         let app = app_handle.clone();
                         let s = state_clone.clone();
-                        tokio::spawn(async move {
+                        tauri::async_runtime::spawn(async move {
                             handle_connection(stream, app, s).await;
                         });
                     }
