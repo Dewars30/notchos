@@ -18,6 +18,11 @@ pub struct HookEvent {
     pub message: Option<String>,
     // injected by our bridge
     pub agent: Option<String>,
+    // V2 fields
+    pub cwd: Option<String>,
+    pub question: Option<String>,
+    pub options: Option<Vec<String>>,
+    pub plan_markdown: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -29,6 +34,7 @@ pub struct Session {
     pub current_tool: Option<String>,
     pub pending_approval: Option<PendingApproval>,
     pub last_message: Option<String>,
+    pub cwd: Option<String>,
     pub started_at: u64,
     pub updated_at: u64,
 }
@@ -40,6 +46,7 @@ pub struct PendingApproval {
     pub tool_name: String,
     pub tool_input: serde_json::Value,
     pub summary: String,
+    pub risk_tier: RiskTier,
 }
 
 // ─── Approval response sent back to hook via stdout ─────────────────────────
@@ -49,6 +56,45 @@ pub struct PendingApproval {
 pub struct ApprovalResponse {
     pub decision: String,   // "approve" | "deny"
     pub reason: Option<String>,
+}
+
+// ─── Risk classification ────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum RiskTier {
+    Low,
+    Medium,
+    High,
+}
+
+fn classify_risk(tool: &str, input: &serde_json::Value) -> RiskTier {
+    match tool {
+        "Bash" => {
+            let cmd = input.get("command").and_then(|v| v.as_str()).unwrap_or("");
+            if cmd.contains("rm -rf") || cmd.contains("DROP") || cmd.contains("prod")
+                || cmd.contains("deploy") || cmd.contains("push --force")
+                || cmd.contains("sudo") || cmd.contains("systemctl") {
+                RiskTier::High
+            } else {
+                RiskTier::Medium
+            }
+        }
+        "WebFetch" | "WebSearch" => RiskTier::Medium,
+        "Write" | "Edit" | "MultiEdit" | "NotebookEdit" => {
+            let path = input.get("file_path").and_then(|v| v.as_str()).unwrap_or("");
+            if path.contains("auth") || path.contains("secret") || path.contains(".env")
+                || path.contains("config") || path.contains("prod")
+                || path.contains("migration") || path.contains("Cargo.toml")
+                || path.contains("package.json") {
+                RiskTier::High
+            } else {
+                RiskTier::Medium
+            }
+        }
+        "Read" | "Glob" | "Grep" | "LS" | "TodoRead" | "TaskList" | "TaskGet" => RiskTier::Low,
+        _ => RiskTier::Medium,
+    }
 }
 
 // ─── App state ───────────────────────────────────────────────────────────────
@@ -131,6 +177,34 @@ async fn set_window_height(height: f64, app: AppHandle) {
     }
 }
 
+#[tauri::command]
+async fn set_window_size(width: f64, height: f64, app: AppHandle) {
+    if let Some(win) = app.get_webview_window("hud") {
+        let _ = win.set_size(tauri::Size::Logical(tauri::LogicalSize {
+            width,
+            height,
+        }));
+    }
+}
+
+#[tauri::command]
+fn get_session_metrics(state: State<Arc<AppState>>) -> serde_json::Value {
+    let sessions = state.sessions.lock().unwrap();
+    let total = sessions.len();
+    let waiting = sessions.iter().filter(|s| s.status == "waiting").count();
+    let running = sessions.iter().filter(|s| s.status == "running").count();
+    serde_json::json!({
+        "totalSessions": total,
+        "waitingSessions": waiting,
+        "runningSessions": running,
+        "approvalsTotal": 0,
+        "approvalsDenied": 0,
+        "totalCost": 0.0,
+        "totalTokens": 0,
+        "contextHealth": 100,
+    })
+}
+
 // ─── Socket server ───────────────────────────────────────────────────────────
 
 const SOCKET_PATH: &str = "/tmp/notchos.sock";
@@ -173,15 +247,16 @@ async fn handle_connection(
                 // Upsert session
                 {
                     let mut sessions = state.sessions.lock().unwrap();
-                    let session = find_or_create(&mut sessions, &event.session_id, &agent, now);
+                    let session = find_or_create(&mut sessions, &event.session_id, &agent, now, event.cwd.clone());
                     session.status = "waiting".into();
                     session.current_tool = Some(tool.clone());
                     session.updated_at = now;
                     session.pending_approval = Some(PendingApproval {
                         approval_id: approval_id.clone(),
-                        tool_name: tool,
-                        tool_input: input,
+                        tool_name: tool.clone(),
+                        tool_input: input.clone(),
                         summary,
+                        risk_tier: classify_risk(&tool, &input),
                     });
                 }
 
@@ -202,25 +277,98 @@ async fn handle_connection(
             }
 
             "PostToolUse" => {
-                let mut sessions = state.sessions.lock().unwrap();
-                if let Some(s) = sessions.iter_mut().find(|s| s.id == event.session_id) {
-                    s.status = "running".into();
-                    s.current_tool = event.tool_name.clone();
-                    s.updated_at = now;
-                    s.pending_approval = None;
+                {
+                    let mut sessions = state.sessions.lock().unwrap();
+                    if let Some(s) = sessions.iter_mut().find(|s| s.id == event.session_id) {
+                        s.status = "running".into();
+                        s.current_tool = event.tool_name.clone();
+                        s.updated_at = now;
+                        s.pending_approval = None;
+                    }
                 }
                 let _ = app.emit("sessions_updated", ());
                 let _ = writer.write_all(b"\n").await;
             }
 
+            "AskUser" => {
+                let (tx, rx) = tokio::sync::oneshot::channel::<ApprovalResponse>();
+                let question_id = Uuid::new_v4().to_string();
+
+                {
+                    let mut pending = state.pending_tx.lock().unwrap();
+                    pending.insert(question_id.clone(), tx);
+                }
+
+                {
+                    let mut sessions = state.sessions.lock().unwrap();
+                    let session = find_or_create(&mut sessions, &event.session_id, &agent, now, event.cwd.clone());
+                    session.status = "waiting".into();
+                    session.updated_at = now;
+                }
+
+                let _ = app.emit("sessions_updated", ());
+                let _ = app.emit("ask_user", serde_json::json!({
+                    "questionId": question_id,
+                    "sessionId": event.session_id,
+                    "question": event.question,
+                    "options": event.options,
+                }));
+
+                match rx.await {
+                    Ok(resp) => {
+                        let json = serde_json::to_string(&resp).unwrap_or_default();
+                        let _ = writer.write_all(format!("{}\n", json).as_bytes()).await;
+                    }
+                    Err(_) => {
+                        let _ = writer.write_all(b"{\"decision\":\"deny\"}\n").await;
+                    }
+                }
+            }
+
+            "PlanReview" => {
+                let (tx, rx) = tokio::sync::oneshot::channel::<ApprovalResponse>();
+                let review_id = Uuid::new_v4().to_string();
+
+                {
+                    let mut pending = state.pending_tx.lock().unwrap();
+                    pending.insert(review_id.clone(), tx);
+                }
+
+                {
+                    let mut sessions = state.sessions.lock().unwrap();
+                    let session = find_or_create(&mut sessions, &event.session_id, &agent, now, event.cwd.clone());
+                    session.status = "waiting".into();
+                    session.updated_at = now;
+                }
+
+                let _ = app.emit("sessions_updated", ());
+                let _ = app.emit("plan_review", serde_json::json!({
+                    "reviewId": review_id,
+                    "sessionId": event.session_id,
+                    "planMarkdown": event.plan_markdown,
+                }));
+
+                match rx.await {
+                    Ok(resp) => {
+                        let json = serde_json::to_string(&resp).unwrap_or_default();
+                        let _ = writer.write_all(format!("{}\n", json).as_bytes()).await;
+                    }
+                    Err(_) => {
+                        let _ = writer.write_all(b"{\"decision\":\"deny\"}\n").await;
+                    }
+                }
+            }
+
             "Notification" | "Stop" => {
-                let mut sessions = state.sessions.lock().unwrap();
-                let session = find_or_create(&mut sessions, &event.session_id, &agent, now);
-                session.last_message = event.message.clone();
-                session.updated_at = now;
-                if event.hook_event_name == "Stop" {
-                    session.status = "done".into();
-                    session.current_tool = None;
+                {
+                    let mut sessions = state.sessions.lock().unwrap();
+                    let session = find_or_create(&mut sessions, &event.session_id, &agent, now, event.cwd.clone());
+                    session.last_message = event.message.clone();
+                    session.updated_at = now;
+                    if event.hook_event_name == "Stop" {
+                        session.status = "done".into();
+                        session.current_tool = None;
+                    }
                 }
                 let _ = app.emit("sessions_updated", ());
                 let _ = writer.write_all(b"\n").await;
@@ -233,9 +381,13 @@ async fn handle_connection(
     }
 }
 
-fn find_or_create<'a>(sessions: &'a mut Vec<Session>, session_id: &str, agent: &str, now: u64) -> &'a mut Session {
+fn find_or_create<'a>(sessions: &'a mut Vec<Session>, session_id: &str, agent: &str, now: u64, cwd: Option<String>) -> &'a mut Session {
     if let Some(pos) = sessions.iter().position(|s| s.id == session_id) {
-        return &mut sessions[pos];
+        let session = &mut sessions[pos];
+        if cwd.is_some() {
+            session.cwd = cwd;
+        }
+        return session;
     }
     sessions.push(Session {
         id: session_id.to_string(),
@@ -244,6 +396,7 @@ fn find_or_create<'a>(sessions: &'a mut Vec<Session>, session_id: &str, agent: &
         current_tool: None,
         pending_approval: None,
         last_message: None,
+        cwd,
         started_at: now,
         updated_at: now,
     });
@@ -338,6 +491,8 @@ pub fn run() {
             deny,
             dismiss_session,
             set_window_height,
+            set_window_size,
+            get_session_metrics,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
