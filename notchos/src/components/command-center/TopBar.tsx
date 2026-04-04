@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import type { Agent, SessionMetrics } from '../../types';
 import { StatusOrb } from '../shared/StatusOrb';
+import { isMuted, setMuted } from '../../audio/SoundEngine';
 
 interface TopBarProps {
   agents: Agent[];
@@ -18,7 +20,14 @@ function formatTokens(tokens: number): string {
 }
 
 export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent }: TopBarProps) {
+  const [muted, setMutedState] = useState(isMuted());
   const hasLive = agents.some(a => a.status === 'executing' || a.status === 'writing');
+
+  function toggleMute() {
+    const next = !muted;
+    setMuted(next);
+    setMutedState(next);
+  }
 
   return (
     <div
@@ -97,6 +106,22 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent }: TopB
         }}>
           {formatCost(metrics.totalCost)} · {formatTokens(metrics.totalTokens)} tok
         </span>
+
+        <button
+          onClick={toggleMute}
+          style={{
+            fontFamily: 'var(--font-data)',
+            fontSize: 9,
+            color: muted ? 'var(--text-dim)' : 'var(--text-3)',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '2px 4px',
+          }}
+          aria-label={muted ? 'Unmute sounds' : 'Mute sounds'}
+        >
+          {muted ? 'MUTED' : 'SND'}
+        </button>
 
         {hasLive && (
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

@@ -1,3 +1,6 @@
+mod editor;
+mod terminal;
+
 use std::sync::{Arc, Mutex};
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager, State};
@@ -493,6 +496,9 @@ pub fn run() {
             set_window_height,
             set_window_size,
             get_session_metrics,
+            editor::open_in_editor,
+            editor::reveal_in_file_manager,
+            terminal::jump_to_terminal,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
