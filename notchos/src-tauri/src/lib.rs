@@ -1,4 +1,5 @@
 mod editor;
+mod history;
 mod terminal;
 
 use std::sync::{Arc, Mutex};
@@ -105,6 +106,7 @@ fn classify_risk(tool: &str, input: &serde_json::Value) -> RiskTier {
 pub struct AppState {
     pub sessions: Mutex<Vec<Session>>,
     pub pending_tx: Mutex<std::collections::HashMap<String, tokio::sync::oneshot::Sender<ApprovalResponse>>>,
+    pub history: history::HistoryDb,
 }
 
 impl AppState {
@@ -112,6 +114,7 @@ impl AppState {
         Self {
             sessions: Mutex::new(Vec::new()),
             pending_tx: Mutex::new(std::collections::HashMap::new()),
+            history: history::HistoryDb::open().expect("Failed to open history database"),
         }
     }
 }
@@ -208,6 +211,23 @@ fn get_session_metrics(state: State<Arc<AppState>>) -> serde_json::Value {
     })
 }
 
+// ─── History commands ────────────────────────────────────────────────────────
+
+#[tauri::command]
+fn get_history_sessions(limit: Option<i64>, state: State<Arc<AppState>>) -> Vec<history::HistorySession> {
+    state.history.get_sessions(limit.unwrap_or(50))
+}
+
+#[tauri::command]
+fn get_session_events(session_id: String, state: State<Arc<AppState>>) -> Vec<history::HistoryEvent> {
+    state.history.get_session_events(&session_id)
+}
+
+#[tauri::command]
+fn search_history(query: String, state: State<Arc<AppState>>) -> Vec<history::HistorySession> {
+    state.history.search_sessions(&query)
+}
+
 // ─── Socket server ───────────────────────────────────────────────────────────
 
 const SOCKET_PATH: &str = "/tmp/notchos.sock";
@@ -258,10 +278,14 @@ async fn handle_connection(
                         approval_id: approval_id.clone(),
                         tool_name: tool.clone(),
                         tool_input: input.clone(),
-                        summary,
+                        summary: summary.clone(),
                         risk_tier: classify_risk(&tool, &input),
                     });
                 }
+
+                // Persist to history (outside sessions lock)
+                state.history.upsert_session(&event.session_id, &agent, event.cwd.as_deref(), "waiting", now as i64);
+                state.history.record_event(&event.session_id, "approval_requested", Some(&tool), Some(&format!("{:?}", classify_risk(&tool, &input))), Some(&summary), now as i64);
 
                 let _ = app.emit("sessions_updated", ());
 
@@ -289,6 +313,11 @@ async fn handle_connection(
                         s.pending_approval = None;
                     }
                 }
+
+                // Persist to history (outside sessions lock)
+                state.history.upsert_session(&event.session_id, &agent, event.cwd.as_deref(), "running", now as i64);
+                state.history.record_event(&event.session_id, "tool_use", event.tool_name.as_deref(), None, None, now as i64);
+
                 let _ = app.emit("sessions_updated", ());
                 let _ = writer.write_all(b"\n").await;
             }
@@ -373,6 +402,12 @@ async fn handle_connection(
                         session.current_tool = None;
                     }
                 }
+
+                // Persist to history (outside sessions lock)
+                let status = if event.hook_event_name == "Stop" { "done" } else { "running" };
+                state.history.upsert_session(&event.session_id, &agent, event.cwd.as_deref(), status, now as i64);
+                state.history.record_event(&event.session_id, &event.hook_event_name.to_lowercase(), None, None, event.message.as_deref(), now as i64);
+
                 let _ = app.emit("sessions_updated", ());
                 let _ = writer.write_all(b"\n").await;
             }
@@ -496,6 +531,9 @@ pub fn run() {
             set_window_height,
             set_window_size,
             get_session_metrics,
+            get_history_sessions,
+            get_session_events,
+            search_history,
             editor::open_in_editor,
             editor::reveal_in_file_manager,
             terminal::jump_to_terminal,
