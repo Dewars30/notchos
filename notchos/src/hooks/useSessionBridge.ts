@@ -28,6 +28,10 @@ function mapStatus(session: BackendSession): AgentStatus {
   }
 }
 
+const COST_PER_MIN: Record<string, number> = {
+  claude: 0.02, codex: 0.01, gemini: 0.005,
+};
+
 function mapSessionToAgent(session: BackendSession): Agent {
   const registry = AGENT_REGISTRY[session.agent] ?? {
     name: session.agent,
@@ -35,13 +39,16 @@ function mapSessionToAgent(session: BackendSession): Agent {
     model: 'unknown',
   };
   const now = Math.floor(Date.now() / 1000);
+  const costRate = COST_PER_MIN[session.agent] ?? 0.01;
+  const elapsedMin = (now - session.startedAt) / 60;
+  const estimatedCost = Math.round(elapsedMin * costRate * 100) / 100;
   return {
     id: session.id,
     name: registry.name,
     abbreviation: registry.abbreviation,
     model: registry.model,
     status: mapStatus(session),
-    cost: 0,
+    cost: estimatedCost,
     elapsedSeconds: now - session.startedAt,
     currentTool: session.currentTool,
     pendingApproval: session.pendingApproval ? {
@@ -51,6 +58,7 @@ function mapSessionToAgent(session: BackendSession): Agent {
       summary: session.pendingApproval.summary,
       riskTier: session.pendingApproval.riskTier,
     } : null,
+    cwd: session.cwd,
   };
 }
 

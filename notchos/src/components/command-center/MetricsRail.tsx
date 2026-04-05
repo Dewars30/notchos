@@ -28,6 +28,27 @@ export function MetricsRail({ metrics }: MetricsRailProps) {
       {/* Context health — toroidal field (V1: SVG ring) */}
       <MurmurationRing value={metrics.contextHealth} size={56} label="CONTEXT" />
 
+      {/* Budget burn — estimated cost vs $10/day default */}
+      {(() => {
+        const totalEstimatedCost = metrics.totalCost;
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <MurmurationRing
+              value={Math.min(100, Math.round((totalEstimatedCost / 10) * 100))}
+              size={48}
+              label="BUDGET"
+            />
+            <span style={{
+              fontFamily: 'var(--font-data)',
+              fontSize: 8,
+              color: 'var(--text-dim)',
+            }}>
+              ${metrics.totalCost.toFixed(2)}/session
+            </span>
+          </div>
+        );
+      })()}
+
       {/* Token count */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <span style={{

@@ -32,6 +32,14 @@ function formatCost(cost: number): string {
 export function AgentRoster({ agents, selectedAgentId, onSelectAgent, onJumpToTerminal }: AgentRosterProps) {
   const totalCost = agents.reduce((sum, a) => sum + a.cost, 0);
 
+  // Group agents by project (cwd)
+  const groups = new Map<string, typeof agents>();
+  for (const agent of agents) {
+    const key = agent.cwd ? agent.cwd.split('/').slice(-2).join('/') : 'Unassigned';
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(agent);
+  }
+
   return (
     <div style={{
       gridArea: 'agents',
@@ -52,75 +60,91 @@ export function AgentRoster({ agents, selectedAgentId, onSelectAgent, onJumpToTe
         gap: 4,
         flex: 1,
       }}>
-        {agents.map(agent => {
-          const isSelected = agent.id === selectedAgentId;
-          return (
-            <button
-              key={agent.id}
-              role="option"
-              aria-selected={isSelected}
-              aria-label={agent.name}
-              onClick={() => onSelectAgent(agent.id)}
-              onDoubleClick={() => onJumpToTerminal?.(agent.id)}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                padding: '6px 4px',
-                background: isSelected ? 'var(--bg-elevated)' : 'transparent',
-                borderRadius: 4,
-                border: 'none',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'background 100ms',
-              }}
-            >
-              {/* Name row */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
+        {Array.from(groups.entries()).map(([project, groupAgents]) => (
+          <div key={project}>
+            {groups.size > 1 && (
+              <span style={{
+                fontFamily: 'var(--font-label)',
+                fontSize: 7,
+                color: 'var(--text-dim)',
+                letterSpacing: '0.08em',
+                display: 'block',
+                padding: '4px 0 2px',
               }}>
-                <StatusOrb status={agent.status} size={5} />
-                <span style={{
-                  fontFamily: 'var(--font-ui)',
-                  fontSize: 10,
-                  fontWeight: 500,
-                  color: isSelected ? STATUS_COLORS[agent.status] : 'var(--text-1)',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  flex: 1,
-                }}>
-                  {agent.name}
-                </span>
-              </div>
+                {project.toUpperCase()}
+              </span>
+            )}
+            {groupAgents.map(agent => {
+              const isSelected = agent.id === selectedAgentId;
+              return (
+                <button
+                  key={agent.id}
+                  role="option"
+                  aria-selected={isSelected}
+                  aria-label={agent.name}
+                  onClick={() => onSelectAgent(agent.id)}
+                  onDoubleClick={() => onJumpToTerminal?.(agent.id)}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                    padding: '6px 4px',
+                    background: isSelected ? 'var(--bg-elevated)' : 'transparent',
+                    borderRadius: 4,
+                    border: 'none',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background 100ms',
+                  }}
+                >
+                  {/* Name row */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}>
+                    <StatusOrb status={agent.status} size={5} />
+                    <span style={{
+                      fontFamily: 'var(--font-ui)',
+                      fontSize: 10,
+                      fontWeight: 500,
+                      color: isSelected ? STATUS_COLORS[agent.status] : 'var(--text-1)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      flex: 1,
+                    }}>
+                      {agent.name}
+                    </span>
+                  </div>
 
-              {/* Meta row */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingLeft: 21, /* orb container (17px) + gap (4px) */
-              }}>
-                <span style={{
-                  fontFamily: 'var(--font-data)',
-                  fontSize: 8,
-                  color: 'var(--text-3)',
-                }}>
-                  {agent.model} · {agent.status} · {formatElapsed(agent.elapsedSeconds)}
-                </span>
-                <span style={{
-                  fontFamily: 'var(--font-data)',
-                  fontSize: 8,
-                  color: 'var(--text-3)',
-                }}>
-                  {formatCost(agent.cost)}
-                </span>
-              </div>
-            </button>
-          );
-        })}
+                  {/* Meta row */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingLeft: 21, /* orb container (17px) + gap (4px) */
+                  }}>
+                    <span style={{
+                      fontFamily: 'var(--font-data)',
+                      fontSize: 8,
+                      color: 'var(--text-3)',
+                    }}>
+                      {agent.model} · {agent.status} · {formatElapsed(agent.elapsedSeconds)}
+                    </span>
+                    <span style={{
+                      fontFamily: 'var(--font-data)',
+                      fontSize: 8,
+                      color: 'var(--text-3)',
+                    }}>
+                      {formatCost(agent.cost)}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </div>
 
       {/* Session total */}

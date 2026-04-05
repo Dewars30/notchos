@@ -1,3 +1,4 @@
+mod agents;
 mod editor;
 mod history;
 mod terminal;
@@ -107,6 +108,7 @@ pub struct AppState {
     pub sessions: Mutex<Vec<Session>>,
     pub pending_tx: Mutex<std::collections::HashMap<String, tokio::sync::oneshot::Sender<ApprovalResponse>>>,
     pub history: history::HistoryDb,
+    pub bridge_path: Mutex<String>,
 }
 
 impl AppState {
@@ -115,6 +117,7 @@ impl AppState {
             sessions: Mutex::new(Vec::new()),
             pending_tx: Mutex::new(std::collections::HashMap::new()),
             history: history::HistoryDb::open().expect("Failed to open history database"),
+            bridge_path: Mutex::new(String::new()),
         }
     }
 }
@@ -209,6 +212,20 @@ fn get_session_metrics(state: State<Arc<AppState>>) -> serde_json::Value {
         "totalTokens": 0,
         "contextHealth": 100,
     })
+}
+
+// ─── Agent discovery commands ───────────────────────────────────────────────
+
+#[tauri::command]
+fn discover_agents(state: State<Arc<AppState>>) -> Vec<agents::DiscoveredAgent> {
+    let bridge = state.bridge_path.lock().unwrap().clone();
+    agents::discover_all(&bridge)
+}
+
+#[tauri::command]
+fn setup_agents(state: State<Arc<AppState>>) -> Vec<(String, bool)> {
+    let bridge = state.bridge_path.lock().unwrap().clone();
+    agents::setup_all(&bridge)
 }
 
 // ─── History commands ────────────────────────────────────────────────────────
@@ -503,6 +520,18 @@ pub fn run() {
                 }
             }
 
+            // Set bridge path for agent hook injection
+            {
+                let mut bp = state_clone.bridge_path.lock().unwrap();
+                *bp = std::env::current_exe()
+                    .unwrap_or_default()
+                    .parent()
+                    .unwrap_or(std::path::Path::new("."))
+                    .join("../Resources/notchos-bridge.cjs")
+                    .to_string_lossy()
+                    .to_string();
+            }
+
             // Start Unix socket server
             tauri::async_runtime::spawn(async move {
                 // Remove stale socket
@@ -531,6 +560,8 @@ pub fn run() {
             set_window_height,
             set_window_size,
             get_session_metrics,
+            discover_agents,
+            setup_agents,
             get_history_sessions,
             get_session_events,
             search_history,

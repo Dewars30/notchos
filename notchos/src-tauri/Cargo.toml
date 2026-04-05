@@ -26,6 +26,7 @@ tokio-stream = "0.1"
 uuid = { version = "1", features = ["v4"] }
 rusqlite = { version = "0.31", features = ["bundled"] }
 dirs = "5"
+which = "7"
 
 [features]
 default = ["custom-protocol"]

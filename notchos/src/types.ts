@@ -32,6 +32,7 @@ export interface Agent {
   elapsedSeconds: number;
   currentTool: string | null;
   pendingApproval: PendingApproval | null;
+  cwd?: string | null;
 }
 
 export interface TimelineEvent {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Onboarding } from './components/Onboarding';
 import { motion, AnimatePresence } from 'framer-motion';
 // Safe invoke wrapper — falls back to console.log when running outside Tauri
 const isTauri = '__TAURI_INTERNALS__' in window;
@@ -30,6 +31,7 @@ const SPRING = { type: 'spring' as const, stiffness: 400, damping: 30, mass: 1 }
 const CONTENT_FADE = { duration: 0.15, ease: 'easeOut' as const };
 
 export default function App() {
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [mode, setMode] = useState<AppMode>('notch');
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const { agents: liveAgents, metrics: liveMetrics, timeline: liveTimeline, isLive } = useSessionBridge();
@@ -38,6 +40,19 @@ export default function App() {
   const timeline = isLive ? liveTimeline : MOCK_TIMELINE;
   const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoCollapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // First-run onboarding check
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('notchos-onboarding-complete');
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  function handleOnboardingComplete() {
+    localStorage.setItem('notchos-onboarding-complete', 'true');
+    setShowOnboarding(false);
+  }
 
   // Resize Tauri window on mode change
   useEffect(() => {
@@ -195,82 +210,86 @@ export default function App() {
       flexDirection: 'column',
       alignItems: 'center',
     }}>
-      {/* Animated shell — morphs between modes with spring physics */}
-      <motion.div
-        layout
-        transition={SPRING}
-        animate={{
-          width,
-          height,
-          borderRadius,
-        }}
-        style={{
-          overflow: 'hidden',
-          position: 'relative',
-        }}
-      >
-        <AnimatePresence mode="wait">
-          {mode === 'notch' && (
-            <motion.div
-              key="notch"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={CONTENT_FADE}
-              style={{ width: '100%', height: '100%' }}
-            >
-              <NotchBar
-                agents={agents}
-                metrics={metrics}
-                onHover={expandToPill}
-                onClick={expandToPill}
-              />
-            </motion.div>
-          )}
+      {showOnboarding ? (
+        <Onboarding onComplete={handleOnboardingComplete} />
+      ) : (
+        /* Animated shell — morphs between modes with spring physics */
+        <motion.div
+          layout
+          transition={SPRING}
+          animate={{
+            width,
+            height,
+            borderRadius,
+          }}
+          style={{
+            overflow: 'hidden',
+            position: 'relative',
+          }}
+        >
+          <AnimatePresence mode="wait">
+            {mode === 'notch' && (
+              <motion.div
+                key="notch"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={CONTENT_FADE}
+                style={{ width: '100%', height: '100%' }}
+              >
+                <NotchBar
+                  agents={agents}
+                  metrics={metrics}
+                  onHover={expandToPill}
+                  onClick={expandToPill}
+                />
+              </motion.div>
+            )}
 
-          {mode === 'pill' && (
-            <motion.div
-              key="pill"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={CONTENT_FADE}
-              style={{ width: '100%', height: '100%' }}
-            >
-              <ExpandedPill
-                agents={agents}
-                metrics={metrics}
-                onSelectAgent={handlePillAgentClick}
-                onExpandFull={expandToCommandCenter}
-                onMouseEnter={cancelPillCollapse}
-                onMouseLeave={startPillCollapse}
-              />
-            </motion.div>
-          )}
+            {mode === 'pill' && (
+              <motion.div
+                key="pill"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={CONTENT_FADE}
+                style={{ width: '100%', height: '100%' }}
+              >
+                <ExpandedPill
+                  agents={agents}
+                  metrics={metrics}
+                  onSelectAgent={handlePillAgentClick}
+                  onExpandFull={expandToCommandCenter}
+                  onMouseEnter={cancelPillCollapse}
+                  onMouseLeave={startPillCollapse}
+                />
+              </motion.div>
+            )}
 
-          {mode === 'command-center' && (
-            <motion.div
-              key="command-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={CONTENT_FADE}
-              style={{ width: '100%', height: '100%' }}
-            >
-              <CommandCenter
-                agents={agents}
-                selectedAgentId={selectedAgentId}
-                metrics={metrics}
-                timeline={timeline}
-                onSelectAgent={setSelectedAgentId}
-                onApprove={handleApprove}
-                onDeny={handleDeny}
-                onJumpToTerminal={handleJumpToTerminal}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+            {mode === 'command-center' && (
+              <motion.div
+                key="command-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={CONTENT_FADE}
+                style={{ width: '100%', height: '100%' }}
+              >
+                <CommandCenter
+                  agents={agents}
+                  selectedAgentId={selectedAgentId}
+                  metrics={metrics}
+                  timeline={timeline}
+                  onSelectAgent={setSelectedAgentId}
+                  onApprove={handleApprove}
+                  onDeny={handleDeny}
+                  onJumpToTerminal={handleJumpToTerminal}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      )}
     </div>
   );
 }
