@@ -140,6 +140,44 @@
   font-size: 8px;
 }
 
+.riskHighContainer {
+  border-left: 2px solid var(--coral);
+  padding-left: var(--sp-4);
+  background: linear-gradient(135deg, rgba(224, 136, 112, 0.04) 0%, transparent 60%);
+  border-radius: var(--radius-button);
+}
+
+.riskMediumContainer {
+  border-left: 0.5px solid var(--gold);
+  padding-left: var(--sp-4);
+}
+
+.riskLowContainer {
+  border-left: none;
+  opacity: 0.85;
+}
+
+.riskLowDiff {
+  max-height: 48px;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+.approveButtonLarge {
+  composes: approveButton;
+  padding: var(--sp-3) var(--sp-6);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.denyButtonLarge {
+  composes: denyButton;
+  padding: var(--sp-3) var(--sp-6);
+  font-size: 11px;
+  font-weight: 600;
+}
+
 /* DiffLineRow */
 .diffLine {
   font-family: var(--font-data);

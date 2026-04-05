@@ -66,7 +66,7 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, connec
       {/* Right: cost + tokens + LIVE indicator */}
       <div className={styles.rightCluster}>
         <motion.span layoutId="session-cost" className={styles.metricsText}>
-          {formatCost(metrics.totalCost)} · {formatTokens(metrics.totalTokens)} tok
+          {formatCost(metrics.totalCost)}<span className={styles.separator} />{formatTokens(metrics.totalTokens)} tok
         </motion.span>
 
         <button

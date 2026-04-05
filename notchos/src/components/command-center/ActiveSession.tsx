@@ -145,12 +145,11 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
       {approval ? (
         <div
           aria-live="polite"
-          style={{
-            borderLeft: weight.borderLeft,
-            paddingLeft: riskTier !== 'low' ? 8 : 0,
-            background: weight.bgTint,
-            borderRadius: riskTier === 'high' ? 4 : 0,
-          }}
+          className={
+            riskTier === 'high' ? styles.riskHighContainer
+              : riskTier === 'medium' ? styles.riskMediumContainer
+              : styles.riskLowContainer
+          }
         >
           {/* Risk badge + impact summary */}
           <div className={styles.riskHeader}>
@@ -184,10 +183,10 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
           {/* Diff block */}
           {approval.diff && approval.diff.length > 0 && (
             <div
-              className={styles.diffBlock}
+              className={`${styles.diffBlock}${riskTier === 'low' ? ` ${styles.riskLowDiff}` : ''}`}
               style={{
                 padding: weight.padding,
-                maxHeight: weight.maxDiffHeight,
+                maxHeight: riskTier !== 'low' ? weight.maxDiffHeight : undefined,
               }}
             >
               {approval.diff.map((line, i) => (
@@ -200,8 +199,8 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
           <div className={styles.actionRow}>
             <button
               onClick={() => onApprove(approval.approvalId)}
-              className={styles.approveButton}
-              style={{ fontSize: weight.fontSize }}
+              className={riskTier === 'high' ? styles.approveButtonLarge : styles.approveButton}
+              style={{ fontSize: riskTier !== 'high' ? weight.fontSize : undefined }}
             >
               Approve
               {weight.showHints && (
@@ -213,8 +212,8 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
 
             <button
               onClick={() => onDeny(approval.approvalId)}
-              className={styles.denyButton}
-              style={{ fontSize: weight.fontSize }}
+              className={riskTier === 'high' ? styles.denyButtonLarge : styles.denyButton}
+              style={{ fontSize: riskTier !== 'high' ? weight.fontSize : undefined }}
             >
               Deny
               {weight.showHints && (

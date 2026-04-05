@@ -130,3 +130,13 @@
   color: var(--text-2);
   background: var(--bg-elevated);
 }
+
+.separator {
+  display: inline-block;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  margin: 0 var(--sp-2);
+  vertical-align: middle;
+}

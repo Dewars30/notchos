@@ -57,7 +57,7 @@ function AgentRow({ agent, onClick, onJumpToTerminal }: { agent: Agent; onClick:
 
       {/* Meta — B612 Mono 9px: model · status · elapsed */}
       <span className={styles.agentMeta}>
-        {agent.model} · {agent.status} · {formatElapsed(agent.elapsedSeconds)}
+        {agent.model}<span className={styles.separator} />{agent.status}<span className={styles.separator} />{formatElapsed(agent.elapsedSeconds)}
       </span>
 
       {/* Cost — B612 Mono 9px; color is dynamic based on hasPending */}
@@ -109,7 +109,7 @@ export function ExpandedPill({
       {/* Footer — session summary + keyboard hint */}
       <div className={styles.footer}>
         <span className={styles.footerText}>
-          {agents.length} agents · ${metrics.totalCost.toFixed(2)}
+          {agents.length} agents<span className={styles.separator} />${metrics.totalCost.toFixed(2)}
         </span>
         <button
           onClick={onExpandFull}
