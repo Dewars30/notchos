@@ -1,6 +1,7 @@
 import type { SessionMetrics } from '../../types';
 import { ZoneLabel } from '../shared/ZoneLabel';
 import { MurmurationRing } from '../shared/MurmurationRing';
+import styles from './MetricsRail.module.css';
 
 interface MetricsRailProps {
   metrics: SessionMetrics;
@@ -13,16 +14,7 @@ function formatTokens(tokens: number): string {
 
 export function MetricsRail({ metrics }: MetricsRailProps) {
   return (
-    <div style={{
-      gridArea: 'metrics',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: 12,
-      borderLeft: '0.5px solid var(--bg-elevated)',
-      gap: 8,
-      position: 'relative',
-      zIndex: 1,
-    }}>
+    <div className={styles.rail}>
       <ZoneLabel>METRICS</ZoneLabel>
 
       {/* Context health — toroidal field (V1: SVG ring) */}
@@ -32,17 +24,13 @@ export function MetricsRail({ metrics }: MetricsRailProps) {
       {(() => {
         const totalEstimatedCost = metrics.totalCost;
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <div className={styles.budgetGroup}>
             <MurmurationRing
               value={Math.min(100, Math.round((totalEstimatedCost / 10) * 100))}
               size={48}
               label="BUDGET"
             />
-            <span style={{
-              fontFamily: 'var(--font-data)',
-              fontSize: 8,
-              color: 'var(--text-dim)',
-            }}>
+            <span className={styles.budgetCost}>
               ${metrics.totalCost.toFixed(2)}/session
             </span>
           </div>
@@ -50,55 +38,20 @@ export function MetricsRail({ metrics }: MetricsRailProps) {
       })()}
 
       {/* Token count */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <span style={{
-          fontFamily: 'var(--font-label)',
-          fontSize: 7,
-          color: 'var(--text-dim)',
-          letterSpacing: '0.12em',
-        }}>
-          TOKENS
-        </span>
-        <span style={{
-          fontFamily: 'var(--font-ui)',
-          fontSize: 16,
-          fontWeight: 600,
-          color: 'var(--text-1)',
-        }}>
+      <div className={styles.statGroup}>
+        <span className={styles.statLabel}>TOKENS</span>
+        <span className={styles.statValue}>
           {formatTokens(metrics.totalTokens)}
         </span>
-        <span style={{
-          fontFamily: 'var(--font-ui)',
-          fontSize: 9,
-          color: 'var(--text-dim)',
-        }}>
-          tokens
-        </span>
+        <span className={styles.statUnit}>tokens</span>
       </div>
 
       {/* Approval stats */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <span style={{
-          fontFamily: 'var(--font-label)',
-          fontSize: 7,
-          color: 'var(--text-dim)',
-          letterSpacing: '0.12em',
-        }}>
-          APPROVALS
-        </span>
-        <span style={{
-          fontFamily: 'var(--font-ui)',
-          fontSize: 15,
-          fontWeight: 600,
-          color: 'var(--text-1)',
-        }}>
+      <div className={styles.statGroup}>
+        <span className={styles.statLabel}>APPROVALS</span>
+        <span className={styles.statValueSmall}>
           {metrics.approvalsTotal}
-          <span style={{
-            fontSize: 10,
-            color: 'var(--text-3)',
-            fontWeight: 400,
-            marginLeft: 4,
-          }}>
+          <span className={styles.approvalSuffix}>
             / {metrics.approvalsDenied} denied
           </span>
         </span>

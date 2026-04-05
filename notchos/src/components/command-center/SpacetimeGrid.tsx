@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import styles from './SpacetimeGrid.module.css';
 import type { RiskTier } from '../../types';
 
 interface SpacetimeGridProps {
@@ -128,16 +129,7 @@ export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4, activeAgentC
   return (
     <canvas
       ref={canvasRef}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
-        zIndex: 0,
-        borderRadius: 'inherit',
-      }}
+      className={styles.canvas}
       aria-hidden="true"
     />
   );

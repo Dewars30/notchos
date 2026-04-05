@@ -1,0 +1,63 @@
+.rail {
+  grid-area: metrics;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border-left: 0.5px solid var(--bg-elevated);
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.budgetGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.budgetCost {
+  font-family: var(--font-data);
+  font-size: 8px;
+  color: var(--text-dim);
+}
+
+.statGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statLabel {
+  font-family: var(--font-label);
+  font-size: 7px;
+  color: var(--text-dim);
+  letter-spacing: 0.12em;
+}
+
+.statValue {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.statValueSmall {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.statUnit {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+.approvalSuffix {
+  font-size: 10px;
+  color: var(--text-3);
+  font-weight: 400;
+  margin-left: 4px;
+}

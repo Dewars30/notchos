@@ -1,0 +1,29 @@
+.timeline {
+  grid-area: timeline;
+  height: 36px;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 12px;
+  padding-bottom: 6px;
+  border-top: 0.5px solid var(--bg-surface);
+  background: var(--bg-base);
+  position: relative;
+  z-index: 1;
+  gap: 2px;
+}
+
+.bar {
+  width: 3px;
+  border-radius: 1px;
+  flex-shrink: 0;
+  transition: height 150ms ease-out;
+}
+
+.timestamp {
+  margin-left: auto;
+  font-family: var(--font-data);
+  font-size: 7px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  align-self: center;
+}

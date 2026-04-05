@@ -1,0 +1,141 @@
+.container {
+  grid-area: center;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  overflow: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sessionCount {
+  font-family: var(--font-data);
+  font-size: 8px;
+  color: var(--text-dim);
+}
+
+.searchInput {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--text-1);
+  background: var(--bg-surface);
+  border: 0.5px solid var(--stroke);
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-bottom: 8px;
+  width: 100%;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: var(--text-dim);
+}
+
+.sessionList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.emptyMessage {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--text-dim);
+  padding: 8px;
+}
+
+.sessionButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sessionButtonExpanded {
+  composes: sessionButton;
+  background: var(--bg-elevated);
+}
+
+.agentDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.agentName {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  color: var(--text-1);
+  flex: 1;
+}
+
+.agentCwd {
+  color: var(--text-3);
+  margin-left: 4px;
+}
+
+.sessionDuration {
+  font-family: var(--font-data);
+  font-size: 8px;
+  color: var(--text-3);
+}
+
+.sessionEventCount {
+  font-family: var(--font-data);
+  font-size: 8px;
+  color: var(--text-dim);
+}
+
+.statusBadge {
+  font-family: var(--font-label);
+  font-size: 7px;
+  letter-spacing: 0.06em;
+}
+
+.eventsContainer {
+  margin-left: 16px;
+  padding: 4px 0;
+  border-left: 0.5px solid var(--border-subtle);
+  padding-left: 8px;
+}
+
+.eventRow {
+  font-family: var(--font-data);
+  font-size: 8px;
+  color: var(--text-3);
+  padding: 1px 0;
+  display: flex;
+  gap: 8px;
+}
+
+.eventTime {
+  color: var(--text-dim);
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.eventTool {
+  color: var(--text-2);
+}
+
+.eventSummary {
+  color: var(--text-dim);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ZoneLabel } from '../shared/ZoneLabel';
+import styles from './HistoryView.module.css';
 
 const isTauri = '__TAURI_INTERNALS__' in window;
 
@@ -83,18 +84,10 @@ export function HistoryView() {
   }
 
   return (
-    <div style={{
-      gridArea: 'center',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: 12,
-      overflow: 'auto',
-      position: 'relative',
-      zIndex: 1,
-    }}>
-      <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div className={styles.container}>
+      <div className={styles.header}>
         <ZoneLabel>HISTORY</ZoneLabel>
-        <span style={{ fontFamily: 'var(--font-data)', fontSize: 8, color: 'var(--text-dim)' }}>
+        <span className={styles.sessionCount}>
           {sessions.length} sessions
         </span>
       </div>
@@ -105,23 +98,13 @@ export function HistoryView() {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Search by agent, project, session..."
-        style={{
-          fontFamily: 'var(--font-data)',
-          fontSize: 9,
-          color: 'var(--text-1)',
-          background: 'var(--bg-surface)',
-          border: '0.5px solid var(--stroke)',
-          borderRadius: 4,
-          padding: '4px 8px',
-          marginBottom: 8,
-          width: '100%',
-        }}
+        className={styles.searchInput}
       />
 
       {/* Session list */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <div className={styles.sessionList}>
         {sessions.length === 0 && (
-          <span style={{ fontFamily: 'var(--font-data)', fontSize: 9, color: 'var(--text-dim)', padding: 8 }}>
+          <span className={styles.emptyMessage}>
             {isTauri ? 'No sessions recorded yet' : 'History available in Tauri mode'}
           </span>
         )}
@@ -130,78 +113,61 @@ export function HistoryView() {
           <div key={session.id}>
             <button
               onClick={() => toggleSession(session.id)}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '4px 6px',
-                background: expandedSession === session.id ? 'var(--bg-elevated)' : 'transparent',
-                border: 'none',
-                borderRadius: 4,
-                cursor: 'pointer',
-                textAlign: 'left',
-              }}
+              className={expandedSession === session.id ? styles.sessionButtonExpanded : styles.sessionButton}
             >
-              {/* Agent color dot */}
-              <span style={{
-                width: 4, height: 4, borderRadius: '50%', flexShrink: 0,
-                background: AGENT_COLORS[session.agent] ?? 'var(--text-3)',
-              }} />
+              {/* Agent color dot — background is dynamic */}
+              <span
+                className={styles.agentDot}
+                style={{ background: AGENT_COLORS[session.agent] ?? 'var(--text-3)' }}
+              />
 
               {/* Agent name + cwd */}
-              <span style={{ fontFamily: 'var(--font-ui)', fontSize: 9, color: 'var(--text-1)', flex: 1 }}>
+              <span className={styles.agentName}>
                 {session.agent}
                 {session.cwd && (
-                  <span style={{ color: 'var(--text-3)', marginLeft: 4 }}>
+                  <span className={styles.agentCwd}>
                     {session.cwd.split('/').slice(-2).join('/')}
                   </span>
                 )}
               </span>
 
               {/* Duration */}
-              <span style={{ fontFamily: 'var(--font-data)', fontSize: 8, color: 'var(--text-3)' }}>
+              <span className={styles.sessionDuration}>
                 {formatDuration(session.startedAt, session.endedAt)}
               </span>
 
               {/* Event count */}
-              <span style={{ fontFamily: 'var(--font-data)', fontSize: 8, color: 'var(--text-dim)' }}>
+              <span className={styles.sessionEventCount}>
                 {session.eventCount} events
               </span>
 
-              {/* Status badge */}
-              <span style={{
-                fontFamily: 'var(--font-label)', fontSize: 7,
-                color: session.status === 'done' ? 'var(--teal)' : session.status === 'error' ? 'var(--coral)' : 'var(--gold)',
-                letterSpacing: '0.06em',
-              }}>
+              {/* Status badge — color is dynamic */}
+              <span
+                className={styles.statusBadge}
+                style={{
+                  color: session.status === 'done' ? 'var(--teal)' : session.status === 'error' ? 'var(--coral)' : 'var(--gold)',
+                }}
+              >
                 {session.status.toUpperCase()}
               </span>
             </button>
 
             {/* Expanded events */}
             {expandedSession === session.id && events.length > 0 && (
-              <div style={{
-                marginLeft: 16, padding: '4px 0',
-                borderLeft: '0.5px solid var(--border-subtle)',
-                paddingLeft: 8,
-              }}>
+              <div className={styles.eventsContainer}>
                 {events.map(evt => (
-                  <div key={evt.id} style={{
-                    fontFamily: 'var(--font-data)', fontSize: 8,
-                    color: 'var(--text-3)', padding: '1px 0',
-                    display: 'flex', gap: 8,
-                  }}>
-                    <span style={{ color: 'var(--text-dim)', width: 40, flexShrink: 0 }}>
+                  <div key={evt.id} className={styles.eventRow}>
+                    <span className={styles.eventTime}>
                       {new Date(evt.timestamp * 1000).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </span>
+                    {/* eventType color is dynamic per riskTier */}
                     <span style={{
                       color: evt.riskTier === 'high' ? 'var(--coral)' : evt.riskTier === 'medium' ? 'var(--gold)' : 'var(--text-3)',
                     }}>
                       {evt.eventType}
                     </span>
-                    {evt.toolName && <span style={{ color: 'var(--text-2)' }}>{evt.toolName}</span>}
-                    {evt.summary && <span style={{ color: 'var(--text-dim)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{evt.summary}</span>}
+                    {evt.toolName && <span className={styles.eventTool}>{evt.toolName}</span>}
+                    {evt.summary && <span className={styles.eventSummary}>{evt.summary}</span>}
                   </div>
                 ))}
               </div>

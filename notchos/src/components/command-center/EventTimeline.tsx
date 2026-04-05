@@ -1,4 +1,5 @@
 import type { TimelineEvent, RiskTier } from '../../types';
+import styles from './EventTimeline.module.css';
 
 interface EventTimelineProps {
   events: TimelineEvent[];
@@ -29,19 +30,7 @@ function formatTimeRange(events: TimelineEvent[]): string {
 
 export function EventTimeline({ events }: EventTimelineProps) {
   return (
-    <div style={{
-      gridArea: 'timeline',
-      height: 36,
-      display: 'flex',
-      alignItems: 'flex-end',
-      padding: '0 12px',
-      paddingBottom: 6,
-      borderTop: '0.5px solid var(--bg-surface)',
-      background: 'var(--bg-base)',
-      position: 'relative',
-      zIndex: 1,
-      gap: 2,
-    }}>
+    <div className={styles.timeline}>
       {events.map(event => {
         const isQuiet = event.type === 'auto-approved' && event.riskTier === 'low';
         const { color, opacity } = BAR_COLORS[event.riskTier];
@@ -50,28 +39,18 @@ export function EventTimeline({ events }: EventTimelineProps) {
         return (
           <div
             key={event.id}
+            className={styles.bar}
             style={{
-              width: 3,
               height,
-              borderRadius: 1,
               background: isQuiet ? 'var(--bg-elevated)' : color,
               opacity: isQuiet ? 1 : opacity,
-              flexShrink: 0,
-              transition: 'height 150ms ease-out',
             }}
           />
         );
       })}
 
       {/* Timestamp */}
-      <span style={{
-        marginLeft: 'auto',
-        fontFamily: 'var(--font-data)',
-        fontSize: 7,
-        color: 'var(--text-dim)',
-        flexShrink: 0,
-        alignSelf: 'center',
-      }}>
+      <span className={styles.timestamp}>
         {formatTimeRange(events)}
       </span>
     </div>
