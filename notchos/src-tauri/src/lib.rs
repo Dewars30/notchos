@@ -506,15 +506,15 @@ pub fn run() {
         .setup(move |app| {
             let app_handle = app.handle().clone();
 
-            // Position window at top-center
+            // Position window at top-center (in the macOS notch area)
             if let Some(win) = app.get_webview_window("hud") {
                 if let Ok(monitor) = win.current_monitor() {
                     if let Some(monitor) = monitor {
                         let screen_w = monitor.size().width as f64 / monitor.scale_factor();
                         let win_w = 220.0;
-                        let x = ((screen_w - win_w) / 2.0) as i32;
-                        let _ = win.set_position(tauri::Position::Physical(
-                            tauri::PhysicalPosition { x, y: 0 }
+                        let x = (screen_w - win_w) / 2.0;
+                        let _ = win.set_position(tauri::Position::Logical(
+                            tauri::LogicalPosition { x, y: 0.0 }
                         ));
                     }
                 }
