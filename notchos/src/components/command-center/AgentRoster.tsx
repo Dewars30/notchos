@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import type { Agent, AgentStatus } from '../../types';
 import { StatusOrb } from '../shared/StatusOrb';
 import { ZoneLabel } from '../shared/ZoneLabel';
@@ -67,13 +68,14 @@ export function AgentRoster({ agents, selectedAgentId, onSelectAgent, onJumpToTe
                 >
                   {/* Name row */}
                   <div className={styles.nameRow}>
-                    <StatusOrb status={agent.status} size={5} />
-                    <span
+                    <StatusOrb status={agent.status} size={5} layoutId={`orb-${agent.id}`} />
+                    <motion.span
+                      layoutId={`name-${agent.id}`}
                       className={styles.agentName}
                       style={{ color: isSelected ? STATUS_COLORS[agent.status] : 'var(--text-1)' }}
                     >
                       {agent.name}
-                    </span>
+                    </motion.span>
                   </div>
 
                   {/* Meta row */}

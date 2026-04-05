@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import type { Agent, AgentStatus, SessionMetrics } from '../types';
 import { StatusOrb } from './shared/StatusOrb';
 import styles from './ExpandedPill.module.css';
@@ -37,12 +38,12 @@ function AgentRow({ agent, onClick }: { agent: Agent; onClick: () => void }) {
       className={styles.agentRow}
     >
       {/* Status orb — 5px */}
-      <StatusOrb status={agent.status} size={5} />
+      <StatusOrb status={agent.status} size={5} layoutId={`orb-${agent.id}`} />
 
       {/* Agent name — Sora 11px/500 */}
-      <span className={styles.agentName}>
+      <motion.span layoutId={`name-${agent.id}`} className={styles.agentName}>
         {agent.name}
-      </span>
+      </motion.span>
 
       {/* Meta — B612 Mono 9px: model · status · elapsed */}
       <span className={styles.agentMeta}>
@@ -50,12 +51,13 @@ function AgentRow({ agent, onClick }: { agent: Agent; onClick: () => void }) {
       </span>
 
       {/* Cost — B612 Mono 9px; color is dynamic based on hasPending */}
-      <span
+      <motion.span
+        layoutId={`cost-${agent.id}`}
         className={styles.agentCost}
         style={{ color: hasPending ? STATUS_COLORS[agent.status] : 'var(--text-3)' }}
       >
         ${agent.cost.toFixed(2)}
-      </span>
+      </motion.span>
 
       {/* Pending badge — Departure Mono 8px, gold tint */}
       {hasPending && (

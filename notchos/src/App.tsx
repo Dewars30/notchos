@@ -230,7 +230,7 @@ export default function App() {
             position: 'relative',
           }}
         >
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout">
             {mode === 'notch' && (
               <motion.div
                 key="notch"
@@ -238,7 +238,7 @@ export default function App() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={CONTENT_FADE}
-                style={{ width: '100%', height: '100%' }}
+                style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}
               >
                 <NotchBar
                   agents={agents}
@@ -256,7 +256,7 @@ export default function App() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={CONTENT_FADE}
-                style={{ width: '100%', height: '100%' }}
+                style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}
               >
                 <ExpandedPill
                   agents={agents}
@@ -276,7 +276,7 @@ export default function App() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={CONTENT_FADE}
-                style={{ width: '100%', height: '100%' }}
+                style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}
               >
                 <CommandCenter
                   agents={agents}

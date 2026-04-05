@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import type { Agent, SessionMetrics } from '../../types';
 import { StatusOrb } from '../shared/StatusOrb';
 import { isMuted, setMuted } from '../../audio/SoundEngine';
@@ -37,9 +38,9 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, connec
       className={styles.container}
     >
       {/* NP mark */}
-      <span className={styles.npMark}>
+      <motion.span layoutId="np-mark" className={styles.npMark}>
         NP
-      </span>
+      </motion.span>
 
       {/* Agent mini-pills */}
       <div role="toolbar" aria-label="Agent selector" className={styles.agentToolbar}>
@@ -64,9 +65,9 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, connec
 
       {/* Right: cost + tokens + LIVE indicator */}
       <div className={styles.rightCluster}>
-        <span className={styles.metricsText}>
+        <motion.span layoutId="session-cost" className={styles.metricsText}>
           {formatCost(metrics.totalCost)} · {formatTokens(metrics.totalTokens)} tok
-        </span>
+        </motion.span>
 
         <button
           onClick={toggleMute}
