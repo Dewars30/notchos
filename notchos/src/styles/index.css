@@ -29,15 +29,15 @@
   --bg-raised: #2C323C;
 
   /* Borders */
-  --stroke: #3A4050;
-  --border-subtle: #2A2E38;
+  --stroke: #4A5060;
+  --border-subtle: #363C48;
   --border-active: #38A89A;
 
-  /* Text — warm cream and sage */
-  --text-1: #E0D8D0;
-  --text-2: #B0B8B4;
-  --text-3: #6A7080;
-  --text-dim: #3E4655;
+  /* Text — warm cream and sage (brightened for floating overlay readability) */
+  --text-1: #F0EAE2;
+  --text-2: #C8CEC8;
+  --text-3: #8A92A0;
+  --text-dim: #586070;
 
   /* Signal colors — desaturated, purposeful */
   --teal: #38A89A;

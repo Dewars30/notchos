@@ -120,14 +120,11 @@ export function ExpandedPill({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{
-        width: 380,
+        width: '100%',
+        height: '100%',
         background: 'var(--bg-base)',
         border: '0.5px solid var(--stroke)',
-        borderTopLeftRadius: 0,
-        borderTopRightRadius: 0,
-        borderBottomLeftRadius: 10,
-        borderBottomRightRadius: 10,
-        animation: 'slide-down 120ms var(--ease-out)',
+        borderRadius: 12,
         overflow: 'hidden',
       }}
     >

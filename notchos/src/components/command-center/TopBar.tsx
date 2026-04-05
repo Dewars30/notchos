@@ -159,6 +159,31 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, connec
           </span>
         )}
       </div>
+
+      {/* Close button */}
+      <button
+        onClick={async () => {
+          if ('__TAURI_INTERNALS__' in window) {
+            const { getCurrentWindow } = await import('@tauri-apps/api/window');
+            getCurrentWindow().hide();
+          }
+        }}
+        style={{
+          fontFamily: 'var(--font-ui)',
+          fontSize: 10,
+          color: 'var(--text-dim)',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: '2px 6px',
+          marginLeft: 4,
+          borderRadius: 4,
+          lineHeight: 1,
+        }}
+        aria-label="Hide NotchOS"
+      >
+        x
+      </button>
     </div>
   );
 }

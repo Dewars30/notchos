@@ -193,6 +193,14 @@ async fn set_window_size(width: f64, height: f64, app: AppHandle) {
             width,
             height,
         }));
+        // Re-center horizontally at top of screen on every resize
+        if let Ok(Some(monitor)) = win.current_monitor() {
+            let screen_w = monitor.size().width as f64 / monitor.scale_factor();
+            let x = (screen_w - width) / 2.0;
+            let _ = win.set_position(tauri::Position::Logical(
+                tauri::LogicalPosition { x, y: 0.0 }
+            ));
+        }
     }
 }
 
