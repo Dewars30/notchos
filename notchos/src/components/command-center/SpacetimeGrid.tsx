@@ -14,9 +14,9 @@ interface SpacetimeGridProps {
 }
 
 const RISK_CONFIG: Record<RiskTier, { opacity: number; cellSize: number; warpStrength: number }> = {
-  low:    { opacity: 0.010, cellSize: 28, warpStrength: 0 },
-  medium: { opacity: 0.018, cellSize: 28, warpStrength: 12 },
-  high:   { opacity: 0.035, cellSize: 22, warpStrength: 24 },
+  low:    { opacity: 0.025, cellSize: 28, warpStrength: 0 },
+  medium: { opacity: 0.04,  cellSize: 26, warpStrength: 16 },
+  high:   { opacity: 0.06,  cellSize: 22, warpStrength: 28 },
 };
 
 export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4, activeAgentCount = 1, hasHighRiskPending = false }: SpacetimeGridProps) {
@@ -108,6 +108,19 @@ export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4, activeAgentC
         }
         ctx!.stroke();
       }
+
+      // Radial edge fade — grid concentrates around warp center
+      ctx!.globalCompositeOperation = 'destination-in';
+      const fadeGradient = ctx!.createRadialGradient(
+        centerX, centerY, 0,
+        centerX, centerY, Math.max(w, h) * 0.6
+      );
+      fadeGradient.addColorStop(0, 'rgba(0,0,0,1)');
+      fadeGradient.addColorStop(0.7, 'rgba(0,0,0,0.5)');
+      fadeGradient.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx!.fillStyle = fadeGradient;
+      ctx!.fillRect(0, 0, w, h);
+      ctx!.globalCompositeOperation = 'source-over';
 
       rafRef.current = requestAnimationFrame(draw);
     }
