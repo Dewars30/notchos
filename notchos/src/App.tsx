@@ -35,7 +35,9 @@ export default function App() {
   const [mode, setMode] = useState<AppMode>('notch');
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const { agents: liveAgents, metrics: liveMetrics, timeline: liveTimeline, isLive } = useSessionBridge();
-  const agents = isLive && liveAgents.length > 0 ? liveAgents : MOCK_AGENTS;
+  // In Tauri (production): use real data only, no mock fallback
+  // In browser (dev): use mock data for visual development
+  const agents = isLive ? liveAgents : MOCK_AGENTS;
   const metrics = isLive ? liveMetrics : MOCK_METRICS;
   const timeline = isLive ? liveTimeline : MOCK_TIMELINE;
   const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -101,8 +103,9 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler);
   }, [agents]);
 
-  // Auto-expand on high-risk approval
+  // Auto-expand on high-risk approval (only for real live sessions, not mock data)
   useEffect(() => {
+    if (!isLive) return;
     const highRisk = agents.find(
       a => a.pendingApproval?.riskTier === 'high'
     );
@@ -110,7 +113,7 @@ export default function App() {
       setSelectedAgentId(highRisk.id);
       setMode('command-center');
     }
-  }, [agents, mode]);
+  }, [agents, mode, isLive]);
 
   // --- Mode transition handlers ---
 
