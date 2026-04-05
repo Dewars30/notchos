@@ -13,6 +13,7 @@ function getContext(): AudioContext {
 
 export function playSound(name: string) {
   if (muted) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const def = DEFAULT_SOUNDS[name];
   if (!def) return;
 

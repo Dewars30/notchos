@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Onboarding } from './components/Onboarding';
 import { motion, AnimatePresence } from 'framer-motion';
+import { playSound } from './audio/SoundEngine';
 // Safe invoke wrapper — falls back to console.log when running outside Tauri
 const isTauri = '__TAURI_INTERNALS__' in window;
 async function tauriInvoke(cmd: string, args?: Record<string, unknown>) {
@@ -42,6 +43,7 @@ export default function App() {
   const timeline = isLive ? liveTimeline : MOCK_TIMELINE;
   const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoCollapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevAgentCountRef = useRef(agents.length);
 
   // First-run onboarding check
   useEffect(() => {
@@ -103,13 +105,20 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler);
   }, [agents]);
 
+  // Agent discovery sound — fires when agent count increases
+  useEffect(() => {
+    if (agents.length > prevAgentCountRef.current) {
+      playSound('agentDiscovered');
+    }
+    prevAgentCountRef.current = agents.length;
+  }, [agents.length]);
+
   // Auto-expand on high-risk approval (only for real live sessions, not mock data)
   useEffect(() => {
     if (!isLive) return;
-    const highRisk = agents.find(
-      a => a.pendingApproval?.riskTier === 'high'
-    );
+    const highRisk = agents.find(a => a.pendingApproval?.riskTier === 'high');
     if (highRisk && mode !== 'command-center') {
+      playSound('highRiskApproval');
       setSelectedAgentId(highRisk.id);
       setMode('command-center');
     }
@@ -162,6 +171,7 @@ export default function App() {
   const handleApprove = useCallback(async (approvalId: string) => {
     try {
       await tauriInvoke('approve', { approvalId, reason: null });
+      playSound('approvalRequested');
       // Auto-collapse after 1.5s
       clearAutoCollapseTimer();
       autoCollapseTimer.current = setTimeout(() => {
@@ -175,6 +185,7 @@ export default function App() {
   const handleDeny = useCallback(async (approvalId: string) => {
     try {
       await tauriInvoke('deny', { approvalId, reason: null });
+      playSound('error');
       clearAutoCollapseTimer();
       autoCollapseTimer.current = setTimeout(() => {
         setMode('pill');

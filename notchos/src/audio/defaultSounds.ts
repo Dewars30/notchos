@@ -14,4 +14,5 @@ export const DEFAULT_SOUNDS: Record<string, SoundDef> = {
   highRiskApproval: { waveform: 'square', frequency: 380, duration: 250, gain: 0.25, ramp: 300 },
   agentFinished: { waveform: 'sine', frequency: 660, duration: 150, gain: 0.15, ramp: 880 },
   error: { waveform: 'sawtooth', frequency: 200, duration: 200, gain: 0.2 },
+  agentDiscovered: { waveform: 'sine', frequency: 1200, duration: 30, gain: 0.05 },
 };
