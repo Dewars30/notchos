@@ -1,0 +1,163 @@
+.containerEmpty {
+  grid-area: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.emptyText {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.container {
+  grid-area: center;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  overflow: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.zoneRow {
+  margin-bottom: 8px;
+}
+
+.riskHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.riskBadge {
+  font-family: var(--font-label);
+  font-size: 8px;
+  border-radius: 3px;
+  padding: 2px 6px;
+  letter-spacing: 0.08em;
+}
+
+.impactText {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--text-3);
+}
+
+.highRiskSummary {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--coral);
+  padding: 4px 0;
+  margin-bottom: 4px;
+}
+
+.diffBlock {
+  background: var(--bg-base);
+  border-radius: 4px;
+  border: 0.5px solid var(--bg-elevated);
+  margin-bottom: 8px;
+  overflow: auto;
+}
+
+.actionRow {
+  display: flex;
+  gap: 8px;
+}
+
+.approveButton {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  color: rgba(56, 168, 154, 0.85);
+  background: rgba(56, 168, 154, 0.08);
+  border: 0.5px solid rgba(56, 168, 154, 0.20);
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 100ms;
+}
+
+.approveButton:hover {
+  background: rgba(56, 168, 154, 0.14);
+  transform: translateY(-0.5px);
+}
+
+.approveButton:active {
+  transform: scale(0.97) translateY(0);
+}
+
+.denyButton {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  color: rgba(224, 136, 112, 0.70);
+  background: rgba(224, 136, 112, 0.05);
+  border: 0.5px solid rgba(224, 136, 112, 0.12);
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 100ms;
+}
+
+.denyButton:hover {
+  background: rgba(224, 136, 112, 0.10);
+  transform: translateY(-0.5px);
+}
+
+.denyButton:active {
+  transform: scale(0.97) translateY(0);
+}
+
+.hintLabel {
+  font-family: var(--font-data);
+  font-size: 8px;
+}
+
+.statusBlock {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--text-3);
+  padding: 8px;
+}
+
+.statusLine {
+  margin-bottom: 8px;
+  color: var(--text-2);
+}
+
+.sessionMeta {
+  color: var(--text-dim);
+  font-size: 8px;
+}
+
+/* DiffLineRow */
+.diffLine {
+  font-family: var(--font-data);
+  font-size: 9px;
+  line-height: 16px;
+  padding: 0 4px;
+  margin-bottom: 2px;
+}
+
+.diffLineNumber {
+  color: var(--text-dim);
+  margin-right: 8px;
+  display: inline-block;
+  width: 24px;
+  text-align: right;
+}
+
+.diffPrefix {
+  color: var(--text-dim);
+  margin-right: 4px;
+}

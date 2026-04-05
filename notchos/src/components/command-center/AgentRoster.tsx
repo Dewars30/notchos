@@ -1,6 +1,7 @@
 import type { Agent, AgentStatus } from '../../types';
 import { StatusOrb } from '../shared/StatusOrb';
 import { ZoneLabel } from '../shared/ZoneLabel';
+import styles from './AgentRoster.module.css';
 
 interface AgentRosterProps {
   agents: Agent[];
@@ -41,36 +42,14 @@ export function AgentRoster({ agents, selectedAgentId, onSelectAgent, onJumpToTe
   }
 
   return (
-    <div style={{
-      gridArea: 'agents',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: 12,
-      borderRight: '0.5px solid var(--bg-elevated)',
-      position: 'relative',
-      zIndex: 1,
-      overflow: 'hidden',
-    }}>
+    <div className={styles.container}>
       <ZoneLabel>AGENTS</ZoneLabel>
 
-      <div role="listbox" aria-label="Agent list" style={{
-        marginTop: 8,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 4,
-        flex: 1,
-      }}>
+      <div role="listbox" aria-label="Agent list" className={styles.agentList}>
         {Array.from(groups.entries()).map(([project, groupAgents]) => (
           <div key={project}>
             {groups.size > 1 && (
-              <span style={{
-                fontFamily: 'var(--font-label)',
-                fontSize: 7,
-                color: 'var(--text-dim)',
-                letterSpacing: '0.08em',
-                display: 'block',
-                padding: '4px 0 2px',
-              }}>
+              <span className={styles.groupLabel}>
                 {project.toUpperCase()}
               </span>
             )}
@@ -84,59 +63,25 @@ export function AgentRoster({ agents, selectedAgentId, onSelectAgent, onJumpToTe
                   aria-label={agent.name}
                   onClick={() => onSelectAgent(agent.id)}
                   onDoubleClick={() => onJumpToTerminal?.(agent.id)}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 2,
-                    padding: '6px 4px',
-                    background: isSelected ? 'var(--bg-elevated)' : 'transparent',
-                    borderRadius: 4,
-                    border: 'none',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'background 100ms',
-                  }}
+                  className={isSelected ? styles.agentButtonSelected : styles.agentButton}
                 >
                   {/* Name row */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
-                  }}>
+                  <div className={styles.nameRow}>
                     <StatusOrb status={agent.status} size={5} />
-                    <span style={{
-                      fontFamily: 'var(--font-ui)',
-                      fontSize: 10,
-                      fontWeight: 500,
-                      color: isSelected ? STATUS_COLORS[agent.status] : 'var(--text-1)',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      flex: 1,
-                    }}>
+                    <span
+                      className={styles.agentName}
+                      style={{ color: isSelected ? STATUS_COLORS[agent.status] : 'var(--text-1)' }}
+                    >
                       {agent.name}
                     </span>
                   </div>
 
                   {/* Meta row */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    paddingLeft: 21, /* orb container (17px) + gap (4px) */
-                  }}>
-                    <span style={{
-                      fontFamily: 'var(--font-data)',
-                      fontSize: 8,
-                      color: 'var(--text-3)',
-                    }}>
+                  <div className={styles.metaRow}>
+                    <span className={styles.metaText}>
                       {agent.model} · {agent.status} · {formatElapsed(agent.elapsedSeconds)}
                     </span>
-                    <span style={{
-                      fontFamily: 'var(--font-data)',
-                      fontSize: 8,
-                      color: 'var(--text-3)',
-                    }}>
+                    <span className={styles.metaText}>
                       {formatCost(agent.cost)}
                     </span>
                   </div>
@@ -148,17 +93,8 @@ export function AgentRoster({ agents, selectedAgentId, onSelectAgent, onJumpToTe
       </div>
 
       {/* Session total */}
-      <div style={{
-        borderTop: '0.5px solid var(--border-subtle)',
-        paddingTop: 8,
-        marginTop: 'auto',
-      }}>
-        <span style={{
-          fontFamily: 'var(--font-ui)',
-          fontSize: 14,
-          fontWeight: 600,
-          color: 'var(--text-1)',
-        }}>
+      <div className={styles.totalSection}>
+        <span className={styles.totalCost}>
           {formatCost(totalCost)}
         </span>
       </div>

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import type { Agent, RiskTier, DiffLine } from '../../types';
 import { ZoneLabel } from '../shared/ZoneLabel';
 import { ClickablePath } from '../shared/ClickablePath';
+import styles from './ActiveSession.module.css';
 
 interface ActiveSessionProps {
   agent: Agent | null;
@@ -73,7 +74,7 @@ const RISK_WEIGHT: Record<RiskTier, {
 };
 
 function DiffLineRow({ line }: { line: DiffLine }) {
-  const styles: Record<DiffLine['type'], { color: string; bg: string }> = {
+  const lineStyles: Record<DiffLine['type'], { color: string; bg: string }> = {
     context: { color: 'var(--text-3)', bg: 'transparent' },
     addition: { color: 'rgba(56,168,154,0.7)', bg: 'rgba(56,168,154,0.04)' },
     deletion: { color: 'rgba(224,136,112,0.65)', bg: 'rgba(224,136,112,0.04)' },
@@ -83,28 +84,17 @@ function DiffLineRow({ line }: { line: DiffLine }) {
     addition: '+',
     deletion: '-',
   };
-  const { color, bg } = styles[line.type];
+  const { color, bg } = lineStyles[line.type];
 
   return (
-    <div style={{
-      fontFamily: 'var(--font-data)',
-      fontSize: 9,
-      lineHeight: '16px',
-      color,
-      background: bg,
-      padding: '0 4px',
-      marginBottom: 2,
-    }}>
-      <span style={{
-        color: 'var(--text-dim)',
-        marginRight: 8,
-        display: 'inline-block',
-        width: 24,
-        textAlign: 'right',
-      }}>
+    <div
+      className={styles.diffLine}
+      style={{ color, background: bg }}
+    >
+      <span className={styles.diffLineNumber}>
         {line.lineNumber ?? ''}
       </span>
-      <span style={{ color: 'var(--text-dim)', marginRight: 4 }}>
+      <span className={styles.diffPrefix}>
         {prefixes[line.type]}
       </span>
       <ClickablePath text={line.content} />
@@ -137,75 +127,46 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
 
   if (!agent) {
     return (
-      <div style={{
-        gridArea: 'center',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        zIndex: 1,
-      }}>
-        <span style={{
-          fontFamily: 'var(--font-ui)',
-          fontSize: 12,
-          color: 'var(--text-dim)',
-        }}>
-          Select an agent
-        </span>
+      <div className={styles.containerEmpty}>
+        <span className={styles.emptyText}>Select an agent</span>
       </div>
     );
   }
 
   return (
-    <div style={{
-      gridArea: 'center',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: 12,
-      overflow: 'auto',
-      position: 'relative',
-      zIndex: 1,
-    }}>
+    <div className={styles.container}>
       {/* Zone label */}
-      <div style={{ marginBottom: 8 }}>
+      <div className={styles.zoneRow}>
         <ZoneLabel>
           ACTIVE — {agent.name.toUpperCase()} · {approval?.filePath ?? agent.currentTool ?? agent.status}
         </ZoneLabel>
       </div>
 
       {approval ? (
-        <div aria-live="polite" style={{
-          borderLeft: weight.borderLeft,
-          paddingLeft: riskTier !== 'low' ? 8 : 0,
-          background: weight.bgTint,
-          borderRadius: riskTier === 'high' ? 4 : 0,
-        }}>
+        <div
+          aria-live="polite"
+          style={{
+            borderLeft: weight.borderLeft,
+            paddingLeft: riskTier !== 'low' ? 8 : 0,
+            background: weight.bgTint,
+            borderRadius: riskTier === 'high' ? 4 : 0,
+          }}
+        >
           {/* Risk badge + impact summary */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            marginBottom: 8,
-          }}>
-            <span style={{
-              fontFamily: 'var(--font-label)',
-              fontSize: 8,
-              color: risk.text,
-              background: risk.bg,
-              border: `0.5px solid ${risk.border}`,
-              borderRadius: 3,
-              padding: '2px 6px',
-              letterSpacing: '0.08em',
-            }}>
+          <div className={styles.riskHeader}>
+            <span
+              className={styles.riskBadge}
+              style={{
+                color: risk.text,
+                background: risk.bg,
+                border: `0.5px solid ${risk.border}`,
+              }}
+            >
               {RISK_LABELS[riskTier]}
             </span>
 
             {(approval.impactFiles || approval.impactDeps) && (
-              <span style={{
-                fontFamily: 'var(--font-data)',
-                fontSize: 9,
-                color: 'var(--text-3)',
-              }}>
+              <span className={styles.impactText}>
                 {approval.impactFiles ? `${approval.impactFiles} files` : ''}
                 {approval.impactFiles && approval.impactDeps ? ' · ' : ''}
                 {approval.impactDeps ? `${approval.impactDeps} deps` : ''}
@@ -215,29 +176,20 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
 
           {/* High-risk impact summary */}
           {riskTier === 'high' && approval.summary && (
-            <div style={{
-              fontFamily: 'var(--font-ui)',
-              fontSize: 10,
-              fontWeight: 500,
-              color: 'var(--coral)',
-              padding: '4px 0',
-              marginBottom: 4,
-            }}>
+            <div className={styles.highRiskSummary}>
               ⚠ {approval.summary}
             </div>
           )}
 
           {/* Diff block */}
           {approval.diff && approval.diff.length > 0 && (
-            <div style={{
-              background: 'var(--bg-base)',
-              borderRadius: 4,
-              border: '0.5px solid var(--bg-elevated)',
-              padding: weight.padding,
-              marginBottom: 8,
-              overflow: 'auto',
-              maxHeight: weight.maxDiffHeight,
-            }}>
+            <div
+              className={styles.diffBlock}
+              style={{
+                padding: weight.padding,
+                maxHeight: weight.maxDiffHeight,
+              }}
+            >
               {approval.diff.map((line, i) => (
                 <DiffLineRow key={i} line={line} />
               ))}
@@ -245,34 +197,15 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
           )}
 
           {/* Action buttons */}
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div className={styles.actionRow}>
             <button
               onClick={() => onApprove(approval.approvalId)}
-              onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.97)'; }}
-              onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-              style={{
-                fontFamily: 'var(--font-ui)',
-                fontSize: weight.fontSize,
-                fontWeight: 500,
-                color: 'rgba(56,168,154,0.85)',
-                background: 'rgba(56,168,154,0.08)',
-                border: '0.5px solid rgba(56,168,154,0.20)',
-                borderRadius: 4,
-                padding: '4px 12px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                transition: 'all 100ms',
-              }}
+              className={styles.approveButton}
+              style={{ fontSize: weight.fontSize }}
             >
               Approve
               {weight.showHints && (
-                <span style={{
-                  fontFamily: 'var(--font-data)',
-                  fontSize: 8,
-                  opacity: weight.hintOpacity,
-                }}>
+                <span className={styles.hintLabel} style={{ opacity: weight.hintOpacity }}>
                   ⌘Y
                 </span>
               )}
@@ -280,31 +213,12 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
 
             <button
               onClick={() => onDeny(approval.approvalId)}
-              onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.97)'; }}
-              onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-              style={{
-                fontFamily: 'var(--font-ui)',
-                fontSize: weight.fontSize,
-                fontWeight: 500,
-                color: 'rgba(224,136,112,0.70)',
-                background: 'rgba(224,136,112,0.05)',
-                border: '0.5px solid rgba(224,136,112,0.12)',
-                borderRadius: 4,
-                padding: '4px 12px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                transition: 'all 100ms',
-              }}
+              className={styles.denyButton}
+              style={{ fontSize: weight.fontSize }}
             >
               Deny
               {weight.showHints && (
-                <span style={{
-                  fontFamily: 'var(--font-data)',
-                  fontSize: 8,
-                  opacity: weight.hintOpacity,
-                }}>
+                <span className={styles.hintLabel} style={{ opacity: weight.hintOpacity }}>
                   ⌘N
                 </span>
               )}
@@ -312,13 +226,8 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
           </div>
         </div>
       ) : (
-        <div style={{
-          fontFamily: 'var(--font-data)',
-          fontSize: 9,
-          color: 'var(--text-3)',
-          padding: 8,
-        }}>
-          <div style={{ marginBottom: 8, color: 'var(--text-2)' }}>
+        <div className={styles.statusBlock}>
+          <div className={styles.statusLine}>
             {agent.status === 'idle' && 'All clear — no pending actions'}
             {agent.status === 'executing' && (
               <>Executing: <span style={{ color: 'var(--ripple)' }}>{agent.currentTool ?? 'unknown'}</span></>
@@ -330,7 +239,7 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
             {agent.status === 'error' && <span style={{ color: 'var(--coral)' }}>Agent encountered an error</span>}
           </div>
           {agent.status === 'idle' && (
-            <div style={{ color: 'var(--text-dim)', fontSize: 8 }}>
+            <div className={styles.sessionMeta}>
               Session: {Math.floor(agent.elapsedSeconds / 60)}m · Cost: ${agent.cost.toFixed(2)} · {agent.model}
             </div>
           )}

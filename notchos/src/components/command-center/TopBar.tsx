@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Agent, SessionMetrics } from '../../types';
 import { StatusOrb } from '../shared/StatusOrb';
 import { isMuted, setMuted } from '../../audio/SoundEngine';
+import styles from './TopBar.module.css';
 
 interface TopBarProps {
   agents: Agent[];
@@ -33,30 +34,15 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, connec
   return (
     <div
       data-tauri-drag-region
-      style={{
-        gridArea: 'topbar',
-        height: 36,
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 12px',
-        borderBottom: '0.5px solid var(--border-subtle)',
-        position: 'relative',
-        zIndex: 1,
-      }}
+      className={styles.container}
     >
       {/* NP mark */}
-      <span style={{
-        fontFamily: 'var(--font-label)',
-        fontSize: 10,
-        color: 'var(--text-dim)',
-        marginRight: 16,
-        letterSpacing: '0.08em',
-      }}>
+      <span className={styles.npMark}>
         NP
       </span>
 
       {/* Agent mini-pills */}
-      <div role="toolbar" aria-label="Agent selector" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <div role="toolbar" aria-label="Agent selector" className={styles.agentToolbar}>
         {agents.map(agent => {
           const isSelected = agent.id === selectedAgentId;
           return (
@@ -65,27 +51,10 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, connec
               onClick={() => onSelectAgent(agent.id)}
               aria-pressed={isSelected}
               aria-label={agent.name}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
-                padding: '2px 8px',
-                background: isSelected ? 'var(--bg-surface)' : 'transparent',
-                border: isSelected
-                  ? '0.5px solid var(--stroke)'
-                  : '0.5px solid transparent',
-                borderRadius: 3,
-                cursor: 'pointer',
-                transition: 'all 100ms',
-              }}
+              className={isSelected ? styles.agentButtonSelected : styles.agentButton}
             >
               <StatusOrb status={agent.status} size={4} />
-              <span style={{
-                fontFamily: 'var(--font-ui)',
-                fontSize: 10,
-                fontWeight: 500,
-                color: isSelected ? 'var(--text-1)' : 'var(--text-3)',
-              }}>
+              <span className={isSelected ? styles.agentLabelSelected : styles.agentLabel}>
                 {agent.abbreviation}
               </span>
             </button>
@@ -94,68 +63,34 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, connec
       </div>
 
       {/* Right: cost + tokens + LIVE indicator */}
-      <div style={{
-        marginLeft: 'auto',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-      }}>
-        <span style={{
-          fontFamily: 'var(--font-data)',
-          fontSize: 9,
-          color: 'var(--text-3)',
-        }}>
+      <div className={styles.rightCluster}>
+        <span className={styles.metricsText}>
           {formatCost(metrics.totalCost)} · {formatTokens(metrics.totalTokens)} tok
         </span>
 
         <button
           onClick={toggleMute}
-          style={{
-            fontFamily: 'var(--font-data)',
-            fontSize: 9,
-            color: muted ? 'var(--text-dim)' : 'var(--text-3)',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '2px 4px',
-          }}
+          className={styles.muteButton}
+          style={{ color: muted ? 'var(--text-dim)' : 'var(--text-3)' }}
           aria-label={muted ? 'Unmute sounds' : 'Mute sounds'}
         >
           {muted ? 'MUTED' : 'SND'}
         </button>
 
         {connectionStatus === 'connecting' && (
-          <span style={{ fontFamily: 'var(--font-data)', fontSize: 9, color: 'var(--gold)' }}>
-            CONNECTING
-          </span>
+          <span className={styles.statusConnecting}>CONNECTING</span>
         )}
         {connectionStatus === 'offline' && (
-          <span style={{ fontFamily: 'var(--font-data)', fontSize: 9, color: 'var(--coral)' }}>
-            OFFLINE
-          </span>
+          <span className={styles.statusOffline}>OFFLINE</span>
         )}
         {connectionStatus === 'demo' && (
-          <span style={{ fontFamily: 'var(--font-data)', fontSize: 9, color: 'var(--text-dim)' }}>
-            DEMO
-          </span>
+          <span className={styles.statusDemo}>DEMO</span>
         )}
 
         {hasLive && (
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{
-              width: 5,
-              height: 5,
-              borderRadius: '50%',
-              background: 'var(--ripple)',
-              boxShadow: '0 0 4px var(--ripple)',
-            }} />
-            <span style={{
-              fontFamily: 'var(--font-data)',
-              fontSize: 9,
-              color: 'var(--ripple)',
-            }}>
-              LIVE
-            </span>
+          <span className={styles.liveIndicator}>
+            <span className={styles.liveDot} />
+            <span className={styles.liveLabel}>LIVE</span>
           </span>
         )}
       </div>
@@ -168,18 +103,7 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, connec
             getCurrentWindow().hide();
           }
         }}
-        style={{
-          fontFamily: 'var(--font-ui)',
-          fontSize: 10,
-          color: 'var(--text-dim)',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: '2px 6px',
-          marginLeft: 4,
-          borderRadius: 4,
-          lineHeight: 1,
-        }}
+        className={styles.closeButton}
         aria-label="Hide NotchOS"
       >
         x

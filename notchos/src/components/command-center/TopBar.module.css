@@ -1,0 +1,132 @@
+.container {
+  grid-area: topbar;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-bottom: 0.5px solid var(--border-subtle);
+  position: relative;
+  z-index: 1;
+}
+
+.npMark {
+  font-family: var(--font-label);
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-right: 16px;
+  letter-spacing: 0.08em;
+}
+
+.agentToolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.agentButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: transparent;
+  border: 0.5px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 100ms;
+}
+
+.agentButtonSelected {
+  composes: agentButton;
+  background: var(--bg-surface);
+  border-color: var(--stroke);
+}
+
+.agentLabel {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-3);
+}
+
+.agentLabelSelected {
+  composes: agentLabel;
+  color: var(--text-1);
+}
+
+.rightCluster {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metricsText {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--text-3);
+}
+
+.muteButton {
+  font-family: var(--font-data);
+  font-size: 9px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.statusConnecting {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--gold);
+}
+
+.statusOffline {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--coral);
+}
+
+.statusDemo {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+.liveIndicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.liveDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ripple);
+  box-shadow: 0 0 4px var(--ripple);
+}
+
+.liveLabel {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--ripple);
+}
+
+.closeButton {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  margin-left: 4px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.closeButton:hover {
+  color: var(--text-2);
+  background: var(--bg-elevated);
+}
