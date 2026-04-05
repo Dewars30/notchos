@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import styles from './PlanReview.module.css';
 
 interface PlanReviewProps {
   reviewId: string;
@@ -29,77 +30,29 @@ export function PlanReview({ reviewId, planMarkdown, onApprove, onDeny, onReques
   }, [reviewId, onApprove, onDeny]);
 
   return (
-    <div style={{
-      borderLeft: '0.5px solid var(--gold)',
-      paddingLeft: 8,
-    }}>
+    <div className={styles.container}>
       {/* Badge */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-        <span style={{
-          fontFamily: 'var(--font-label)',
-          fontSize: 8,
-          color: 'var(--gold)',
-          background: 'var(--gold-dim)',
-          border: '0.5px solid var(--gold-border)',
-          borderRadius: 3,
-          padding: '2px 6px',
-          letterSpacing: '0.08em',
-        }}>
-          PLAN REVIEW
-        </span>
+      <div className={styles.badgeRow}>
+        <span className={styles.badge}>PLAN REVIEW</span>
       </div>
 
       {/* Plan content — rendered as pre-formatted text (simple Markdown) */}
-      <div style={{
-        background: 'var(--bg-base)',
-        borderRadius: 4,
-        border: '0.5px solid var(--bg-elevated)',
-        padding: 10,
-        marginBottom: 8,
-        overflow: 'auto',
-        maxHeight: 300,
-        fontFamily: 'var(--font-data)',
-        fontSize: 9,
-        lineHeight: '16px',
-        color: 'var(--text-2)',
-        whiteSpace: 'pre-wrap',
-      }}>
+      <div className={styles.planContent}>
         {planMarkdown}
       </div>
 
       {/* Feedback input (shown on request changes) */}
       {showFeedback && (
-        <div style={{ marginBottom: 8 }}>
+        <div className={styles.feedbackWrapper}>
           <textarea
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
             placeholder="What should change?"
-            style={{
-              width: '100%',
-              minHeight: 48,
-              fontFamily: 'var(--font-data)',
-              fontSize: 9,
-              color: 'var(--text-1)',
-              background: 'var(--bg-surface)',
-              border: '0.5px solid var(--stroke)',
-              borderRadius: 4,
-              padding: 6,
-              resize: 'vertical',
-            }}
+            className={styles.feedbackTextarea}
           />
           <button
             onClick={() => { onRequestChanges(reviewId, feedback); setShowFeedback(false); }}
-            style={{
-              fontFamily: 'var(--font-ui)',
-              fontSize: 9,
-              color: 'var(--gold)',
-              background: 'var(--gold-dim)',
-              border: '0.5px solid var(--gold-border)',
-              borderRadius: 4,
-              padding: '3px 8px',
-              cursor: 'pointer',
-              marginTop: 4,
-            }}
+            className={styles.sendButton}
           >
             Send Feedback
           </button>
@@ -107,29 +60,14 @@ export function PlanReview({ reviewId, planMarkdown, onApprove, onDeny, onReques
       )}
 
       {/* Action buttons */}
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button onClick={() => onApprove(reviewId)} style={{
-          fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 500,
-          color: 'rgba(56,168,154,0.85)', background: 'rgba(56,168,154,0.08)',
-          border: '0.5px solid rgba(56,168,154,0.20)', borderRadius: 4,
-          padding: '4px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-        }}>
-          Approve <span style={{ fontFamily: 'var(--font-data)', fontSize: 8, opacity: 0.4 }}>⌘Y</span>
+      <div className={styles.actionRow}>
+        <button onClick={() => onApprove(reviewId)} className={styles.approveButton}>
+          Approve <span className={styles.shortcutHint}>⌘Y</span>
         </button>
-        <button onClick={() => onDeny(reviewId)} style={{
-          fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 500,
-          color: 'rgba(224,136,112,0.70)', background: 'rgba(224,136,112,0.05)',
-          border: '0.5px solid rgba(224,136,112,0.12)', borderRadius: 4,
-          padding: '4px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-        }}>
-          Deny <span style={{ fontFamily: 'var(--font-data)', fontSize: 8, opacity: 0.4 }}>⌘N</span>
+        <button onClick={() => onDeny(reviewId)} className={styles.denyButton}>
+          Deny <span className={styles.shortcutHint}>⌘N</span>
         </button>
-        <button onClick={() => setShowFeedback(!showFeedback)} style={{
-          fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 500,
-          color: 'var(--gold)', background: 'var(--gold-dim)',
-          border: '0.5px solid var(--gold-border)', borderRadius: 4,
-          padding: '4px 12px', cursor: 'pointer',
-        }}>
+        <button onClick={() => setShowFeedback(!showFeedback)} className={styles.changesButton}>
           Changes
         </button>
       </div>

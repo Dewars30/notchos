@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { Session } from "../types";
+import styles from "./SessionDetail.module.css";
 
 interface Props {
   session: Session;
@@ -21,10 +22,10 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const STATUS_COLOR: Record<string, string> = {
-  running: "var(--green)",
-  waiting: "var(--amber)",
+  running: "var(--ripple)",
+  waiting: "var(--gold)",
   done: "var(--text-dim)",
-  error: "var(--red)",
+  error: "var(--coral)",
 };
 
 export function SessionDetail({ session, onClose }: Props) {
@@ -34,118 +35,42 @@ export function SessionDetail({ session, onClose }: Props) {
   }
 
   return (
-    <div style={{
-      padding: "10px 14px 12px",
-      borderTop: "1px solid var(--border)",
-      animation: "slide-down 0.14s ease",
-    }}>
+    <div className={styles.root}>
       {/* Session meta */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        marginBottom: "10px",
-      }}>
-        <span style={{
-          fontFamily: "var(--mono)",
-          fontSize: "10px",
-          color: STATUS_COLOR[session.status],
-          letterSpacing: "0.08em",
-        }}>
+      <div className={styles.metaRow}>
+        <span
+          className={styles.statusLabel}
+          style={{ color: STATUS_COLOR[session.status] }}
+        >
           {STATUS_LABEL[session.status]}
         </span>
-        <span style={{ color: "var(--text-dim)", fontSize: "10px" }}>
-          {relativeTime(session.startedAt)} ago
-        </span>
-        <span style={{
-          marginLeft: "auto",
-          fontSize: "9px",
-          color: "var(--text-dim)",
-          fontFamily: "var(--mono)",
-          maxWidth: "160px",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}>
-          {session.id.slice(0, 8)}
-        </span>
+        <span className={styles.timeAgo}>{relativeTime(session.startedAt)} ago</span>
+        <span className={styles.sessionId}>{session.id.slice(0, 8)}</span>
       </div>
 
       {/* Last message */}
       {session.lastMessage && (
-        <div style={{
-          background: "var(--bg)",
-          border: "1px solid var(--border)",
-          borderRadius: "4px",
-          padding: "7px 9px",
-          marginBottom: "10px",
-          fontSize: "11px",
-          color: "var(--text-secondary)",
-          lineHeight: 1.5,
-          maxHeight: "60px",
-          overflow: "hidden",
-          display: "-webkit-box",
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: "vertical",
-        }}>
+        <div className={styles.lastMessage}>
           {session.lastMessage}
         </div>
       )}
 
       {/* Current tool */}
       {session.currentTool && session.status === "running" && (
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          marginBottom: "10px",
-          fontSize: "11px",
-          color: "var(--text-dim)",
-        }}>
-          <span style={{
-            width: "5px", height: "5px", borderRadius: "50%",
-            background: "var(--green)",
-            animation: "pulse-dot 1.8s ease-in-out infinite",
-          }} />
+        <div className={styles.currentTool}>
+          <span className={styles.pulseDot} />
           {session.currentTool}
         </div>
       )}
 
       {/* Actions */}
-      <div style={{ display: "flex", gap: "8px" }}>
+      <div className={styles.actionRow}>
         {session.status === "done" && (
-          <button
-            onClick={handleDismiss}
-            style={{
-              padding: "5px 12px",
-              background: "transparent",
-              border: "1px solid var(--border-bright)",
-              borderRadius: "4px",
-              color: "var(--text-secondary)",
-              fontFamily: "var(--mono)",
-              fontSize: "10px",
-              cursor: "pointer",
-              letterSpacing: "0.06em",
-            }}
-          >
+          <button onClick={handleDismiss} className={styles.dismissButton}>
             DISMISS
           </button>
         )}
-        <button
-          onClick={onClose}
-          style={{
-            padding: "5px 12px",
-            background: "transparent",
-            border: "1px solid transparent",
-            borderRadius: "4px",
-            color: "var(--text-dim)",
-            fontFamily: "var(--mono)",
-            fontSize: "10px",
-            cursor: "pointer",
-            letterSpacing: "0.06em",
-            marginLeft: "auto",
-          }}
-        >
+        <button onClick={onClose} className={styles.escButton}>
           ESC
         </button>
       </div>

@@ -1,0 +1,136 @@
+.container {
+  border-left: 0.5px solid var(--gold);
+  padding-left: 8px;
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.badge {
+  font-family: var(--font-label);
+  font-size: 8px;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 0.5px solid var(--gold-border);
+  border-radius: 3px;
+  padding: 2px 6px;
+  letter-spacing: 0.08em;
+}
+
+.planContent {
+  background: var(--bg-base);
+  border-radius: 4px;
+  border: 0.5px solid var(--bg-elevated);
+  padding: 10px;
+  margin-bottom: 8px;
+  overflow: auto;
+  max-height: 300px;
+  font-family: var(--font-data);
+  font-size: 9px;
+  line-height: 16px;
+  color: var(--text-2);
+  white-space: pre-wrap;
+}
+
+.feedbackWrapper {
+  margin-bottom: 8px;
+}
+
+.feedbackTextarea {
+  width: 100%;
+  min-height: 48px;
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--text-1);
+  background: var(--bg-surface);
+  border: 0.5px solid var(--stroke);
+  border-radius: 4px;
+  padding: 6px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.sendButton {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 0.5px solid var(--gold-border);
+  border-radius: 4px;
+  padding: 3px 8px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.sendButton:hover {
+  opacity: 0.8;
+}
+
+.actionRow {
+  display: flex;
+  gap: 8px;
+}
+
+.approveButton {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(56, 168, 154, 0.85);
+  background: rgba(56, 168, 154, 0.08);
+  border: 0.5px solid rgba(56, 168, 154, 0.20);
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.approveButton:hover {
+  background: rgba(56, 168, 154, 0.15);
+}
+
+.denyButton {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(224, 136, 112, 0.70);
+  background: rgba(224, 136, 112, 0.05);
+  border: 0.5px solid rgba(224, 136, 112, 0.12);
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.denyButton:hover {
+  background: rgba(224, 136, 112, 0.12);
+}
+
+.changesButton {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 0.5px solid var(--gold-border);
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+
+.changesButton:hover {
+  opacity: 0.8;
+}
+
+.shortcutHint {
+  font-family: var(--font-data);
+  font-size: 8px;
+  opacity: 0.4;
+}

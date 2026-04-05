@@ -1,0 +1,61 @@
+.container {
+  /* border-left, padding-left, background, border-radius set via inline style (risk-dependent) */
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.badge {
+  font-family: var(--font-label);
+  font-size: 8px;
+  border-radius: 3px;
+  padding: 2px 6px;
+  letter-spacing: 0.08em;
+  /* color, background, border set via inline style (risk-dependent) */
+}
+
+.questionText {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--text-1);
+  margin-bottom: 12px;
+  line-height: 18px;
+}
+
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.optionButton {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-1);
+  background: var(--bg-surface);
+  border: 0.5px solid var(--stroke);
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  transition: background 100ms;
+}
+
+.optionButton:hover {
+  background: var(--bg-elevated);
+}
+
+.shortcut {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--teal);
+  flex-shrink: 0;
+}

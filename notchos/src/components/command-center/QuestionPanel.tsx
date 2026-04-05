@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import type { RiskTier } from '../../types';
+import styles from './QuestionPanel.module.css';
 
 interface QuestionPanelProps {
   questionId: string;
@@ -45,70 +46,43 @@ export function QuestionPanel({ questionId, question, options, onAnswer }: Quest
   }, [questionId, options, onAnswer]);
 
   return (
-    <div style={{
-      borderLeft: riskTier === 'high' ? '0.5px solid var(--coral)' : riskTier === 'medium' ? '0.5px solid var(--gold)' : '0.5px solid transparent',
-      paddingLeft: riskTier !== 'low' ? 8 : 0,
-      background: riskTier === 'high' ? 'var(--coral-dim)' : 'transparent',
-      borderRadius: riskTier === 'high' ? 4 : 0,
-    }}>
+    <div
+      className={styles.container}
+      style={{
+        borderLeft: riskTier === 'high' ? '0.5px solid var(--coral)' : riskTier === 'medium' ? '0.5px solid var(--gold)' : '0.5px solid transparent',
+        paddingLeft: riskTier !== 'low' ? 8 : 0,
+        background: riskTier === 'high' ? 'var(--coral-dim)' : 'transparent',
+        borderRadius: riskTier === 'high' ? 4 : 0,
+      }}
+    >
       {/* Question badge */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-        <span style={{
-          fontFamily: 'var(--font-label)',
-          fontSize: 8,
-          color: risk.text,
-          background: risk.bg,
-          border: `0.5px solid ${risk.border}`,
-          borderRadius: 3,
-          padding: '2px 6px',
-          letterSpacing: '0.08em',
-        }}>
+      <div className={styles.badgeRow}>
+        <span
+          className={styles.badge}
+          style={{
+            color: risk.text,
+            background: risk.bg,
+            border: `0.5px solid ${risk.border}`,
+          }}
+        >
           QUESTION
         </span>
       </div>
 
       {/* Question text */}
-      <div style={{
-        fontFamily: 'var(--font-ui)',
-        fontSize: 11,
-        color: 'var(--text-1)',
-        marginBottom: 12,
-        lineHeight: '18px',
-      }}>
+      <div className={styles.questionText}>
         {question}
       </div>
 
       {/* Option buttons */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div className={styles.optionList}>
         {options.map((option, i) => (
           <button
             key={i}
             onClick={() => onAnswer(questionId, option)}
-            style={{
-              fontFamily: 'var(--font-ui)',
-              fontSize: 10,
-              fontWeight: 500,
-              color: 'var(--text-1)',
-              background: 'var(--bg-surface)',
-              border: '0.5px solid var(--stroke)',
-              borderRadius: 4,
-              padding: '6px 12px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              textAlign: 'left',
-              transition: 'background 100ms',
-            }}
+            className={styles.optionButton}
           >
-            <span style={{
-              fontFamily: 'var(--font-data)',
-              fontSize: 9,
-              color: 'var(--teal)',
-              flexShrink: 0,
-            }}>
-              ⌘{i + 1}
-            </span>
+            <span className={styles.shortcut}>⌘{i + 1}</span>
             {option}
           </button>
         ))}

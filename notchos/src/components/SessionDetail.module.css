@@ -1,0 +1,106 @@
+.root {
+  padding: 10px 14px 12px;
+  border-top: 1px solid var(--border-subtle);
+  animation: slide-down 0.14s ease;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.statusLabel {
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  /* color set via inline style (status-dependent) */
+}
+
+.timeAgo {
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+.sessionId {
+  margin-left: auto;
+  font-size: 9px;
+  color: var(--text-dim);
+  font-family: var(--font-data);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lastMessage {
+  background: var(--bg-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 7px 9px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  color: var(--text-2);
+  line-height: 1.5;
+  max-height: 60px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.currentTool {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.pulseDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ripple);
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+
+.actionRow {
+  display: flex;
+  gap: 8px;
+}
+
+.dismissButton {
+  padding: 5px 12px;
+  background: transparent;
+  border: 1px solid var(--stroke);
+  border-radius: 4px;
+  color: var(--text-2);
+  font-family: var(--font-data);
+  font-size: 10px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+}
+
+.dismissButton:hover {
+  background: var(--bg-surface);
+}
+
+.escButton {
+  padding: 5px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--text-dim);
+  font-family: var(--font-data);
+  font-size: 10px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  margin-left: auto;
+}
+
+.escButton:hover {
+  color: var(--text-2);
+}

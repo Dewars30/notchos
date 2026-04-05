@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import type { Session } from "../types";
+import styles from "./ApprovalPanel.module.css";
 
 interface Props {
   session: Session;
@@ -8,13 +9,6 @@ interface Props {
 }
 
 function renderToolInput(toolName: string, input: Record<string, unknown>): React.ReactNode {
-  const style: React.CSSProperties = {
-    fontFamily: "var(--mono)",
-    fontSize: "11px",
-    color: "var(--text-primary)",
-    lineHeight: 1.6,
-  };
-
   switch (toolName) {
     case "Write":
     case "Edit":
@@ -22,21 +16,12 @@ function renderToolInput(toolName: string, input: Record<string, unknown>): Reac
       const path = (input.file_path ?? input.path ?? "") as string;
       const content = (input.content ?? input.new_string ?? "") as string;
       return (
-        <div style={style}>
-          <div style={{ color: "var(--text-secondary)", marginBottom: "6px" }}>
-            <span style={{ color: "var(--amber)" }}>→</span> {path}
+        <div className={styles.toolInputText}>
+          <div className={styles.toolInputPath}>
+            <span className={styles.toolInputArrow}>→</span> {path}
           </div>
           {content && (
-            <pre style={{
-              background: "var(--bg)",
-              border: "1px solid var(--border)",
-              borderRadius: "4px",
-              padding: "8px",
-              maxHeight: "140px",
-              overflow: "auto",
-              fontSize: "10.5px",
-              color: "var(--text-secondary)",
-            }}>
+            <pre className={styles.toolInputPre}>
               {String(content).slice(0, 800)}{String(content).length > 800 ? "\n…" : ""}
             </pre>
           )}
@@ -46,34 +31,14 @@ function renderToolInput(toolName: string, input: Record<string, unknown>): Reac
     case "Bash": {
       const cmd = (input.command ?? "") as string;
       return (
-        <pre style={{
-          ...style,
-          background: "var(--bg)",
-          border: "1px solid var(--border)",
-          borderRadius: "4px",
-          padding: "8px",
-          color: "var(--green)",
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-all",
-        }}>
-          <span style={{ color: "var(--text-dim)" }}>$ </span>{cmd}
+        <pre className={styles.toolInputBash}>
+          <span className={styles.toolInputPrompt}>$ </span>{cmd}
         </pre>
       );
     }
     default:
       return (
-        <pre style={{
-          ...style,
-          background: "var(--bg)",
-          border: "1px solid var(--border)",
-          borderRadius: "4px",
-          padding: "8px",
-          fontSize: "10px",
-          color: "var(--text-secondary)",
-          maxHeight: "120px",
-          overflow: "auto",
-          whiteSpace: "pre-wrap",
-        }}>
+        <pre className={styles.toolInputDefault}>
           {JSON.stringify(input, null, 2)}
         </pre>
       );
@@ -110,103 +75,32 @@ export function ApprovalPanel({ session, onClose }: Props) {
     codex: "#58a6ff",
     gemini: "#4ade80",
   };
-  const agentColor = AGENT_COLORS[session.agent] ?? "var(--text-secondary)";
+  const agentColor = AGENT_COLORS[session.agent] ?? "var(--text-2)";
 
   return (
-    <div style={{
-      padding: "10px 14px 12px",
-      borderTop: "1px solid var(--border)",
-      animation: "slide-down 0.14s ease",
-    }}>
+    <div className={styles.root}>
       {/* Header */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        marginBottom: "10px",
-      }}>
-        <span style={{
-          fontSize: "10px",
-          letterSpacing: "0.1em",
-          color: agentColor,
-          fontWeight: 500,
-        }}>
+      <div className={styles.header}>
+        <span className={styles.agentLabel} style={{ color: agentColor }}>
           {session.agent.toUpperCase()}
         </span>
-        <span style={{ color: "var(--border-bright)", fontSize: "11px" }}>·</span>
-        <span style={{
-          fontSize: "11px",
-          color: "var(--amber)",
-          background: "var(--amber-dim)",
-          padding: "1px 6px",
-          borderRadius: "3px",
-          letterSpacing: "0.06em",
-        }}>
-          {pa.toolName}
-        </span>
-        <span style={{
-          marginLeft: "auto",
-          fontSize: "10px",
-          color: "var(--text-dim)",
-          cursor: "pointer",
-        }} onClick={onClose}>
-          esc
-        </span>
+        <span className={styles.headerDot}>·</span>
+        <span className={styles.toolBadge}>{pa.toolName}</span>
+        <span className={styles.escLabel} onClick={onClose}>esc</span>
       </div>
 
       {/* Tool input preview */}
-      <div style={{ marginBottom: "12px" }}>
+      <div className={styles.toolPreview}>
         {renderToolInput(pa.toolName, pa.toolInput)}
       </div>
 
       {/* Action buttons */}
-      <div style={{
-        display: "flex",
-        gap: "8px",
-        alignItems: "center",
-      }}>
-        <button
-          onClick={handleApprove}
-          style={{
-            flex: 1,
-            padding: "7px",
-            background: "var(--green-dim)",
-            border: "1px solid var(--green)",
-            borderRadius: "5px",
-            color: "var(--green)",
-            fontFamily: "var(--mono)",
-            fontSize: "11px",
-            letterSpacing: "0.08em",
-            cursor: "pointer",
-            fontWeight: 500,
-            transition: "all 0.1s",
-          }}
-          onMouseEnter={e => (e.currentTarget.style.background = "var(--green-glow)")}
-          onMouseLeave={e => (e.currentTarget.style.background = "var(--green-dim)")}
-        >
-          ALLOW  <span style={{ opacity: 0.5, fontSize: "10px" }}>⌘Y</span>
+      <div className={styles.actionRow}>
+        <button onClick={handleApprove} className={styles.allowButton}>
+          ALLOW  <span className={styles.shortcutHint}>⌘Y</span>
         </button>
-
-        <button
-          onClick={handleDeny}
-          style={{
-            flex: 1,
-            padding: "7px",
-            background: "var(--red-dim)",
-            border: "1px solid var(--red)",
-            borderRadius: "5px",
-            color: "var(--red)",
-            fontFamily: "var(--mono)",
-            fontSize: "11px",
-            letterSpacing: "0.08em",
-            cursor: "pointer",
-            fontWeight: 500,
-            transition: "all 0.1s",
-          }}
-          onMouseEnter={e => (e.currentTarget.style.background = "rgba(240,80,80,0.3)")}
-          onMouseLeave={e => (e.currentTarget.style.background = "var(--red-dim)")}
-        >
-          DENY  <span style={{ opacity: 0.5, fontSize: "10px" }}>⌘N</span>
+        <button onClick={handleDeny} className={styles.denyButton}>
+          DENY  <span className={styles.shortcutHint}>⌘N</span>
         </button>
       </div>
     </div>

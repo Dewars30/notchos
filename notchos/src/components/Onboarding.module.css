@@ -1,0 +1,122 @@
+.root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-base);
+  padding: 32px;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+.logo {
+  font-family: var(--font-label);
+  font-size: 28px;
+  color: var(--text-1);
+  letter-spacing: 0.08em;
+}
+
+.tagline {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text-2);
+  text-align: center;
+}
+
+.agentList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.emptyHint {
+  font-family: var(--font-data);
+  font-size: 9px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.agentCard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--bg-surface);
+  border-radius: 6px;
+  border: 0.5px solid var(--border-subtle);
+}
+
+.agentDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  /* background set via inline style (status-dependent) */
+}
+
+.agentName {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--text-1);
+  flex: 1;
+}
+
+.agentStatus {
+  font-family: var(--font-data);
+  font-size: 8px;
+  /* color set via inline style (status-dependent) */
+}
+
+.actionRow {
+  display: flex;
+  gap: 12px;
+}
+
+.setupButton {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--bg-base);
+  background: var(--teal);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  transition: all 100ms;
+}
+
+.setupButton:not(:disabled) {
+  cursor: pointer;
+}
+
+.setupButton:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+.setupButton:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.skipButton {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--text-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 12px;
+}
+
+.skipButton:hover {
+  color: var(--text-2);
+}
+
+.doneMessage {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--teal);
+}

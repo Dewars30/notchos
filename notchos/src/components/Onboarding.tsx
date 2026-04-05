@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import styles from './Onboarding.module.css';
 
 const isTauri = '__TAURI_INTERNALS__' in window;
 
@@ -49,83 +50,35 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
   const hookedCount = agents.filter(a => a.hooksInjected).length;
 
   return (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'var(--bg-base)',
-      padding: 32,
-      gap: 24,
-    }}>
+    <div className={styles.root}>
       {/* Logo */}
-      <span style={{
-        fontFamily: 'var(--font-label)',
-        fontSize: 28,
-        color: 'var(--text-1)',
-        letterSpacing: '0.08em',
-      }}>
-        NP
-      </span>
+      <span className={styles.logo}>NP</span>
 
       {/* Tagline */}
-      <span style={{
-        fontFamily: 'var(--font-ui)',
-        fontSize: 14,
-        color: 'var(--text-2)',
-        textAlign: 'center',
-      }}>
-        Air traffic control for your AI agents.
-      </span>
+      <span className={styles.tagline}>Air traffic control for your AI agents.</span>
 
       {/* Agent detection list */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 8,
-        width: '100%',
-        maxWidth: 280,
-      }}>
+      <div className={styles.agentList}>
         {agents.length === 0 && !isTauri && (
-          <span style={{
-            fontFamily: 'var(--font-data)',
-            fontSize: 9,
-            color: 'var(--text-dim)',
-            textAlign: 'center',
-          }}>
+          <span className={styles.emptyHint}>
             Agent detection available in desktop mode
           </span>
         )}
         {agents.map(agent => (
-          <div key={agent.agentKey} style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '6px 10px',
-            background: 'var(--bg-surface)',
-            borderRadius: 6,
-            border: '0.5px solid var(--border-subtle)',
-          }}>
-            <span style={{
-              width: 6, height: 6, borderRadius: '50%',
-              background: agent.hooksInjected ? 'var(--teal)' : agent.installed ? 'var(--gold)' : 'var(--text-dim)',
-              flexShrink: 0,
-            }} />
-            <span style={{
-              fontFamily: 'var(--font-ui)',
-              fontSize: 11,
-              color: 'var(--text-1)',
-              flex: 1,
-            }}>
-              {agent.name}
-            </span>
-            <span style={{
-              fontFamily: 'var(--font-data)',
-              fontSize: 8,
-              color: agent.hooksInjected ? 'var(--teal)' : agent.installed ? 'var(--gold)' : 'var(--text-dim)',
-            }}>
+          <div key={agent.agentKey} className={styles.agentCard}>
+            <span
+              className={styles.agentDot}
+              style={{
+                background: agent.hooksInjected ? 'var(--teal)' : agent.installed ? 'var(--gold)' : 'var(--text-dim)',
+              }}
+            />
+            <span className={styles.agentName}>{agent.name}</span>
+            <span
+              className={styles.agentStatus}
+              style={{
+                color: agent.hooksInjected ? 'var(--teal)' : agent.installed ? 'var(--gold)' : 'var(--text-dim)',
+              }}
+            >
               {agent.hooksInjected ? 'READY' : agent.installed ? 'FOUND' : 'NOT FOUND'}
             </span>
           </div>
@@ -133,49 +86,22 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
       </div>
 
       {/* Action buttons */}
-      <div style={{ display: 'flex', gap: 12 }}>
+      <div className={styles.actionRow}>
         {!done ? (
           <>
             <button
               onClick={handleSetup}
               disabled={setting || installedCount === 0}
-              style={{
-                fontFamily: 'var(--font-ui)',
-                fontSize: 12,
-                fontWeight: 500,
-                color: 'var(--bg-base)',
-                background: 'var(--teal)',
-                border: 'none',
-                borderRadius: 6,
-                padding: '8px 20px',
-                cursor: setting || installedCount === 0 ? 'default' : 'pointer',
-                opacity: setting || installedCount === 0 ? 0.5 : 1,
-                transition: 'all 100ms',
-              }}
+              className={styles.setupButton}
             >
               {setting ? 'Setting up...' : `Set Up ${installedCount} Agent${installedCount !== 1 ? 's' : ''}`}
             </button>
-            <button
-              onClick={onComplete}
-              style={{
-                fontFamily: 'var(--font-ui)',
-                fontSize: 11,
-                color: 'var(--text-3)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '8px 12px',
-              }}
-            >
+            <button onClick={onComplete} className={styles.skipButton}>
               Skip
             </button>
           </>
         ) : (
-          <span style={{
-            fontFamily: 'var(--font-ui)',
-            fontSize: 12,
-            color: 'var(--teal)',
-          }}>
+          <span className={styles.doneMessage}>
             {hookedCount} agent{hookedCount !== 1 ? 's' : ''} configured. Starting...
           </span>
         )}
