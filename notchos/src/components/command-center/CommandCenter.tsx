@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import './CommandCenter.css';
+import styles from './CommandCenter.module.css';
 import type { Agent, TimelineEvent, SessionMetrics } from '../../types';
 import { TopBar } from './TopBar';
 import { AgentRoster } from './AgentRoster';
@@ -47,7 +47,7 @@ export function CommandCenter({
   }, []);
 
   return (
-    <div className="command-center">
+    <div className={styles.container}>
       <SpacetimeGrid
         riskTier={selectedAgent?.pendingApproval?.riskTier ?? 'low'}
         activeAgentCount={activeAgentCount}

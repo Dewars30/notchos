@@ -1,5 +1,5 @@
 /* Command Center — four-zone grid layout */
-.command-center {
+.container {
   display: grid;
   grid-template-rows: 36px 1fr 36px;
   grid-template-columns: 140px 1fr 120px;
