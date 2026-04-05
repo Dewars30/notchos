@@ -96,13 +96,23 @@ export function ExpandedPill({
     >
       {/* Agent rows — 28px each, 2px gap */}
       <div role="menu" className={styles.rows}>
-        {agents.map(agent => (
-          <AgentRow
+        {agents.map((agent, i) => (
+          <motion.div
             key={agent.id}
-            agent={agent}
-            onClick={() => onSelectAgent(agent.id)}
-            onJumpToTerminal={onJumpToTerminal}
-          />
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{
+              delay: i * 0.08,
+              duration: 0.2,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+          >
+            <AgentRow
+              agent={agent}
+              onClick={() => onSelectAgent(agent.id)}
+              onJumpToTerminal={onJumpToTerminal}
+            />
+          </motion.div>
         ))}
       </div>
 
