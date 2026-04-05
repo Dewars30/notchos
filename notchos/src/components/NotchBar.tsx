@@ -9,48 +9,60 @@ interface NotchBarProps {
 }
 
 export function NotchBar({ agents, metrics, onHover, onClick }: NotchBarProps) {
+  const hasAgents = agents.length > 0;
+
   return (
     <div
       onMouseEnter={onHover}
       onClick={onClick}
       style={{
-        width: 200,
-        height: 32,
-        // External monitor fallback: --bg-surface pill
-        // True notch mode would use #000 background
-        background: 'var(--bg-surface)',
-        border: '0.5px solid var(--stroke)',
-        borderRadius: 50,
+        width: '100%',
+        height: '100%',
+        background: '#000000',
+        borderBottomLeftRadius: 16,
+        borderBottomRightRadius: 16,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
-        padding: '0 16px',
+        gap: 10,
+        padding: '0 20px',
         cursor: 'pointer',
       }}
     >
-      {/* Agent status orbs — 7px each, orbital frequency pulses */}
+      {/* NP mark */}
+      <span style={{
+        fontFamily: 'var(--font-label)',
+        fontSize: 11,
+        color: 'var(--text-3)',
+        letterSpacing: '0.06em',
+      }}>
+        NP
+      </span>
+
+      {/* Agent status orbs */}
       {agents.slice(0, 5).map(agent => (
         <StatusOrb key={agent.id} status={agent.status} size={7} />
       ))}
 
-      {/* Agent count */}
+      {/* Agent count + status */}
       <span style={{
-        fontFamily: 'var(--font-data)',
-        fontSize: 8,
-        color: 'var(--text-dim)',
+        fontFamily: 'var(--font-ui)',
+        fontSize: 11,
+        color: hasAgents ? 'var(--text-2)' : 'var(--text-3)',
       }}>
-        {agents.length}
+        {hasAgents ? `${agents.length} agent${agents.length !== 1 ? 's' : ''}` : 'No agents'}
       </span>
 
-      {/* Session cost */}
-      <span style={{
-        fontFamily: 'var(--font-data)',
-        fontSize: 8,
-        color: 'var(--text-dim)',
-      }}>
-        ${metrics.totalCost.toFixed(2)}
-      </span>
+      {/* Session cost — only show if non-zero */}
+      {metrics.totalCost > 0 && (
+        <span style={{
+          fontFamily: 'var(--font-data)',
+          fontSize: 10,
+          color: 'var(--text-3)',
+        }}>
+          ${metrics.totalCost.toFixed(2)}
+        </span>
+      )}
     </div>
   );
 }
