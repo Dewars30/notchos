@@ -148,7 +148,7 @@ export default function App() {
   function startPillCollapse() {
     clearCollapseTimer();
     collapseTimer.current = setTimeout(() => {
-      setMode('notch');
+      setMode(m => m === 'pill' ? 'notch' : m);
     }, 300);
   }
 
