@@ -1,4 +1,5 @@
 import type { Session } from "../types";
+import styles from "./AgentPill.module.css";
 
 interface Props {
   session: Session;
@@ -13,10 +14,10 @@ const AGENT_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLOR: Record<string, string> = {
-  running: "var(--green)",
-  waiting: "var(--amber)",
+  running: "var(--ripple)",
+  waiting: "var(--gold)",
   done: "var(--text-dim)",
-  error: "var(--red)",
+  error: "var(--coral)",
 };
 
 export function AgentPill({ session, isActive, onClick }: Props) {
@@ -27,26 +28,13 @@ export function AgentPill({ session, isActive, onClick }: Props) {
   return (
     <button
       onClick={onClick}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        padding: "4px 10px",
-        background: isActive ? "var(--bg-elevated)" : "transparent",
-        border: `1px solid ${isActive ? "var(--border-bright)" : "transparent"}`,
-        borderRadius: "6px",
-        cursor: "pointer",
-        transition: "all 0.12s ease",
-      }}
+      className={isActive ? styles.pillActive : styles.pill}
     >
-      {/* Status dot */}
+      {/* Status dot — background color and animation are dynamic */}
       <span
+        className={styles.dot}
         style={{
-          width: "6px",
-          height: "6px",
-          borderRadius: "50%",
           background: color,
-          flexShrink: 0,
           animation: isPulsing ? "pulse-dot 1.8s ease-in-out infinite" : "none",
           boxShadow: session.status === "waiting"
             ? `0 0 6px ${color}`
@@ -56,46 +44,27 @@ export function AgentPill({ session, isActive, onClick }: Props) {
         }}
       />
 
-      {/* Agent label */}
-      <span style={{
-        fontSize: "11px",
-        fontFamily: "var(--mono)",
-        color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
-        letterSpacing: "0.08em",
-        fontWeight: 500,
-      }}>
+      {/* Agent label — text color is dynamic based on isActive */}
+      <span
+        className={styles.agentLabel}
+        style={{ color: isActive ? "var(--text-1)" : "var(--text-2)" }}
+      >
         {label}
       </span>
 
       {/* Tool/status hint */}
       {session.currentTool && session.status !== "done" && (
-        <span style={{
-          fontSize: "10px",
-          color: "var(--text-dim)",
-          maxWidth: "80px",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}>
+        <span className={styles.toolHint}>
           {session.currentTool.toLowerCase()}
         </span>
       )}
 
       {session.status === "waiting" && (
-        <span style={{
-          fontSize: "9px",
-          color: "var(--amber)",
-          background: "var(--amber-dim)",
-          padding: "1px 5px",
-          borderRadius: "3px",
-          letterSpacing: "0.06em",
-        }}>
-          WAIT
-        </span>
+        <span className={styles.waitBadge}>WAIT</span>
       )}
 
       {session.status === "done" && (
-        <span style={{ fontSize: "11px", color: "var(--text-dim)" }}>✓</span>
+        <span className={styles.doneMark}>✓</span>
       )}
     </button>
   );

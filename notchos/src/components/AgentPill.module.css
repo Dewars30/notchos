@@ -1,0 +1,58 @@
+.pill {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.pill:hover {
+  background: var(--bg-elevated);
+}
+
+.pillActive {
+  composes: pill;
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.agentLabel {
+  font-size: 11px;
+  font-family: var(--font-data);
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+.toolHint {
+  font-size: 10px;
+  color: var(--text-dim);
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.waitBadge {
+  font-size: 9px;
+  color: var(--gold);
+  background: var(--gold-dim);
+  padding: 1px 5px;
+  border-radius: var(--radius-badge);
+  letter-spacing: 0.06em;
+}
+
+.doneMark {
+  font-size: 11px;
+  color: var(--text-dim);
+}

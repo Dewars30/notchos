@@ -1,5 +1,6 @@
 import type { Agent, AgentStatus, SessionMetrics } from '../types';
 import { StatusOrb } from './shared/StatusOrb';
+import styles from './ExpandedPill.module.css';
 
 interface ExpandedPillProps {
   agents: Agent[];
@@ -33,73 +34,32 @@ function AgentRow({ agent, onClick }: { agent: Agent; onClick: () => void }) {
     <button
       role="menuitem"
       onClick={onClick}
-      style={{
-        width: '100%',
-        height: 28,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 6,
-        padding: '0 4px',
-        background: 'transparent',
-        border: 'none',
-        borderRadius: 4,
-        cursor: 'pointer',
-        transition: 'background 100ms',
-      }}
-      onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-elevated)'; }}
-      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+      className={styles.agentRow}
     >
       {/* Status orb — 5px */}
       <StatusOrb status={agent.status} size={5} />
 
       {/* Agent name — Sora 11px/500 */}
-      <span style={{
-        fontFamily: 'var(--font-ui)',
-        fontSize: 11,
-        fontWeight: 500,
-        color: 'var(--text-1)',
-        whiteSpace: 'nowrap',
-      }}>
+      <span className={styles.agentName}>
         {agent.name}
       </span>
 
       {/* Meta — B612 Mono 9px: model · status · elapsed */}
-      <span style={{
-        fontFamily: 'var(--font-data)',
-        fontSize: 9,
-        color: 'var(--text-3)',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        flex: 1,
-        textAlign: 'left',
-      }}>
+      <span className={styles.agentMeta}>
         {agent.model} · {agent.status} · {formatElapsed(agent.elapsedSeconds)}
       </span>
 
-      {/* Cost — B612 Mono 9px */}
-      <span style={{
-        fontFamily: 'var(--font-data)',
-        fontSize: 9,
-        color: hasPending ? STATUS_COLORS[agent.status] : 'var(--text-3)',
-        whiteSpace: 'nowrap',
-      }}>
+      {/* Cost — B612 Mono 9px; color is dynamic based on hasPending */}
+      <span
+        className={styles.agentCost}
+        style={{ color: hasPending ? STATUS_COLORS[agent.status] : 'var(--text-3)' }}
+      >
         ${agent.cost.toFixed(2)}
       </span>
 
       {/* Pending badge — Departure Mono 8px, gold tint */}
       {hasPending && (
-        <span style={{
-          fontFamily: 'var(--font-label)',
-          fontSize: 8,
-          color: 'var(--gold)',
-          background: 'var(--gold-dim)',
-          border: '0.5px solid var(--gold-border)',
-          borderRadius: 3,
-          padding: '1px 5px',
-          letterSpacing: '0.06em',
-          flexShrink: 0,
-        }}>
+        <span className={styles.pendingBadge}>
           PENDING
         </span>
       )}
@@ -117,24 +77,12 @@ export function ExpandedPill({
 }: ExpandedPillProps) {
   return (
     <div
+      className={styles.container}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      style={{
-        width: '100%',
-        height: '100%',
-        background: 'var(--bg-base)',
-        border: '0.5px solid var(--stroke)',
-        borderRadius: 12,
-        overflow: 'hidden',
-      }}
     >
       {/* Agent rows — 28px each, 2px gap */}
-      <div role="menu" style={{
-        padding: '8px 12px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-      }}>
+      <div role="menu" className={styles.rows}>
         {agents.map(agent => (
           <AgentRow
             key={agent.id}
@@ -145,31 +93,13 @@ export function ExpandedPill({
       </div>
 
       {/* Footer — session summary + keyboard hint */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '6px 12px 8px',
-        borderTop: '0.5px solid var(--bg-surface)',
-      }}>
-        <span style={{
-          fontFamily: 'var(--font-data)',
-          fontSize: 9,
-          color: 'var(--text-3)',
-        }}>
+      <div className={styles.footer}>
+        <span className={styles.footerText}>
           {agents.length} agents · ${metrics.totalCost.toFixed(2)}
         </span>
         <button
           onClick={onExpandFull}
-          style={{
-            fontFamily: 'var(--font-data)',
-            fontSize: 9,
-            color: 'var(--teal)',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '2px 4px',
-          }}
+          className={styles.expandButton}
         >
           ⌘⇧N
         </button>
