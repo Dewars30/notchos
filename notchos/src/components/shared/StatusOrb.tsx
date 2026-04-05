@@ -1,4 +1,6 @@
+import { motion } from 'framer-motion';
 import type { AgentStatus } from '../../types';
+import styles from './StatusOrb.module.css';
 
 const STATUS_COLORS: Record<AgentStatus, string> = {
   idle: 'var(--teal)',
@@ -19,82 +21,79 @@ const RING_ANIMATIONS: Record<AgentStatus, string> = {
 interface StatusOrbProps {
   status: AgentStatus;
   size?: number;
+  layoutId?: string;
 }
 
-export function StatusOrb({ status, size = 5 }: StatusOrbProps) {
+const LAYOUT_SPRING = { type: 'spring' as const, stiffness: 400, damping: 30, mass: 1 };
+
+export function StatusOrb({ status, size = 5, layoutId }: StatusOrbProps) {
   const color = STATUS_COLORS[status];
   const animation = RING_ANIMATIONS[status];
   const containerSize = size + 12;
+
+  const children = (
+    <>
+      {/* Primary orbital ring */}
+      <span
+        className={`orb-ring ${styles.ring}`}
+        style={{ borderColor: color, animation }}
+      />
+
+      {/* Second ring for writing state */}
+      {status === 'writing' && (
+        <span
+          className={`orb-ring ${styles.ringOuter}`}
+          style={{
+            borderColor: color,
+            animation: 'orbit-write 0.9s ease-in-out infinite 0.45s',
+          }}
+        />
+      )}
+
+      {/* Bioluminescent glow for executing state */}
+      {status === 'executing' && (
+        <span
+          className={`orb-glow ${styles.glow}`}
+          style={{
+            background: color,
+            animation: 'glow-pulse 2s ease-in-out infinite',
+            boxShadow: `0 0 6px ${color}`,
+          }}
+        />
+      )}
+
+      {/* Core orb */}
+      <span
+        className={styles.core}
+        style={{ width: size, height: size, background: color }}
+      />
+    </>
+  );
+
+  if (layoutId) {
+    return (
+      <motion.span
+        layoutId={layoutId}
+        layout
+        transition={LAYOUT_SPRING}
+        role="img"
+        aria-label={`Status: ${status}`}
+        className={styles.container}
+        style={{ width: containerSize, height: containerSize }}
+      >
+        {children}
+      </motion.span>
+    );
+  }
 
   return (
     <span
       role="img"
       aria-label={`Status: ${status}`}
-      style={{
-        position: 'relative',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: containerSize,
-        height: containerSize,
-        flexShrink: 0,
-        overflow: 'visible',
-      }}
+      className={styles.container}
+      style={{ width: containerSize, height: containerSize }}
     >
-      {/* Primary orbital ring */}
-      <span className="orb-ring" style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        borderRadius: '50%',
-        border: `0.5px solid ${color}`,
-        animation,
-        pointerEvents: 'none',
-      }} />
-
-      {/* Second ring for writing state (double-ring pulse) */}
-      {status === 'writing' && (
-        <span className="orb-ring" style={{
-          position: 'absolute',
-          top: -2,
-          left: -2,
-          right: -2,
-          bottom: -2,
-          borderRadius: '50%',
-          border: `0.5px solid ${color}`,
-          animation: 'orbit-write 0.9s ease-in-out infinite 0.45s',
-          pointerEvents: 'none',
-        }} />
-      )}
-
-      {/* Bioluminescent glow for executing state */}
-      {status === 'executing' && (
-        <span className="orb-glow" style={{
-          position: 'absolute',
-          top: -1,
-          left: -1,
-          right: -1,
-          bottom: -1,
-          borderRadius: '50%',
-          background: color,
-          opacity: 0.04,
-          animation: 'glow-pulse 2s ease-in-out infinite',
-          boxShadow: `0 0 6px ${color}`,
-          pointerEvents: 'none',
-        }} />
-      )}
-
-      {/* Core orb */}
-      <span style={{
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        background: color,
-        position: 'relative',
-        zIndex: 1,
-      }} />
+      {children}
     </span>
   );
 }
