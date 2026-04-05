@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import styles from './ZoneLabel.module.css';
 
 interface ZoneLabelProps {
   children: ReactNode;
@@ -6,14 +7,7 @@ interface ZoneLabelProps {
 
 export function ZoneLabel({ children }: ZoneLabelProps) {
   return (
-    <span style={{
-      fontFamily: 'var(--font-label)',
-      fontSize: 7,
-      color: 'var(--text-dim)',
-      letterSpacing: '0.12em',
-      textTransform: 'uppercase' as const,
-      lineHeight: 1,
-    }}>
+    <span className={styles.label}>
       {children}
     </span>
   );

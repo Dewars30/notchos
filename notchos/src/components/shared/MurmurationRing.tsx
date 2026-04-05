@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import styles from './MurmurationRing.module.css';
 
 interface StreamDef {
   value: number;    // 0-100, density of this stream
@@ -208,7 +209,7 @@ export function MurmurationRing({ value, size = 56, label, streams }: Murmuratio
   }, [value, size, streams, isMultiStream]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+    <div className={styles.wrapper}>
       <canvas
         ref={canvasRef}
         width={size}
@@ -218,12 +219,7 @@ export function MurmurationRing({ value, size = 56, label, streams }: Murmuratio
         aria-label={`${label ?? 'Metric'}: ${value}%`}
       />
       {label && (
-        <span style={{
-          fontFamily: 'var(--font-label)',
-          fontSize: 7,
-          color: 'var(--text-dim)',
-          letterSpacing: '0.12em',
-        }}>
+        <span className={styles.label}>
           {label}
         </span>
       )}

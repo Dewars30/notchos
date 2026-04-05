@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import styles from './ClickablePath.module.css';
 
 const isTauri = '__TAURI_INTERNALS__' in window;
 
@@ -55,12 +56,7 @@ export function ClickablePath({ text, style }: ClickablePathProps) {
             key={i}
             href="#"
             onClick={(e) => handleClick(seg.content, e)}
-            style={{
-              color: 'var(--teal)',
-              textDecoration: 'none',
-              cursor: isTauri ? 'pointer' : 'default',
-              borderBottom: '0.5px solid rgba(56,168,154,0.3)',
-            }}
+            className={isTauri ? styles.link : styles.linkDisabled}
             title={`Click to open, ${navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'}+Click to reveal`}
           >
             {seg.content}

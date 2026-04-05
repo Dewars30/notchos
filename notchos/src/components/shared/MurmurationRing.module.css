@@ -1,0 +1,14 @@
+/* src/components/shared/MurmurationRing.module.css */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.label {
+  font-family: var(--font-label);
+  font-size: 7px;
+  color: var(--text-dim);
+  letter-spacing: 0.12em;
+}
