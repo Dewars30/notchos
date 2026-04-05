@@ -528,48 +528,22 @@ pub fn run() {
                 }
             }
 
-            // Set bridge path for agent hook injection
-            // Look for the bridge script in several locations:
-            // 1. ~/.notchos/bin/notchos-bridge.cjs (installed location)
-            // 2. Adjacent to the executable (development)
-            // 3. Inside the .app bundle Resources (production macOS)
+            // Set bridge path — always use ~/.notchos/bin/notchos-bridge.cjs
+            // If missing, write the embedded bridge script
             {
                 let mut bp = state_clone.bridge_path.lock().unwrap();
                 let home_bridge = dirs::home_dir()
                     .unwrap_or_default()
                     .join(".notchos/bin/notchos-bridge.cjs");
 
-                if home_bridge.exists() {
-                    *bp = home_bridge.to_string_lossy().to_string();
-                } else {
-                    // Copy bridge to ~/.notchos/bin/ for stable path
-                    let exe_dir = std::env::current_exe()
-                        .unwrap_or_default()
-                        .parent()
-                        .unwrap_or(std::path::Path::new("."))
-                        .to_path_buf();
-
-                    // Try to find the bridge script
-                    let candidates = [
-                        exe_dir.join("notchos-bridge.cjs"),
-                        exe_dir.join("../Resources/notchos-bridge.cjs"),
-                        exe_dir.join("../../scripts/notchos-bridge.cjs"),
-                    ];
-
-                    for candidate in &candidates {
-                        if candidate.exists() {
-                            let _ = std::fs::create_dir_all(home_bridge.parent().unwrap());
-                            let _ = std::fs::copy(candidate, &home_bridge);
-                            *bp = home_bridge.to_string_lossy().to_string();
-                            break;
-                        }
-                    }
-
-                    // Fallback: use the scripts directory in the source tree
-                    if bp.is_empty() {
-                        *bp = home_bridge.to_string_lossy().to_string();
-                    }
+                // Self-install: if bridge doesn't exist, write it from embedded content
+                if !home_bridge.exists() {
+                    let _ = std::fs::create_dir_all(home_bridge.parent().unwrap());
+                    let bridge_content = include_str!("../../scripts/notchos-bridge.cjs");
+                    let _ = std::fs::write(&home_bridge, bridge_content);
                 }
+
+                *bp = home_bridge.to_string_lossy().to_string();
             }
 
             // Start Unix socket server
