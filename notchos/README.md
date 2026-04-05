@@ -1,180 +1,157 @@
 # NotchOS
 
-A floating agent HUD for Claude Code, Codex, and Gemini CLI. Lives at the top of your screen. Surfaces approval requests without context-switching.
+**Air traffic control for your AI coding agents.**
 
-Built with Tauri 2 (Rust + React). Native macOS, no Electron, ~40MB RAM.
+A macOS desktop app that monitors Claude Code, Codex CLI, and Gemini CLI from a single floating interface. Approve permissions, review plans, jump to terminals, and track costs, all without leaving your editor.
 
----
-
-## What it does
-
-- **Monitors** all active agent sessions in a compact top-center bar
-- **Auto-surfaces** approval panels when Claude Code requests a tool (`PreToolUse`)
-- **Allow / Deny** with `⌘Y` / `⌘N` — no terminal focus needed
-- **Session detail** on click — status, last message, tool in progress
-- **Multi-agent** — Claude Code, Codex CLI, and Gemini CLI in one view
-- **Zero cloud** — everything over a local Unix socket at `/tmp/notchos.sock`
+Built with Tauri 2 (Rust + React). Open source.
 
 ---
 
-## Prerequisites
+## Features
 
-| Tool | Install |
-|------|---------|
-| Rust (stable) | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
-| Node 18+ | `brew install node` |
-| Xcode CLT | `xcode-select --install` |
-| Tauri CLI | installed via npm (see below) |
+**Three modes, one surface.** NotchOS lives in your macOS notch and decompresses as you need it.
+
+- **Notch Bar** (220x48) — Glanceable status orbs. Agent count + session cost.
+- **Expanded Pill** (380x200) — Agent list with model, status, elapsed time, pending badges.
+- **Command Center** (720x420) — Full dashboard: agent roster, approval surface, metrics, timeline.
+
+**Zero-config agent discovery.** On first launch, NotchOS detects your installed agents (Claude Code, Codex, Gemini CLI) and configures hooks automatically.
+
+**Physics-based design.** The "Deep Field" design system uses physics to encode information:
+- **Murmuration rings** — Canvas particle systems where density encodes metrics (context health, budget burn)
+- **Spacetime grid** — Background grid deforms toward active agents, intensity scales with team activity
+- **Orbital frequency** — Each agent status has a distinct animation signature (idle breathes, writing pulses, error tremors)
+- **Gravitational weight** — High-risk approvals physically expand, low-risk compress. You feel the weight before reading the label.
+
+**Approve without switching.** Permission requests appear inline with syntax-highlighted diffs, risk tier badges (LOW/MEDIUM/HIGH), and keyboard shortcuts (Cmd+Y approve, Cmd+N deny). High-risk approvals auto-expand the Command Center.
+
+**Answer agent questions.** When an agent asks "Which deployment target?", numbered option buttons appear with Cmd+1/2/3 shortcuts.
+
+**Review plans.** Agent-submitted plans render as formatted text with Approve, Deny, and Request Changes buttons.
+
+**Terminal jump.** Double-click any agent to jump to their terminal window (iTerm2, Terminal.app, Ghostty, VS Code, Cursor).
+
+**Session history.** Every session persists to SQLite (`~/.notchos/history.db`). Search by agent, project, date. Toggle with Cmd+H.
+
+**Team orchestration.** Agents working in the same directory auto-group as a "team" with shared timeline.
+
+**Cost tracking.** Estimated cost per agent with budget burn murmuration ring. See your spend rate at a glance.
+
+**Sound alerts.** Procedural 8-bit tones for agent events (approval requested, high-risk, finished, error). Mute toggle in TopBar.
+
+**Clickable file paths.** File paths in diffs are teal links. Click to open in your editor, Cmd+Click to reveal in Finder.
 
 ---
 
-## Build & run
+## Install
+
+### macOS (build from source)
 
 ```bash
-# 1. Clone / cd into project
-cd notchos
-
-# 2. Install JS dependencies
+# Requirements: Node.js 18+, Rust, Xcode Command Line Tools
+git clone https://github.com/YOUR_USERNAME/notchos.git
+cd notchos/notchos
 npm install
+npx tauri build
+```
 
-# 3. Generate placeholder icons (one-time)
-node scripts/gen-icons.js
+The built app is at `src-tauri/target/release/bundle/macos/NotchOS.app`.
 
-# 4. Dev mode (hot reload)
-npm run tauri dev
+**Note:** The binary is unsigned. On first launch, right-click the app, select "Open", and confirm the security dialog.
 
-# 5. Production build
-npm run tauri build
-# → src-tauri/target/release/bundle/macos/NotchOS.app
+### Development
+
+```bash
+cd notchos/notchos
+npm install
+npx tauri dev             # Hot-reload development (opens app window)
+npx vite dev --port 5199  # Browser-only dev (mock data, no Tauri)
 ```
 
 ---
 
-## Hook setup
+## How It Works
 
-After the app is running, wire up Claude Code's hooks:
+NotchOS hooks into your AI agents via their hook/plugin systems:
 
-```bash
-bash scripts/setup.sh
+```
+Agent CLI (claude/codex/gemini)
+  -> Hook fires on tool use
+  -> notchos-bridge.cjs (stdin JSON -> Unix socket)
+  -> NotchOS Rust backend (/tmp/notchos.sock)
+  -> React frontend updates in real-time
+  -> User approves/denies from the notch
+  -> Response flows back through socket -> bridge -> agent continues
 ```
 
-That's it. The script writes hook entries into `~/.claude/settings.json` pointing to the bridge script. For Codex and Gemini, see `scripts/agent-hooks-reference.txt`.
-
-**Verify it's working:**
-```bash
-# Simulate a notification event
-echo '{"hookEventName":"Notification","sessionId":"test-1","message":"hello from test","agent":"claude"}' \
-  | node scripts/notchos-bridge.js --agent claude
-```
-
-You should see the session appear in the HUD.
+On first launch, NotchOS auto-detects installed agents and injects hook entries into their config files. No manual setup required.
 
 ---
 
-## Simulate events (dev)
+## Keyboard Shortcuts
 
-Without running a real agent, you can test every UI state:
-
-```bash
-# Basic session lifecycle
-node scripts/dev-simulate.js basic
-
-# Approval flow (triggers Allow/Deny panel)
-node scripts/dev-simulate.js approval
-
-# Three agents simultaneously
-node scripts/dev-simulate.js multi
-
-# Rapid events stress test
-node scripts/dev-simulate.js stress
-```
+| Shortcut | Action |
+|----------|--------|
+| Cmd+Y | Approve |
+| Cmd+N | Deny |
+| Cmd+Shift+N | Toggle Command Center |
+| Cmd+H | Toggle History |
+| Cmd+] | Next agent |
+| Cmd+[ | Previous agent |
+| Cmd+1/2/3 | Answer agent questions |
+| Esc | Dismiss / collapse one level |
 
 ---
 
 ## Architecture
 
 ```
-Claude Code
-  └─ hook (PreToolUse/PostToolUse/Notification/Stop)
-       └─ notchos-bridge.js   ← node script, reads stdin, writes to socket
-            └─ /tmp/notchos.sock
-                 └─ Rust socket server (lib.rs)
-                      ├─ updates AppState (sessions vec)
-                      ├─ emits "sessions_updated" to frontend
-                      └─ blocks PreToolUse until React sends approve/deny
-                           └─ React (App.tsx)
-                                ├─ AgentPill    — per-session indicator
-                                ├─ ApprovalPanel — allow/deny UI
-                                └─ SessionDetail — status/history
-```
-
-**PreToolUse approval flow:**
-1. Claude Code fires hook → bridge writes event to socket
-2. Rust creates a `oneshot::channel`, stores sender, waits
-3. React receives `sessions_updated`, sees `pendingApproval`, expands panel
-4. User presses ⌘Y or ⌘N → React calls `invoke("approve")` or `invoke("deny")`
-5. Rust sends `ApprovalResponse` through the oneshot channel
-6. Bridge receives JSON on socket → writes to stdout
-7. Claude Code reads stdout, proceeds or aborts
-
----
-
-## Window behavior
-
-- Frameless, transparent background, always-on-top, non-activating
-- Positioned at top-center of primary monitor on launch
-- Height animates: 72px (idle) → 200px (detail) → 320px (approval)
-- Drag the bar to reposition
-- On Macs with a notch: manually position to sit just below the notch edge (y=0 works on most configs)
-
----
-
-## Keyboard shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `⌘Y` | Approve pending tool call |
-| `⌘N` | Deny pending tool call |
-| `Esc` | Collapse expanded panel |
-
----
-
-## Roadmap / known gaps
-
-- [ ] Terminal jump (AppleScript to iTerm2) — bridge exists, needs wiring
-- [ ] Codex hook auto-setup (currently manual)  
-- [ ] Gemini CLI hook auto-setup (currently manual)
-- [ ] Sound alerts on approval request
-- [ ] Session history log
-- [ ] Auto-dismiss done sessions after N seconds
-- [ ] Login item (launch at login)
-
----
-
-## File map
-
-```
 notchos/
-├── src-tauri/
-│   ├── Cargo.toml
-│   ├── build.rs
-│   ├── tauri.conf.json
-│   └── src/
-│       ├── main.rs          entry point
-│       └── lib.rs           socket server, state, Tauri commands
-├── src/
-│   ├── main.tsx
-│   ├── App.tsx              HUD root, session polling
-│   ├── types.ts
-│   ├── styles/index.css
-│   └── components/
-│       ├── AgentPill.tsx    per-session status indicator
-│       ├── ApprovalPanel.tsx allow/deny UI
-│       └── SessionDetail.tsx expanded session info
-└── scripts/
-    ├── notchos-bridge.js   hook bridge (called by agents)
-    ├── setup.sh             Claude Code hook installer
-    ├── dev-simulate.js      event simulator for dev
-    ├── gen-icons.js         placeholder icon generator
-    └── agent-hooks-reference.txt
+  src-tauri/            # Rust backend (Tauri 2)
+    src/
+      lib.rs            # Socket server, session state, approval blocking
+      agents/           # Auto-discovery: claude.rs, codex.rs, gemini.rs
+      history.rs        # SQLite persistence
+      editor.rs         # Open in editor / reveal in Finder
+      terminal.rs       # Terminal jump (AppleScript)
+  src/                  # React frontend (TypeScript)
+    App.tsx             # Mode orchestration, Framer Motion transitions
+    hooks/              # useSessionBridge (real-time backend data)
+    audio/              # Web Audio sound engine
+    components/
+      NotchBar.tsx      # Compact notch mode
+      ExpandedPill.tsx  # Expanded agent list
+      Onboarding.tsx    # First-run setup
+      shared/           # StatusOrb, MurmurationRing, ClickablePath
+      command-center/   # Full dashboard (9 components)
+    styles/index.css    # Deep Field design system tokens
+  scripts/
+    notchos-bridge.cjs  # Hook -> socket bridge
+    dev-simulate.cjs    # Event simulator for testing
+  DESIGN.md             # Canonical design specification
 ```
+
+---
+
+## Design System
+
+NotchOS uses the **Deep Field** design language. Cool darkness with warm light. Mathematical fabric, not void.
+
+- **Palette:** Cool blue-gray backgrounds (#13161C to #2C323C), warm cream text (#E0D8D0)
+- **Signals:** Teal (success), Gold (warning), Coral (danger), Steel (waiting), Ripple (executing)
+- **Typography:** Sora (UI), B612 Mono (data), Departure Mono (labels)
+- **Borders:** 0.5px, no shadows, depth via color steps
+- **Radius:** 12px outer to 3px inner (decreasing precision scale)
+
+See [DESIGN.md](DESIGN.md) for the full specification.
+
+---
+
+## License
+
+MIT
+
+---
+
+Built by Tony Diefenbach.
