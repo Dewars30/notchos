@@ -1,8 +1,11 @@
 .container {
   width: 100%;
   height: 100%;
-  background: var(--bg-base);
-  border: 0.5px solid var(--stroke);
+  background: var(--glass-pill);
+  backdrop-filter: saturate(130%) blur(var(--glass-blur-pill));
+  -webkit-backdrop-filter: saturate(130%) blur(var(--glass-blur-pill));
+  border: 0.5px solid rgba(74, 80, 96, 0.5);
+  box-shadow: inset 0 0.5px 0 var(--light-catch), 0 8px 32px rgba(0, 0, 0, 0.4);
   border-radius: var(--radius-window);
   overflow: hidden;
 }

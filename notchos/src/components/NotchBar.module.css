@@ -1,7 +1,10 @@
 .container {
   width: 100%;
   height: 100%;
-  background: #000000;
+  background: var(--glass-notch);
+  backdrop-filter: saturate(150%) blur(var(--glass-blur-notch));
+  -webkit-backdrop-filter: saturate(150%) blur(var(--glass-blur-notch));
+  box-shadow: inset 0 -0.5px 0 rgba(255, 255, 255, 0.04);
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
   display: flex;

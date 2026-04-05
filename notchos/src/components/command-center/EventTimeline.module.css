@@ -5,8 +5,8 @@
   align-items: flex-end;
   padding: 0 12px;
   padding-bottom: 6px;
-  border-top: 0.5px solid var(--bg-surface);
-  background: var(--bg-base);
+  border-top: 0.5px solid rgba(74, 80, 96, 0.2);
+  background: var(--zone-bg-bottom);
   position: relative;
   z-index: 1;
   gap: 2px;

@@ -3,7 +3,8 @@
   display: flex;
   flex-direction: column;
   padding: 12px;
-  border-right: 0.5px solid var(--bg-elevated);
+  background: var(--zone-bg-side);
+  border-right: 0.5px solid var(--zone-border);
   position: relative;
   z-index: 1;
   overflow: hidden;

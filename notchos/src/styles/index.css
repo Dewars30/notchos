@@ -83,6 +83,23 @@
   --transition-notch-pill: 120ms var(--ease-out);
   --transition-pill-cc: 200ms var(--ease-out);
   --transition-dismiss: 150ms var(--ease-in);
+
+  /* Glass layers */
+  --glass-notch: rgba(0, 0, 0, 0.85);
+  --glass-pill: rgba(19, 22, 28, 0.78);
+  --glass-cc: rgba(19, 22, 28, 0.75);
+  --glass-blur-notch: 20px;
+  --glass-blur-pill: 24px;
+  --glass-blur-cc: 28px;
+
+  /* Inner light catch */
+  --light-catch: rgba(255, 255, 255, 0.035);
+  --light-catch-strong: rgba(255, 255, 255, 0.05);
+
+  /* Interior zone backgrounds */
+  --zone-bg-side: rgba(26, 30, 38, 0.4);
+  --zone-bg-bottom: rgba(19, 22, 28, 0.5);
+  --zone-border: rgba(74, 80, 96, 0.25);
 }
 
 html, body {
