@@ -18,6 +18,7 @@ interface CommandCenterProps {
   onApprove: (approvalId: string) => void;
   onDeny: (approvalId: string) => void;
   onJumpToTerminal?: (agentId: string) => void;
+  onCollapse: () => void;
 }
 
 export function CommandCenter({
@@ -29,6 +30,7 @@ export function CommandCenter({
   onApprove,
   onDeny,
   onJumpToTerminal,
+  onCollapse,
 }: CommandCenterProps) {
   const selectedAgent = agents.find(a => a.id === selectedAgentId) ?? null;
   const activeAgentCount = agents.filter(a => a.status === 'writing' || a.status === 'executing').length;
@@ -58,6 +60,7 @@ export function CommandCenter({
         selectedAgentId={selectedAgentId}
         metrics={metrics}
         onSelectAgent={onSelectAgent}
+        onCollapse={onCollapse}
       />
       <AgentRoster
         agents={agents}

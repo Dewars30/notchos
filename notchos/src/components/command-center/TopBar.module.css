@@ -113,22 +113,29 @@
   color: var(--ripple);
 }
 
-.closeButton {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  color: var(--text-dim);
+.collapseButton {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 2px 6px;
+  padding: 6px 8px;
   margin-left: 4px;
-  border-radius: 4px;
-  line-height: 1;
+  border-radius: var(--radius-button);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.closeButton:hover {
-  color: var(--text-2);
-  background: var(--bg-elevated);
+.collapseButton:hover .collapseBar {
+  background: var(--text-3);
+  width: 20px;
+}
+
+.collapseBar {
+  width: 16px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--text-dim);
+  transition: all 150ms ease-out;
 }
 
 .separator {

@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import type { Agent, SessionMetrics } from '../types';
 import { StatusOrb } from './shared/StatusOrb';
 import styles from './NotchBar.module.css';
@@ -21,7 +20,7 @@ export function NotchBar({ agents, metrics, onHover, onClick, hasPending, hasHig
 
   return (
     <div className={containerClass} onMouseEnter={onHover} onClick={onClick}>
-      <motion.span layoutId="np-mark" className={styles.npMark}>NP</motion.span>
+      <span className={styles.npMark}>NP</span>
 
       {agents.slice(0, 5).map(agent => (
         <StatusOrb key={agent.id} status={agent.status} size={7} layoutId={`orb-${agent.id}`} />

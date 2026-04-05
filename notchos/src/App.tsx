@@ -301,6 +301,7 @@ export default function App() {
                   onApprove={handleApprove}
                   onDeny={handleDeny}
                   onJumpToTerminal={handleJumpToTerminal}
+                  onCollapse={() => setMode('pill')}
                 />
               </motion.div>
             )}

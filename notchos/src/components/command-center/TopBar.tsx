@@ -10,6 +10,7 @@ interface TopBarProps {
   selectedAgentId: string | null;
   metrics: SessionMetrics;
   onSelectAgent: (id: string) => void;
+  onCollapse: () => void;
   connectionStatus?: 'live' | 'connecting' | 'offline' | 'demo';
 }
 
@@ -22,7 +23,7 @@ function formatTokens(tokens: number): string {
   return String(tokens);
 }
 
-export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, connectionStatus }: TopBarProps) {
+export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, onCollapse, connectionStatus }: TopBarProps) {
   const [muted, setMutedState] = useState(isMuted());
   const hasLive = agents.some(a => a.status === 'executing' || a.status === 'writing');
 
@@ -96,18 +97,13 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, connec
         )}
       </div>
 
-      {/* Close button */}
+      {/* Collapse bar — click to collapse to pill, Esc also works */}
       <button
-        onClick={async () => {
-          if ('__TAURI_INTERNALS__' in window) {
-            const { getCurrentWindow } = await import('@tauri-apps/api/window');
-            getCurrentWindow().hide();
-          }
-        }}
-        className={styles.closeButton}
-        aria-label="Hide NotchOS"
+        onClick={onCollapse}
+        className={styles.collapseButton}
+        aria-label="Collapse to pill (Esc)"
       >
-        x
+        <span className={styles.collapseBar} />
       </button>
     </div>
   );
