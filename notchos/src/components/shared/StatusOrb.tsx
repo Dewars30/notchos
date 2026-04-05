@@ -38,7 +38,7 @@ export function StatusOrb({ status, size = 5 }: StatusOrbProps) {
         width: containerSize,
         height: containerSize,
         flexShrink: 0,
-        overflow: 'hidden',
+        overflow: 'visible',
       }}
     >
       {/* Primary orbital ring */}

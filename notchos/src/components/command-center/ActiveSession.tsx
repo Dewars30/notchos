@@ -248,6 +248,8 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => onApprove(approval.approvalId)}
+              onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.97)'; }}
+              onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
               style={{
                 fontFamily: 'var(--font-ui)',
                 fontSize: weight.fontSize,
@@ -261,7 +263,7 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                transition: 'background 100ms',
+                transition: 'all 100ms',
               }}
             >
               Approve
@@ -278,6 +280,8 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
 
             <button
               onClick={() => onDeny(approval.approvalId)}
+              onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.97)'; }}
+              onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
               style={{
                 fontFamily: 'var(--font-ui)',
                 fontSize: weight.fontSize,
@@ -291,7 +295,7 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                transition: 'background 100ms',
+                transition: 'all 100ms',
               }}
             >
               Deny
@@ -314,11 +318,22 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
           color: 'var(--text-3)',
           padding: 8,
         }}>
-          {agent.status === 'idle' && 'Agent idle — no pending actions'}
-          {agent.status === 'executing' && `Executing: ${agent.currentTool ?? 'unknown'}`}
-          {agent.status === 'writing' && `Writing: ${agent.currentTool ?? 'unknown'}`}
-          {agent.status === 'waiting' && 'Waiting for response...'}
-          {agent.status === 'error' && 'Agent encountered an error'}
+          <div style={{ marginBottom: 8, color: 'var(--text-2)' }}>
+            {agent.status === 'idle' && 'All clear — no pending actions'}
+            {agent.status === 'executing' && (
+              <>Executing: <span style={{ color: 'var(--ripple)' }}>{agent.currentTool ?? 'unknown'}</span></>
+            )}
+            {agent.status === 'writing' && (
+              <>Writing: <span style={{ color: 'var(--gold)' }}>{agent.currentTool ?? 'unknown'}</span></>
+            )}
+            {agent.status === 'waiting' && 'Waiting for response...'}
+            {agent.status === 'error' && <span style={{ color: 'var(--coral)' }}>Agent encountered an error</span>}
+          </div>
+          {agent.status === 'idle' && (
+            <div style={{ color: 'var(--text-dim)', fontSize: 8 }}>
+              Session: {Math.floor(agent.elapsedSeconds / 60)}m · Cost: ${agent.cost.toFixed(2)} · {agent.model}
+            </div>
+          )}
         </div>
       )}
     </div>

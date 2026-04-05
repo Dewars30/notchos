@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Agent, AgentStatus, BackendSession, SessionMetrics, TimelineEvent, AgentRegistryEntry } from '../types';
+import { playSound } from '../audio/SoundEngine';
 
 const isTauri = '__TAURI_INTERNALS__' in window;
 
@@ -54,6 +55,7 @@ function mapSessionToAgent(session: BackendSession): Agent {
 }
 
 export function useSessionBridge() {
+  const prevAgentsRef = useRef<Agent[]>([]);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [metrics, setMetrics] = useState<SessionMetrics>({
     contextHealth: 100,
@@ -69,7 +71,31 @@ export function useSessionBridge() {
     try {
       const { invoke } = await import('@tauri-apps/api/core');
       const sessions = await invoke<BackendSession[]>('get_sessions');
-      setAgents(sessions.map(mapSessionToAgent));
+      const newAgents = sessions.map(mapSessionToAgent);
+      setAgents(newAgents);
+
+      // Sound triggers — compare prev to new state
+      const prev = prevAgentsRef.current;
+      for (const agent of newAgents) {
+        const prevAgent = prev.find(a => a.id === agent.id);
+        if (!prevAgent) {
+          // New agent appeared
+          playSound('agentStarted');
+        } else if (!prevAgent.pendingApproval && agent.pendingApproval) {
+          // New approval request
+          if (agent.pendingApproval.riskTier === 'high') {
+            playSound('highRiskApproval');
+          } else {
+            playSound('approvalRequested');
+          }
+        } else if (prevAgent.status !== 'idle' && agent.status === 'idle') {
+          // Agent finished
+          playSound('agentFinished');
+        } else if (prevAgent.status !== 'error' && agent.status === 'error') {
+          playSound('error');
+        }
+      }
+      prevAgentsRef.current = newAgents;
       const metricsData = await invoke<Record<string, number>>('get_session_metrics');
       setMetrics({
         contextHealth: metricsData.contextHealth ?? 100,

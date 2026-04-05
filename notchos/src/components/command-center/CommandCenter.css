@@ -9,7 +9,9 @@
     "timeline timeline timeline";
   width: 100%;
   height: 100%;
-  background: var(--bg-base);
+  backdrop-filter: saturate(120%) blur(16px);
+  -webkit-backdrop-filter: saturate(120%) blur(16px);
+  background: rgba(19, 22, 28, 0.88);
   border: 0.5px solid var(--stroke);
   border-radius: var(--radius-window);
   overflow: hidden;

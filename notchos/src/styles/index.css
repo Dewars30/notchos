@@ -6,6 +6,15 @@
 /* Typography imports */
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=B612+Mono:wght@400;700&family=Space+Mono&display=swap');
 
+/* Departure Mono — local bundle, no CORS */
+@font-face {
+  font-family: 'Departure Mono';
+  src: url('../fonts/DepartureMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -48,7 +57,7 @@
   /* Typography stacks */
   --font-ui: 'Sora', system-ui, -apple-system, sans-serif;
   --font-data: 'B612 Mono', 'SF Mono', monospace;
-  --font-label: 'Space Mono', 'B612 Mono', monospace;
+  --font-label: 'Departure Mono', 'Space Mono', 'B612 Mono', monospace;
 
   /* Spacing scale (4px base) */
   --sp-1: 2px;

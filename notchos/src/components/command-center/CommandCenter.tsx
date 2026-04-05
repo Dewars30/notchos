@@ -31,6 +31,8 @@ export function CommandCenter({
   onJumpToTerminal,
 }: CommandCenterProps) {
   const selectedAgent = agents.find(a => a.id === selectedAgentId) ?? null;
+  const activeAgentCount = agents.filter(a => a.status === 'writing' || a.status === 'executing').length;
+  const hasHighRiskPending = agents.some(a => a.pendingApproval?.riskTier === 'high');
   const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
@@ -46,7 +48,11 @@ export function CommandCenter({
 
   return (
     <div className="command-center">
-      <SpacetimeGrid riskTier={selectedAgent?.pendingApproval?.riskTier ?? 'low'} />
+      <SpacetimeGrid
+        riskTier={selectedAgent?.pendingApproval?.riskTier ?? 'low'}
+        activeAgentCount={activeAgentCount}
+        hasHighRiskPending={hasHighRiskPending}
+      />
       <TopBar
         agents={agents}
         selectedAgentId={selectedAgentId}

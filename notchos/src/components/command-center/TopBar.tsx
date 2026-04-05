@@ -8,6 +8,7 @@ interface TopBarProps {
   selectedAgentId: string | null;
   metrics: SessionMetrics;
   onSelectAgent: (id: string) => void;
+  connectionStatus?: 'live' | 'connecting' | 'offline' | 'demo';
 }
 
 function formatCost(cost: number): string {
@@ -19,7 +20,7 @@ function formatTokens(tokens: number): string {
   return String(tokens);
 }
 
-export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent }: TopBarProps) {
+export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, connectionStatus }: TopBarProps) {
   const [muted, setMutedState] = useState(isMuted());
   const hasLive = agents.some(a => a.status === 'executing' || a.status === 'writing');
 
@@ -122,6 +123,22 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent }: TopB
         >
           {muted ? 'MUTED' : 'SND'}
         </button>
+
+        {connectionStatus === 'connecting' && (
+          <span style={{ fontFamily: 'var(--font-data)', fontSize: 9, color: 'var(--gold)' }}>
+            CONNECTING
+          </span>
+        )}
+        {connectionStatus === 'offline' && (
+          <span style={{ fontFamily: 'var(--font-data)', fontSize: 9, color: 'var(--coral)' }}>
+            OFFLINE
+          </span>
+        )}
+        {connectionStatus === 'demo' && (
+          <span style={{ fontFamily: 'var(--font-data)', fontSize: 9, color: 'var(--text-dim)' }}>
+            DEMO
+          </span>
+        )}
 
         {hasLive && (
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
