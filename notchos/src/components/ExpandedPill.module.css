@@ -99,3 +99,28 @@
 .expandButton:hover {
   color: var(--text-1);
 }
+
+.orbButton {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orbButton:hover {
+  background: rgba(56, 168, 154, 0.08);
+}
+
+.separator {
+  display: inline-block;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  margin: 0 var(--sp-2);
+  vertical-align: middle;
+}

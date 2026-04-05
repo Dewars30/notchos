@@ -10,6 +10,7 @@ interface ExpandedPillProps {
   onExpandFull: () => void;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  onJumpToTerminal?: (agentId: string) => void;
 }
 
 const STATUS_COLORS: Record<AgentStatus, string> = {
@@ -28,7 +29,7 @@ function formatElapsed(seconds: number): string {
   return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 
-function AgentRow({ agent, onClick }: { agent: Agent; onClick: () => void }) {
+function AgentRow({ agent, onClick, onJumpToTerminal }: { agent: Agent; onClick: () => void; onJumpToTerminal?: (agentId: string) => void }) {
   const hasPending = agent.pendingApproval !== null;
 
   return (
@@ -37,8 +38,17 @@ function AgentRow({ agent, onClick }: { agent: Agent; onClick: () => void }) {
       onClick={onClick}
       className={styles.agentRow}
     >
-      {/* Status orb — 5px */}
-      <StatusOrb status={agent.status} size={5} layoutId={`orb-${agent.id}`} />
+      {/* Status orb — 5px, clickable to jump to terminal */}
+      <span
+        role="button"
+        tabIndex={0}
+        className={styles.orbButton}
+        onClick={e => { e.stopPropagation(); onJumpToTerminal?.(agent.id); }}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); onJumpToTerminal?.(agent.id); } }}
+        aria-label={`Jump to terminal for ${agent.name}`}
+      >
+        <StatusOrb status={agent.status} size={5} layoutId={`orb-${agent.id}`} />
+      </span>
 
       {/* Agent name — Sora 11px/500 */}
       <motion.span layoutId={`name-${agent.id}`} className={styles.agentName}>
@@ -76,6 +86,7 @@ export function ExpandedPill({
   onExpandFull,
   onMouseEnter,
   onMouseLeave,
+  onJumpToTerminal,
 }: ExpandedPillProps) {
   return (
     <div
@@ -90,6 +101,7 @@ export function ExpandedPill({
             key={agent.id}
             agent={agent}
             onClick={() => onSelectAgent(agent.id)}
+            onJumpToTerminal={onJumpToTerminal}
           />
         ))}
       </div>

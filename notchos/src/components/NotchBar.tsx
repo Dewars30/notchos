@@ -8,13 +8,19 @@ interface NotchBarProps {
   metrics: SessionMetrics;
   onHover: () => void;
   onClick: () => void;
+  hasPending?: boolean;
+  hasHighRisk?: boolean;
 }
 
-export function NotchBar({ agents, metrics, onHover, onClick }: NotchBarProps) {
+export function NotchBar({ agents, metrics, onHover, onClick, hasPending, hasHighRisk }: NotchBarProps) {
   const hasAgents = agents.length > 0;
+  const hasActiveWork = agents.some(a => a.status === 'writing' || a.status === 'executing');
+
+  const containerClass = hasHighRisk ? styles.containerHighRisk
+    : hasPending ? styles.containerPending : styles.container;
 
   return (
-    <div className={styles.container} onMouseEnter={onHover} onClick={onClick}>
+    <div className={containerClass} onMouseEnter={onHover} onClick={onClick}>
       <motion.span layoutId="np-mark" className={styles.npMark}>NP</motion.span>
 
       {agents.slice(0, 5).map(agent => (
@@ -22,12 +28,14 @@ export function NotchBar({ agents, metrics, onHover, onClick }: NotchBarProps) {
       ))}
 
       <span className={styles.agentCount} style={{ color: hasAgents ? 'var(--text-2)' : 'var(--text-3)' }}>
-        {hasAgents ? `${agents.length} agent${agents.length !== 1 ? 's' : ''}` : 'No agents'}
+        {hasAgents ? `${agents.length} agent${agents.length !== 1 ? 's' : ''}` : <span className={styles.emptyLabel}>listening</span>}
       </span>
 
       {metrics.totalCost > 0 && (
         <span className={styles.cost}>${metrics.totalCost.toFixed(2)}</span>
       )}
+
+      {hasActiveWork && <span className={styles.activityBar} />}
     </div>
   );
 }

@@ -245,6 +245,8 @@ export default function App() {
                   metrics={metrics}
                   onHover={expandToPill}
                   onClick={expandToPill}
+                  hasPending={agents.some(a => a.pendingApproval !== null)}
+                  hasHighRisk={agents.some(a => a.pendingApproval?.riskTier === 'high')}
                 />
               </motion.div>
             )}
@@ -265,6 +267,7 @@ export default function App() {
                   onExpandFull={expandToCommandCenter}
                   onMouseEnter={cancelPillCollapse}
                   onMouseLeave={startPillCollapse}
+                  onJumpToTerminal={handleJumpToTerminal}
                 />
               </motion.div>
             )}
