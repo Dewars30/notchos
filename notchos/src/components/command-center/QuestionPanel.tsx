@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import type { RiskTier } from '../../types';
+import { MOD } from '../../utils/platform';
 import styles from './QuestionPanel.module.css';
 
 interface QuestionPanelProps {
@@ -82,7 +83,7 @@ export function QuestionPanel({ questionId, question, options, onAnswer }: Quest
             onClick={() => onAnswer(questionId, option)}
             className={styles.optionButton}
           >
-            <span className={styles.shortcut}>⌘{i + 1}</span>
+            <span className={styles.shortcut}>{MOD}{i + 1}</span>
             {option}
           </button>
         ))}

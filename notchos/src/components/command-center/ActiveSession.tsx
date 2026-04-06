@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import type { Agent, RiskTier, DiffLine, TimelineEvent } from '../../types';
 import { ZoneLabel } from '../shared/ZoneLabel';
 import { ClickablePath } from '../shared/ClickablePath';
+import { MOD } from '../../utils/platform';
 import styles from './ActiveSession.module.css';
 
 interface ActiveSessionProps {
@@ -223,7 +224,7 @@ export function ActiveSession({ agent, onApprove, onDeny, recentEvents = [] }: A
               Approve
               {weight.showHints && (
                 <span className={styles.hintLabel} style={{ opacity: weight.hintOpacity }}>
-                  ⌘Y
+                  {MOD}Y
                 </span>
               )}
             </button>
@@ -236,7 +237,7 @@ export function ActiveSession({ agent, onApprove, onDeny, recentEvents = [] }: A
               Deny
               {weight.showHints && (
                 <span className={styles.hintLabel} style={{ opacity: weight.hintOpacity }}>
-                  ⌘N
+                  {MOD}N
                 </span>
               )}
             </button>

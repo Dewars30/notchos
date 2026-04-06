@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { MOD } from '../../utils/platform';
 import styles from './PlanReview.module.css';
 
 interface PlanReviewProps {
@@ -62,10 +63,10 @@ export function PlanReview({ reviewId, planMarkdown, onApprove, onDeny, onReques
       {/* Action buttons */}
       <div className={styles.actionRow}>
         <button onClick={() => onApprove(reviewId)} className={styles.approveButton}>
-          Approve <span className={styles.shortcutHint}>⌘Y</span>
+          Approve <span className={styles.shortcutHint}>{MOD}Y</span>
         </button>
         <button onClick={() => onDeny(reviewId)} className={styles.denyButton}>
-          Deny <span className={styles.shortcutHint}>⌘N</span>
+          Deny <span className={styles.shortcutHint}>{MOD}N</span>
         </button>
         <button onClick={() => setShowFeedback(!showFeedback)} className={styles.changesButton}>
           Changes

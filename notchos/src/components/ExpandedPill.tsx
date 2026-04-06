@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import type { Agent, AgentStatus, SessionMetrics } from '../types';
 import { StatusOrb } from './shared/StatusOrb';
+import { MOD_SHIFT } from '../utils/platform';
 import styles from './ExpandedPill.module.css';
 
 interface ExpandedPillProps {
@@ -127,7 +128,7 @@ export function ExpandedPill({
           onClick={onExpandFull}
           className={styles.expandButton}
         >
-          ⌘⇧N
+          {MOD_SHIFT}N
         </button>
       </div>
     </div>

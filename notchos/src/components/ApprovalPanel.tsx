@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import type { Session } from "../types";
+import { MOD } from '../utils/platform';
 import styles from "./ApprovalPanel.module.css";
 
 interface Props {
@@ -97,10 +98,10 @@ export function ApprovalPanel({ session, onClose }: Props) {
       {/* Action buttons */}
       <div className={styles.actionRow}>
         <button onClick={handleApprove} className={styles.allowButton}>
-          ALLOW  <span className={styles.shortcutHint}>⌘Y</span>
+          ALLOW  <span className={styles.shortcutHint}>{MOD}Y</span>
         </button>
         <button onClick={handleDeny} className={styles.denyButton}>
-          DENY  <span className={styles.shortcutHint}>⌘N</span>
+          DENY  <span className={styles.shortcutHint}>{MOD}N</span>
         </button>
       </div>
     </div>
