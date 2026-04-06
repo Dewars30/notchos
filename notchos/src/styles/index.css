@@ -33,11 +33,11 @@
   --border-subtle: #363C48;
   --border-active: #38A89A;
 
-  /* Text — warm cream and sage (brightened for floating overlay readability) */
-  --text-1: #F2ECE4;
-  --text-2: #D0D6D0;
-  --text-3: #96A0B0;
-  --text-dim: #6A7488;
+  /* Text — warm cream family, no pure white, sage undertone throughout */
+  --text-1: #E8E0D4;
+  --text-2: #C4C8BE;
+  --text-3: #9CA6A0;
+  --text-dim: #7A8690;
 
   /* Signal colors — desaturated, purposeful */
   --teal: #38A89A;
