@@ -14,9 +14,9 @@ interface SpacetimeGridProps {
 }
 
 const RISK_CONFIG: Record<RiskTier, { opacity: number; cellSize: number; warpStrength: number }> = {
-  low:    { opacity: 0.025, cellSize: 32, warpStrength: 0 },
-  medium: { opacity: 0.04,  cellSize: 30, warpStrength: 16 },
-  high:   { opacity: 0.06,  cellSize: 26, warpStrength: 28 },
+  low:    { opacity: 0.04,  cellSize: 32, warpStrength: 0 },
+  medium: { opacity: 0.065, cellSize: 30, warpStrength: 16 },
+  high:   { opacity: 0.09,  cellSize: 26, warpStrength: 28 },
 };
 
 export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4, activeAgentCount = 1, hasHighRiskPending = false }: SpacetimeGridProps) {

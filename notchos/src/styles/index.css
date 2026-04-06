@@ -34,10 +34,10 @@
   --border-active: #38A89A;
 
   /* Text — warm cream and sage (brightened for floating overlay readability) */
-  --text-1: #F0EAE2;
-  --text-2: #C8CEC8;
-  --text-3: #8A92A0;
-  --text-dim: #586070;
+  --text-1: #F2ECE4;
+  --text-2: #D0D6D0;
+  --text-3: #96A0B0;
+  --text-dim: #6A7488;
 
   /* Signal colors — desaturated, purposeful */
   --teal: #38A89A;
@@ -84,22 +84,22 @@
   --transition-pill-cc: 200ms var(--ease-out);
   --transition-dismiss: 150ms var(--ease-in);
 
-  /* Glass layers */
-  --glass-notch: rgba(0, 0, 0, 0.85);
-  --glass-pill: rgba(19, 22, 28, 0.78);
-  --glass-cc: rgba(19, 22, 28, 0.75);
+  /* Glass layers — deeper, more opaque for proper dark base */
+  --glass-notch: rgba(0, 0, 0, 0.92);
+  --glass-pill: rgba(10, 12, 18, 0.92);
+  --glass-cc: rgba(10, 12, 18, 0.90);
   --glass-blur-notch: 20px;
   --glass-blur-pill: 24px;
   --glass-blur-cc: 28px;
 
   /* Inner light catch */
-  --light-catch: rgba(255, 255, 255, 0.035);
-  --light-catch-strong: rgba(255, 255, 255, 0.05);
+  --light-catch: rgba(255, 255, 255, 0.04);
+  --light-catch-strong: rgba(255, 255, 255, 0.06);
 
-  /* Interior zone backgrounds */
-  --zone-bg-side: rgba(26, 30, 38, 0.4);
-  --zone-bg-bottom: rgba(19, 22, 28, 0.5);
-  --zone-border: rgba(74, 80, 96, 0.25);
+  /* Interior zone backgrounds — visible separation */
+  --zone-bg-side: rgba(20, 24, 32, 0.6);
+  --zone-bg-bottom: rgba(14, 17, 22, 0.7);
+  --zone-border: rgba(74, 80, 96, 0.35);
 }
 
 html, body {
