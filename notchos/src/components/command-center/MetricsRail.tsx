@@ -14,7 +14,7 @@ function formatTokens(tokens: number): string {
 
 export function MetricsRail({ metrics }: MetricsRailProps) {
   return (
-    <div className={styles.rail}>
+    <aside className={styles.rail}>
       <ZoneLabel>METRICS</ZoneLabel>
 
       {/* Context health — tachometer arc */}
@@ -56,6 +56,6 @@ export function MetricsRail({ metrics }: MetricsRailProps) {
           </span>
         </span>
       </div>
-    </div>
+    </aside>
   );
 }

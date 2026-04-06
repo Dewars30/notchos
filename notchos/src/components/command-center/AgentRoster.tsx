@@ -43,7 +43,7 @@ export function AgentRoster({ agents, selectedAgentId, onSelectAgent, onJumpToTe
   }
 
   return (
-    <div className={styles.container}>
+    <nav className={styles.container}>
       <ZoneLabel>AGENTS</ZoneLabel>
 
       <div role="listbox" aria-label="Agent list" className={styles.agentList}>
@@ -100,6 +100,6 @@ export function AgentRoster({ agents, selectedAgentId, onSelectAgent, onJumpToTe
           {formatCost(totalCost)}
         </span>
       </div>
-    </div>
+    </nav>
   );
 }

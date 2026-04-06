@@ -34,7 +34,7 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, onColl
   }
 
   return (
-    <div
+    <header
       data-tauri-drag-region
       className={styles.container}
     >
@@ -73,7 +73,11 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, onColl
         <button
           onClick={toggleMute}
           className={styles.muteButton}
-          style={{ color: muted ? 'var(--text-dim)' : 'var(--text-3)' }}
+          style={{
+            color: muted ? 'var(--text-dim)' : 'var(--text-3)',
+            opacity: muted ? 0.5 : 1,
+            textDecoration: muted ? 'line-through' : 'none',
+          }}
           aria-label={muted ? 'Unmute sounds' : 'Mute sounds'}
         >
           {muted ? 'MUTED' : 'SND'}
@@ -106,6 +110,6 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, onColl
         <span className={styles.collapseHint}>esc</span>
         <span className={styles.collapseBar} />
       </button>
-    </div>
+    </header>
   );
 }

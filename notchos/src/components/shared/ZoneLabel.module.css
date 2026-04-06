@@ -1,7 +1,7 @@
 /* src/components/shared/ZoneLabel.module.css */
 .label {
   font-family: var(--font-label);
-  font-size: 7px;
+  font-size: 8px;
   color: var(--text-dim);
   letter-spacing: 0.12em;
   text-transform: uppercase;

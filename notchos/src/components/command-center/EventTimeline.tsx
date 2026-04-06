@@ -48,7 +48,7 @@ export function EventTimeline({ events }: EventTimelineProps) {
   const svgWidth = events.length * (BAR_WIDTH + BAR_GAP);
 
   return (
-    <div className={styles.timeline}>
+    <footer className={styles.timeline}>
       {/* Baseline wire */}
       <div className={styles.baseline} />
 
@@ -95,6 +95,6 @@ export function EventTimeline({ events }: EventTimelineProps) {
       <span className={styles.timestamp}>
         {formatTimeRange(events)}
       </span>
-    </div>
+    </footer>
   );
 }

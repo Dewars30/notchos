@@ -119,7 +119,7 @@ export function RadialGauge({ value, size = 56, label }: RadialGaugeProps) {
             dominantBaseline="middle"
             style={{
               fontFamily: 'var(--font-label)',
-              fontSize: 7,
+              fontSize: 8,
               fill: 'var(--text-dim)',
               letterSpacing: '0.12em',
             }}

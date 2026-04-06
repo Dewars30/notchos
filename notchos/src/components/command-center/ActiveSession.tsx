@@ -145,14 +145,14 @@ export function ActiveSession({ agent, onApprove, onDeny, recentEvents = [] }: A
 
   if (!agent) {
     return (
-      <div className={styles.containerEmpty}>
+      <main className={styles.containerEmpty}>
         <span className={styles.emptyText}>Select an agent</span>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className={styles.container}>
+    <main className={styles.container}>
       {/* Zone label */}
       <div className={styles.zoneRow}>
         <ZoneLabel>
@@ -275,6 +275,6 @@ export function ActiveSession({ agent, onApprove, onDeny, recentEvents = [] }: A
           )}
         </div>
       )}
-    </div>
+    </main>
   );
 }
