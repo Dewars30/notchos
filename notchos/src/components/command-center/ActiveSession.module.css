@@ -253,6 +253,57 @@
   50% { opacity: 0.7; }
 }
 
+.costSummary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+}
+
+.costHeader {
+  font-family: var(--font-label);
+  font-size: 8px;
+  color: var(--text-dim);
+  letter-spacing: 0.12em;
+}
+
+.costRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-4);
+}
+
+.costAgent {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  color: var(--text-2);
+  flex: 1;
+}
+
+.costValue {
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--text-1);
+}
+
+.costMeta {
+  font-family: var(--font-data);
+  font-size: 8px;
+  color: var(--text-dim);
+}
+
+.costTotal {
+  display: flex;
+  justify-content: space-between;
+  border-top: 0.5px solid var(--zone-border);
+  padding-top: var(--sp-2);
+  margin-top: var(--sp-2);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-1);
+}
+
 /* focus-visible outlines */
 .approveButton:focus-visible,
 .approveButtonLarge:focus-visible,

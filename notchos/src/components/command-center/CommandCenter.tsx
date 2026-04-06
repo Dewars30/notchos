@@ -76,6 +76,7 @@ export function CommandCenter({
           onApprove={onApprove}
           onDeny={onDeny}
           recentEvents={timeline.filter(e => selectedAgent && e.agentId === selectedAgent.id)}
+          agents={agents}
         />
       )}
       <MetricsRail metrics={metrics} />

@@ -10,6 +10,7 @@ interface ActiveSessionProps {
   onApprove: (approvalId: string) => void;
   onDeny: (approvalId: string) => void;
   recentEvents?: TimelineEvent[];
+  agents?: Agent[];
 }
 
 function formatRelativeTime(timestamp: number): string {
@@ -121,7 +122,7 @@ function DiffLineRow({ line }: { line: DiffLine }) {
   );
 }
 
-export function ActiveSession({ agent, onApprove, onDeny, recentEvents = [] }: ActiveSessionProps) {
+export function ActiveSession({ agent, onApprove, onDeny, recentEvents = [], agents = [] }: ActiveSessionProps) {
   const approval = agent?.pendingApproval ?? null;
   const riskTier = approval?.riskTier ?? 'low';
   const risk = RISK_STYLES[riskTier];
@@ -269,9 +270,26 @@ export function ActiveSession({ agent, onApprove, onDeny, recentEvents = [] }: A
                 {agent.status === 'waiting' && 'Waiting for response...'}
                 {agent.status === 'error' && <span style={{ color: 'var(--coral)' }}>Agent encountered an error</span>}
               </div>
-              {agent.status === 'idle' && (
-                <span className={styles.idleLabel}>listening...</span>
-              )}
+              {agent.status === 'idle' ? (
+                agents.filter(a => a.cost > 0).length > 0 ? (
+                  <div className={styles.costSummary}>
+                    <span className={styles.costHeader}>SESSION COST</span>
+                    {agents.filter(a => a.cost > 0).map(a => (
+                      <div key={a.id} className={styles.costRow}>
+                        <span className={styles.costAgent}>{a.name}</span>
+                        <span className={styles.costValue}>${a.cost.toFixed(2)}</span>
+                        <span className={styles.costMeta}>{a.model}</span>
+                      </div>
+                    ))}
+                    <div className={styles.costTotal}>
+                      <span>Total</span>
+                      <span>${agents.reduce((sum, a) => sum + a.cost, 0).toFixed(2)}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <span className={styles.idleLabel}>listening...</span>
+                )
+              ) : null}
             </div>
           )}
         </div>
