@@ -250,7 +250,14 @@ export default function App() {
                   metrics={metrics}
                   onHover={expandToPill}
                   onClick={expandToPill}
-                  hasPending={agents.some(a => a.pendingApproval !== null)}
+                  hasPending={agents.some(a => a.pendingApproval !== null) || (() => {
+                    // Burn rate alert: projected daily spend > budget
+                    const budget = parseFloat(localStorage.getItem('notchos-budget-target') || '10');
+                    const earliestStart = Math.min(...agents.map(a => a.elapsedSeconds));
+                    const hoursElapsed = Math.max(earliestStart / 3600, 0.1);
+                    const projectedDaily = (metrics.totalCost / hoursElapsed) * 24;
+                    return projectedDaily > budget && metrics.totalCost > 0;
+                  })()}
                   hasHighRisk={agents.some(a => a.pendingApproval?.riskTier === 'high')}
                 />
               </motion.div>

@@ -1,0 +1,12 @@
+[2026-04-06T09:07:15.381Z] [debug] [vite] connecting...
+[2026-04-06T09:07:15.401Z] [debug] [vite] connected.
+[2026-04-06T09:07:15.433Z] [info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+[2026-04-06T09:07:15.518Z] [log] [dev] invoke("set_window_size", {width: 300, height: 48} )
+[2026-04-06T09:07:15.518Z] [log] [dev] invoke("set_window_size", {width: 300, height: 48} )
+[2026-04-06T09:07:15.590Z] [debug] [vite] connecting...
+[2026-04-06T09:07:15.593Z] [debug] [vite] connected.
+[2026-04-06T09:07:15.598Z] [info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+[2026-04-06T09:07:15.612Z] [log] [dev] invoke("set_window_size", {width: 300, height: 48} )
+[2026-04-06T09:07:15.613Z] [log] [dev] invoke("set_window_size", {width: 300, height: 48} )
+[2026-04-06T09:07:16.661Z] [log] [dev] invoke("set_window_size", {width: 400, height: 200} )
+[2026-04-06T09:07:17.741Z] [log] [dev] invoke("set_window_size", {width: 720, height: 420} )

@@ -45,6 +45,8 @@ pub struct Session {
     pub cwd: Option<String>,
     pub started_at: u64,
     pub updated_at: u64,
+    pub cost_usd: f64,
+    pub total_tokens: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -74,6 +76,36 @@ pub enum RiskTier {
     Low,
     Medium,
     High,
+}
+
+/// Estimate token cost from tool input/output sizes and model name.
+/// Returns (input_tokens, output_tokens, cost_usd).
+fn estimate_cost(model: &str, input: &Option<serde_json::Value>, output: &Option<serde_json::Value>) -> (i64, i64, f64) {
+    let input_chars = input.as_ref()
+        .map(|v| serde_json::to_string(v).unwrap_or_default().len())
+        .unwrap_or(0) as i64;
+    let output_chars = output.as_ref()
+        .map(|v| serde_json::to_string(v).unwrap_or_default().len())
+        .unwrap_or(0) as i64;
+
+    let input_tokens = input_chars / 4;
+    let output_tokens = output_chars / 4;
+
+    let model_lower = model.to_lowercase();
+    let (input_rate, output_rate) = if model_lower.contains("opus") {
+        (15.0, 75.0)
+    } else if model_lower.contains("sonnet") {
+        (3.0, 15.0)
+    } else if model_lower.contains("o3") || model_lower.contains("codex") {
+        (2.0, 8.0)
+    } else if model_lower.contains("gemini") || model_lower.contains("2.5") {
+        (1.25, 10.0)
+    } else {
+        (3.0, 15.0) // default to Sonnet-class pricing
+    };
+
+    let cost = (input_tokens as f64 * input_rate + output_tokens as f64 * output_rate) / 1_000_000.0;
+    (input_tokens, output_tokens, cost)
 }
 
 fn classify_risk(tool: &str, input: &serde_json::Value) -> RiskTier {
@@ -213,14 +245,16 @@ fn get_session_metrics(state: State<Arc<AppState>>) -> serde_json::Value {
     let total = sessions.len();
     let waiting = sessions.iter().filter(|s| s.status == "waiting").count();
     let running = sessions.iter().filter(|s| s.status == "running").count();
+    let total_cost: f64 = sessions.iter().map(|s| s.cost_usd).sum();
+    let total_tokens: i64 = sessions.iter().map(|s| s.total_tokens).sum();
     serde_json::json!({
         "totalSessions": total,
         "waitingSessions": waiting,
         "runningSessions": running,
         "approvalsTotal": 0,
         "approvalsDenied": 0,
-        "totalCost": 0.0,
-        "totalTokens": 0,
+        "totalCost": total_cost,
+        "totalTokens": total_tokens,
         "contextHealth": 100,
     })
 }
@@ -310,7 +344,7 @@ async fn handle_connection(
 
                 // Persist to history (outside sessions lock)
                 state.history.upsert_session(&event.session_id, &agent, event.cwd.as_deref(), "waiting", now as i64);
-                state.history.record_event(&event.session_id, "approval_requested", Some(&tool), Some(&format!("{:?}", classify_risk(&tool, &input))), Some(&summary), now as i64);
+                state.history.record_event(&event.session_id, "approval_requested", Some(&tool), Some(&format!("{:?}", classify_risk(&tool, &input))), Some(&summary), 0, 0, 0.0, now as i64);
 
                 let _ = app.emit("sessions_updated", ());
 
@@ -329,6 +363,8 @@ async fn handle_connection(
             }
 
             "PostToolUse" => {
+                let (in_tok, out_tok, cost) = estimate_cost(&agent, &event.tool_input, &event.tool_response);
+
                 {
                     let mut sessions = state.sessions.lock().unwrap();
                     if let Some(s) = sessions.iter_mut().find(|s| s.id == event.session_id) {
@@ -336,12 +372,14 @@ async fn handle_connection(
                         s.current_tool = event.tool_name.clone();
                         s.updated_at = now;
                         s.pending_approval = None;
+                        s.cost_usd += cost;
+                        s.total_tokens += in_tok + out_tok;
                     }
                 }
 
                 // Persist to history (outside sessions lock)
                 state.history.upsert_session(&event.session_id, &agent, event.cwd.as_deref(), "running", now as i64);
-                state.history.record_event(&event.session_id, "tool_use", event.tool_name.as_deref(), None, None, now as i64);
+                state.history.record_event(&event.session_id, "tool_use", event.tool_name.as_deref(), None, None, in_tok, out_tok, cost, now as i64);
 
                 let _ = app.emit("sessions_updated", ());
                 let _ = writer.write_all(b"\n").await;
@@ -431,7 +469,7 @@ async fn handle_connection(
                 // Persist to history (outside sessions lock)
                 let status = if event.hook_event_name == "Stop" { "done" } else { "running" };
                 state.history.upsert_session(&event.session_id, &agent, event.cwd.as_deref(), status, now as i64);
-                state.history.record_event(&event.session_id, &event.hook_event_name.to_lowercase(), None, None, event.message.as_deref(), now as i64);
+                state.history.record_event(&event.session_id, &event.hook_event_name.to_lowercase(), None, None, event.message.as_deref(), 0, 0, 0.0, now as i64);
 
                 let _ = app.emit("sessions_updated", ());
                 let _ = writer.write_all(b"\n").await;
@@ -462,6 +500,8 @@ fn find_or_create<'a>(sessions: &'a mut Vec<Session>, session_id: &str, agent: &
         cwd,
         started_at: now,
         updated_at: now,
+        cost_usd: 0.0,
+        total_tokens: 0,
     });
     sessions.last_mut().unwrap()
 }

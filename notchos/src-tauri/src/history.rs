@@ -24,6 +24,9 @@ pub struct HistoryEvent {
     pub tool_name: Option<String>,
     pub risk_tier: Option<String>,
     pub summary: Option<String>,
+    pub input_tokens: i64,
+    pub output_tokens: i64,
+    pub cost_estimate: f64,
 }
 
 pub struct HistoryDb {
@@ -59,11 +62,19 @@ impl HistoryDb {
                 event_type TEXT NOT NULL,
                 tool_name TEXT,
                 risk_tier TEXT,
-                summary TEXT
+                summary TEXT,
+                input_tokens INTEGER DEFAULT 0,
+                output_tokens INTEGER DEFAULT 0,
+                cost_estimate REAL DEFAULT 0
             );
             CREATE INDEX IF NOT EXISTS idx_events_session ON events(session_id);
             CREATE INDEX IF NOT EXISTS idx_sessions_cwd ON sessions(cwd);"
         ).map_err(|e| format!("Failed to init tables: {}", e))?;
+
+        // Migration: add cost columns if they don't exist (safe to ignore errors)
+        let _ = conn.execute("ALTER TABLE events ADD COLUMN input_tokens INTEGER DEFAULT 0", []);
+        let _ = conn.execute("ALTER TABLE events ADD COLUMN output_tokens INTEGER DEFAULT 0", []);
+        let _ = conn.execute("ALTER TABLE events ADD COLUMN cost_estimate REAL DEFAULT 0", []);
 
         Ok(Self { conn: Mutex::new(conn) })
     }
@@ -77,11 +88,11 @@ impl HistoryDb {
         );
     }
 
-    pub fn record_event(&self, session_id: &str, event_type: &str, tool_name: Option<&str>, risk_tier: Option<&str>, summary: Option<&str>, now: i64) {
+    pub fn record_event(&self, session_id: &str, event_type: &str, tool_name: Option<&str>, risk_tier: Option<&str>, summary: Option<&str>, input_tokens: i64, output_tokens: i64, cost_estimate: f64, now: i64) {
         let conn = self.conn.lock().unwrap();
         let _ = conn.execute(
-            "INSERT INTO events (session_id, timestamp, event_type, tool_name, risk_tier, summary) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-            params![session_id, now, event_type, tool_name, risk_tier, summary],
+            "INSERT INTO events (session_id, timestamp, event_type, tool_name, risk_tier, summary, input_tokens, output_tokens, cost_estimate) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+            params![session_id, now, event_type, tool_name, risk_tier, summary, input_tokens, output_tokens, cost_estimate],
         );
     }
 
@@ -109,7 +120,7 @@ impl HistoryDb {
     pub fn get_session_events(&self, session_id: &str) -> Vec<HistoryEvent> {
         let conn = self.conn.lock().unwrap();
         let mut stmt = conn.prepare(
-            "SELECT id, session_id, timestamp, event_type, tool_name, risk_tier, summary
+            "SELECT id, session_id, timestamp, event_type, tool_name, risk_tier, summary, input_tokens, output_tokens, cost_estimate
              FROM events WHERE session_id = ?1 ORDER BY timestamp ASC"
         ).unwrap();
 
@@ -122,6 +133,9 @@ impl HistoryDb {
                 tool_name: row.get(4)?,
                 risk_tier: row.get(5)?,
                 summary: row.get(6)?,
+                input_tokens: row.get::<_, Option<i64>>(7)?.unwrap_or(0),
+                output_tokens: row.get::<_, Option<i64>>(8)?.unwrap_or(0),
+                cost_estimate: row.get::<_, Option<f64>>(9)?.unwrap_or(0.0),
             })
         }).unwrap().filter_map(|r| r.ok()).collect()
     }
