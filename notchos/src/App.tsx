@@ -22,7 +22,7 @@ type AppMode = 'notch' | 'pill' | 'command-center';
 
 // Window dimensions per mode
 const MODE_SIZES: Record<AppMode, { width: number; height: number; borderRadius: number }> = {
-  notch: { width: 220, height: 48, borderRadius: 24 },
+  notch: { width: 300, height: 48, borderRadius: 24 },
   pill: { width: 400, height: 200, borderRadius: 12 },
   'command-center': { width: 720, height: 420, borderRadius: 12 },
 };
