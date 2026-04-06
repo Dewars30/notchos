@@ -1,4 +1,5 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { useMemo } from 'react';
+import { useReducedMotion } from 'framer-motion';
 import styles from './RadialGauge.module.css';
 
 interface RadialGaugeProps {
@@ -18,8 +19,6 @@ const ZONES = [
 ] as const;
 
 const TICKS = [0, 0.25, 0.50, 0.75, 1.0];
-
-const SPRING = { type: 'spring' as const, stiffness: 400, damping: 30, mass: 1 };
 
 function getZoneColor(value: number): string {
   if (value < 70) return 'var(--teal)';
@@ -47,6 +46,12 @@ export function RadialGauge({ value, size = 56, label }: RadialGaugeProps) {
   const dotColor = getZoneColor(clamped);
 
   const activeZoneIdx = clamped < 70 ? 0 : clamped < 90 ? 1 : 2;
+
+  // Memoize zone circle transform style — only changes when `size` changes
+  const zoneCircleStyle = useMemo(() => ({
+    transform: `rotate(${ARC_START_DEG}deg)`,
+    transformOrigin: `${cx}px ${cy}px`,
+  }), [cx, cy]);
 
   return (
     <div className={styles.wrapper}>
@@ -77,10 +82,7 @@ export function RadialGauge({ value, size = 56, label }: RadialGaugeProps) {
               strokeDashoffset={zoneOffset}
               opacity={isActive ? 1 : 0.12}
               filter={isActive ? `drop-shadow(0 0 2px ${zone.color})` : undefined}
-              style={{
-                transform: `rotate(${ARC_START_DEG}deg)`,
-                transformOrigin: `${cx}px ${cy}px`,
-              }}
+              style={zoneCircleStyle}
             />
           );
         })}
@@ -102,12 +104,12 @@ export function RadialGauge({ value, size = 56, label }: RadialGaugeProps) {
           );
         })}
 
-        <motion.circle
-          r={3}
-          initial={{ cx: dotX, cy: dotY, fill: dotColor }}
-          animate={{ cx: dotX, cy: dotY, fill: dotColor }}
-          transition={prefersReduced ? { duration: 0 } : SPRING}
-        />
+        <g style={{
+          transform: `translate(${dotX}px, ${dotY}px)`,
+          transition: prefersReduced ? 'none' : 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}>
+          <circle r={3} fill={dotColor} style={{ transition: prefersReduced ? 'none' : 'fill 0.3s ease' }} />
+        </g>
 
         {label && (
           <text

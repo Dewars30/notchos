@@ -61,6 +61,11 @@ export function StatusOrb({ status, size = 5, layoutId }: StatusOrbProps) {
           const dashLength = (arc.degrees / 360) * circumference;
           const gapLength = circumference - dashLength;
           const rotateOffset = arcConfig.arcs.length > 1 && i === 1 ? 180 : 0;
+          const arcStyle = {
+            transformOrigin: `${cx}px ${cy}px`,
+            transform: `rotate(${rotateOffset}deg)`,
+            animation: `${arc.animation} ${arc.duration} linear infinite`,
+          };
 
           return (
             <circle
@@ -74,11 +79,7 @@ export function StatusOrb({ status, size = 5, layoutId }: StatusOrbProps) {
               strokeLinecap="round"
               strokeDasharray={`${dashLength} ${gapLength}`}
               opacity={0.6}
-              style={{
-                transformOrigin: `${cx}px ${cy}px`,
-                transform: `rotate(${rotateOffset}deg)`,
-                animation: `${arc.animation} ${arc.duration} linear infinite`,
-              }}
+              style={arcStyle}
             />
           );
         })}

@@ -43,7 +43,7 @@ export default function App() {
   const timeline = isLive ? liveTimeline : MOCK_TIMELINE;
   const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoCollapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const prevAgentCountRef = useRef(agents.length);
+  const lastAutoExpandedRef = useRef<string | null>(null);
 
   // First-run onboarding check
   useEffect(() => {
@@ -105,19 +105,13 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler);
   }, [agents]);
 
-  // Agent discovery sound — fires when agent count increases
-  useEffect(() => {
-    if (agents.length > prevAgentCountRef.current) {
-      playSound('agentDiscovered');
-    }
-    prevAgentCountRef.current = agents.length;
-  }, [agents.length]);
-
   // Auto-expand on high-risk approval (only for real live sessions, not mock data)
+  // Tracks the approvalId that triggered expansion to avoid re-trapping the user on mode change.
   useEffect(() => {
     if (!isLive) return;
     const highRisk = agents.find(a => a.pendingApproval?.riskTier === 'high');
-    if (highRisk && mode !== 'command-center') {
+    if (highRisk && mode !== 'command-center' && highRisk.pendingApproval!.approvalId !== lastAutoExpandedRef.current) {
+      lastAutoExpandedRef.current = highRisk.pendingApproval!.approvalId;
       playSound('highRiskApproval');
       setSelectedAgentId(highRisk.id);
       setMode('command-center');

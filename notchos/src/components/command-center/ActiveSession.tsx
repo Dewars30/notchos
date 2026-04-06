@@ -73,18 +73,20 @@ const RISK_WEIGHT: Record<RiskTier, {
   },
 };
 
+const LINE_STYLES: Record<DiffLine['type'], { color: string; bg: string }> = {
+  context: { color: 'var(--text-3)', bg: 'transparent' },
+  addition: { color: 'rgba(56,168,154,0.7)', bg: 'rgba(56,168,154,0.04)' },
+  deletion: { color: 'rgba(224,136,112,0.65)', bg: 'rgba(224,136,112,0.04)' },
+};
+
+const DIFF_PREFIXES: Record<DiffLine['type'], string> = {
+  context: ' ',
+  addition: '+',
+  deletion: '-',
+};
+
 function DiffLineRow({ line }: { line: DiffLine }) {
-  const lineStyles: Record<DiffLine['type'], { color: string; bg: string }> = {
-    context: { color: 'var(--text-3)', bg: 'transparent' },
-    addition: { color: 'rgba(56,168,154,0.7)', bg: 'rgba(56,168,154,0.04)' },
-    deletion: { color: 'rgba(224,136,112,0.65)', bg: 'rgba(224,136,112,0.04)' },
-  };
-  const prefixes: Record<DiffLine['type'], string> = {
-    context: ' ',
-    addition: '+',
-    deletion: '-',
-  };
-  const { color, bg } = lineStyles[line.type];
+  const { color, bg } = LINE_STYLES[line.type];
 
   return (
     <div
@@ -95,7 +97,7 @@ function DiffLineRow({ line }: { line: DiffLine }) {
         {line.lineNumber ?? ''}
       </span>
       <span className={styles.diffPrefix}>
-        {prefixes[line.type]}
+        {DIFF_PREFIXES[line.type]}
       </span>
       <ClickablePath text={line.content} />
     </div>

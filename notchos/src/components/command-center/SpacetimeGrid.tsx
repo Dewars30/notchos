@@ -30,12 +30,19 @@ export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4, activeAgentC
     if (!parent) return;
 
     const dpr = window.devicePixelRatio || 1;
+    // Cached gradient and center — recreated on resize, not per frame
+    let fadeGradient: CanvasGradient | null = null;
+    let cachedCenterX = 0;
+    let cachedCenterY = 0;
+
     const resize = () => {
       const { width, height } = parent.getBoundingClientRect();
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
+      // Invalidate cached gradient when size changes
+      fadeGradient = null;
     };
     resize();
     const observer = new ResizeObserver(resize);
@@ -57,6 +64,8 @@ export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4, activeAgentC
     if (activeAgentCount > 2) {
       cellSize -= 2;
     }
+
+    const shouldAnimate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function draw() {
       const w = canvas!.width / dpr;
@@ -130,29 +139,30 @@ export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4, activeAgentC
       ctx!.lineWidth = 0.5;
       ctx!.stroke();
 
-      // Radial edge fade — grid concentrates around warp center
+      // Radial edge fade — cached gradient, recreated only when center or size changes
+      if (!fadeGradient || cachedCenterX !== centerX || cachedCenterY !== centerY) {
+        cachedCenterX = centerX;
+        cachedCenterY = centerY;
+        fadeGradient = ctx!.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, Math.max(w, h) * 0.6
+        );
+        fadeGradient.addColorStop(0, 'rgba(0,0,0,1)');
+        fadeGradient.addColorStop(0.7, 'rgba(0,0,0,0.5)');
+        fadeGradient.addColorStop(1, 'rgba(0,0,0,0)');
+      }
       ctx!.globalCompositeOperation = 'destination-in';
-      const fadeGradient = ctx!.createRadialGradient(
-        centerX, centerY, 0,
-        centerX, centerY, Math.max(w, h) * 0.6
-      );
-      fadeGradient.addColorStop(0, 'rgba(0,0,0,1)');
-      fadeGradient.addColorStop(0.7, 'rgba(0,0,0,0.5)');
-      fadeGradient.addColorStop(1, 'rgba(0,0,0,0)');
       ctx!.fillStyle = fadeGradient;
       ctx!.fillRect(0, 0, w, h);
       ctx!.globalCompositeOperation = 'source-over';
 
-      rafRef.current = requestAnimationFrame(draw);
+      // Only schedule next frame when animation is enabled
+      if (shouldAnimate) {
+        rafRef.current = requestAnimationFrame(draw);
+      }
     }
 
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mq.matches) {
-      draw();
-      cancelAnimationFrame(rafRef.current);
-    } else {
-      draw();
-    }
+    draw();
 
     return () => {
       cancelAnimationFrame(rafRef.current);
