@@ -13,7 +13,6 @@ use uuid::Uuid;
 // ─── Event types matching Claude Code / Codex hook payloads ─────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct HookEvent {
     pub hook_event_name: String,  // PreToolUse | PostToolUse | Notification | Stop
     pub session_id: String,
@@ -28,6 +27,10 @@ pub struct HookEvent {
     pub question: Option<String>,
     pub options: Option<Vec<String>>,
     pub plan_markdown: Option<String>,
+    // Fields from Claude Code (captured for context)
+    pub transcript_path: Option<String>,
+    pub permission_mode: Option<String>,
+    pub tool_use_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

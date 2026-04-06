@@ -53,7 +53,7 @@ process.stdin.on("end", () => {
     process.exit(0);
   }
 
-  const isBlocking = BLOCKING_EVENTS.has(event.event);
+  const isBlocking = BLOCKING_EVENTS.has(event.hook_event_name);
 
   const client = net.createConnection(SOCKET_PATH);
   let responded = false;
