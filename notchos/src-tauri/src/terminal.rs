@@ -72,12 +72,28 @@ fn jump_macos(cwd: &str) -> Result<(), String> {
 
 #[cfg(target_os = "windows")]
 fn jump_windows(cwd: &str) -> Result<(), String> {
-    // Try VS Code first
-    if Command::new("code").arg("--goto").arg(cwd).spawn().is_ok() {
+    // Try Windows Terminal first (modern, most common for developers)
+    if Command::new("wt")
+        .args(&["-d", cwd])
+        .spawn()
+        .is_ok()
+    {
         return Ok(());
     }
-    // Fallback: open the directory in explorer
-    Command::new("explorer").arg(cwd).spawn()
+
+    // Fallback: open PowerShell at the directory
+    if Command::new("powershell")
+        .args(&["-NoExit", "-Command", &format!("cd '{}'", cwd)])
+        .spawn()
+        .is_ok()
+    {
+        return Ok(());
+    }
+
+    // Last resort: open cmd
+    Command::new("cmd")
+        .args(&["/k", &format!("cd /d \"{}\"", cwd)])
+        .spawn()
         .map(|_| ())
         .map_err(|e| format!("Terminal jump failed: {}", e))
 }

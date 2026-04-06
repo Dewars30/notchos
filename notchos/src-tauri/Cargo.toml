@@ -31,3 +31,4 @@ which = "7"
 [features]
 default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
+macos-private-api = ["tauri/macos-private-api"]
