@@ -33,9 +33,11 @@ function AgentRow({ agent, onClick, onJumpToTerminal }: { agent: Agent; onClick:
   const hasPending = agent.pendingApproval !== null;
 
   return (
-    <button
+    <div
       role="menuitem"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
       className={styles.agentRow}
     >
       {/* Status orb — 5px, clickable to jump to terminal */}
@@ -75,7 +77,7 @@ function AgentRow({ agent, onClick, onJumpToTerminal }: { agent: Agent; onClick:
           PENDING
         </span>
       )}
-    </button>
+    </div>
   );
 }
 
