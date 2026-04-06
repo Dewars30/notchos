@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { Agent, RiskTier, DiffLine } from '../../types';
+import type { Agent, RiskTier, DiffLine, TimelineEvent } from '../../types';
 import { ZoneLabel } from '../shared/ZoneLabel';
 import { ClickablePath } from '../shared/ClickablePath';
 import styles from './ActiveSession.module.css';
@@ -8,7 +8,23 @@ interface ActiveSessionProps {
   agent: Agent | null;
   onApprove: (approvalId: string) => void;
   onDeny: (approvalId: string) => void;
+  recentEvents?: TimelineEvent[];
 }
+
+function formatRelativeTime(timestamp: number): string {
+  const seconds = Math.floor(Date.now() / 1000) - timestamp;
+  if (seconds < 60) return `0:${String(seconds).padStart(2, '0')}`;
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+const EVENT_LABELS: Record<string, string> = {
+  'auto-approved': 'Auto-approved',
+  'approved': 'Approved',
+  'pending': 'Pending',
+  'denied': 'Denied',
+};
 
 const RISK_STYLES: Record<RiskTier, { bg: string; border: string; text: string }> = {
   low: {
@@ -104,7 +120,7 @@ function DiffLineRow({ line }: { line: DiffLine }) {
   );
 }
 
-export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) {
+export function ActiveSession({ agent, onApprove, onDeny, recentEvents = [] }: ActiveSessionProps) {
   const approval = agent?.pendingApproval ?? null;
   const riskTier = approval?.riskTier ?? 'low';
   const risk = RISK_STYLES[riskTier];
@@ -227,21 +243,34 @@ export function ActiveSession({ agent, onApprove, onDeny }: ActiveSessionProps) 
           </div>
         </div>
       ) : (
-        <div className={styles.statusBlock}>
-          <div className={styles.statusLine}>
-            {agent.status === 'idle' && 'All clear — no pending actions'}
-            {agent.status === 'executing' && (
-              <>Executing: <span style={{ color: 'var(--ripple)' }}>{agent.currentTool ?? 'unknown'}</span></>
-            )}
-            {agent.status === 'writing' && (
-              <>Writing: <span style={{ color: 'var(--gold)' }}>{agent.currentTool ?? 'unknown'}</span></>
-            )}
-            {agent.status === 'waiting' && 'Waiting for response...'}
-            {agent.status === 'error' && <span style={{ color: 'var(--coral)' }}>Agent encountered an error</span>}
-          </div>
-          {agent.status === 'idle' && (
-            <div className={styles.sessionMeta}>
-              Session: {Math.floor(agent.elapsedSeconds / 60)}m · Cost: ${agent.cost.toFixed(2)} · {agent.model}
+        <div className={styles.activityFeed}>
+          {recentEvents.length > 0 ? (
+            recentEvents.slice(0, 20).map(event => (
+              <div key={event.id} className={styles.activityEntry}>
+                <span className={styles.activityTime}>
+                  {formatRelativeTime(event.timestamp)}
+                </span>
+                <span className={styles.activityDesc}>
+                  <span className={styles.activityTool}>{EVENT_LABELS[event.type] ?? event.type}</span>
+                </span>
+              </div>
+            ))
+          ) : (
+            <div className={styles.statusBlock}>
+              <div className={styles.statusMessage}>
+                {agent.status === 'idle' && 'All clear — no pending actions'}
+                {agent.status === 'executing' && (
+                  <>Executing: <span style={{ color: 'var(--ripple)' }}>{agent.currentTool ?? 'unknown'}</span></>
+                )}
+                {agent.status === 'writing' && (
+                  <>Writing: <span style={{ color: 'var(--gold)' }}>{agent.currentTool ?? 'unknown'}</span></>
+                )}
+                {agent.status === 'waiting' && 'Waiting for response...'}
+                {agent.status === 'error' && <span style={{ color: 'var(--coral)' }}>Agent encountered an error</span>}
+              </div>
+              {agent.status === 'idle' && (
+                <span className={styles.idleLabel}>listening...</span>
+              )}
             </div>
           )}
         </div>
