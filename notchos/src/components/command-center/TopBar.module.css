@@ -160,3 +160,12 @@
   margin: 0 var(--sp-2);
   vertical-align: middle;
 }
+
+/* focus-visible outlines */
+.agentButton:focus-visible,
+.agentButtonSelected:focus-visible,
+.muteButton:focus-visible,
+.collapseButton:focus-visible {
+  outline: 1.5px solid var(--teal);
+  outline-offset: 2px;
+}

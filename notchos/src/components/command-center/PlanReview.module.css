@@ -134,3 +134,11 @@
   font-size: 8px;
   opacity: 0.4;
 }
+
+/* focus-visible outlines */
+.approveButton:focus-visible,
+.denyButton:focus-visible,
+.changesButton:focus-visible {
+  outline: 1.5px solid var(--teal);
+  outline-offset: 2px;
+}

@@ -59,3 +59,9 @@
   color: var(--teal);
   flex-shrink: 0;
 }
+
+/* focus-visible outlines */
+.optionButton:focus-visible {
+  outline: 1.5px solid var(--teal);
+  outline-offset: 2px;
+}

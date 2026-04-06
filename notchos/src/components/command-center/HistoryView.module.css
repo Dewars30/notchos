@@ -139,3 +139,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* focus-visible outlines */
+.sessionButton:focus-visible,
+.sessionButtonExpanded:focus-visible,
+.searchInput:focus-visible {
+  outline: 1.5px solid var(--teal);
+  outline-offset: 2px;
+}
