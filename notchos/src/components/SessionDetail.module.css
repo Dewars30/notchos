@@ -1,14 +1,14 @@
 .root {
-  padding: 10px 14px 12px;
-  border-top: 1px solid var(--border-subtle);
+  padding: var(--sp-5) var(--sp-5) var(--sp-5);
+  border-top: 0.5px solid var(--border-subtle);
   animation: slide-down 0.14s ease;
 }
 
 .metaRow {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-5);
 }
 
 .statusLabel {
@@ -36,10 +36,10 @@
 
 .lastMessage {
   background: var(--bg-base);
-  border: 1px solid var(--border-subtle);
+  border: 0.5px solid var(--border-subtle);
   border-radius: 4px;
-  padding: 7px 9px;
-  margin-bottom: 10px;
+  padding: var(--sp-3) var(--sp-4);
+  margin-bottom: var(--sp-5);
   font-size: 11px;
   color: var(--text-2);
   line-height: 1.5;
@@ -53,8 +53,8 @@
 .currentTool {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
   font-size: 11px;
   color: var(--text-dim);
 }
@@ -69,13 +69,13 @@
 
 .actionRow {
   display: flex;
-  gap: 8px;
+  gap: var(--sp-4);
 }
 
 .dismissButton {
-  padding: 5px 12px;
+  padding: var(--sp-2) var(--sp-5);
   background: transparent;
-  border: 1px solid var(--stroke);
+  border: 0.5px solid var(--stroke);
   border-radius: 4px;
   color: var(--text-2);
   font-family: var(--font-data);
@@ -89,9 +89,9 @@
 }
 
 .escButton {
-  padding: 5px 12px;
+  padding: var(--sp-2) var(--sp-5);
   background: transparent;
-  border: 1px solid transparent;
+  border: 0.5px solid transparent;
   border-radius: 4px;
   color: var(--text-dim);
   font-family: var(--font-data);

@@ -1,14 +1,14 @@
 .root {
-  padding: 10px 14px 12px;
-  border-top: 1px solid var(--border-subtle);
+  padding: var(--sp-5) var(--sp-5) var(--sp-5);
+  border-top: 0.5px solid var(--border-subtle);
   animation: slide-down 0.14s ease;
 }
 
 .header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-5);
 }
 
 .agentLabel {
@@ -27,7 +27,7 @@
   font-size: 11px;
   color: var(--gold);
   background: var(--gold-dim);
-  padding: 1px 6px;
+  padding: 1px var(--sp-3);
   border-radius: 3px;
   letter-spacing: 0.06em;
 }
@@ -44,7 +44,7 @@
 }
 
 .toolPreview {
-  margin-bottom: 12px;
+  margin-bottom: var(--sp-5);
 }
 
 /* renderToolInput inline styles reference — kept in component as they use
@@ -52,16 +52,16 @@
 
 .actionRow {
   display: flex;
-  gap: 8px;
+  gap: var(--sp-4);
   align-items: center;
 }
 
 .allowButton {
   flex: 1;
-  padding: 7px;
+  padding: var(--sp-3);
   background: var(--teal-dim);
-  border: 1px solid var(--ripple);
-  border-radius: 5px;
+  border: 0.5px solid var(--ripple);
+  border-radius: var(--radius-button);
   color: var(--ripple);
   font-family: var(--font-data);
   font-size: 11px;
@@ -77,10 +77,10 @@
 
 .denyButton {
   flex: 1;
-  padding: 7px;
+  padding: var(--sp-3);
   background: var(--coral-dim);
-  border: 1px solid var(--coral);
-  border-radius: 5px;
+  border: 0.5px solid var(--coral);
+  border-radius: var(--radius-button);
   color: var(--coral);
   font-family: var(--font-data);
   font-size: 11px;
@@ -109,7 +109,7 @@
 
 .toolInputPath {
   color: var(--text-2);
-  margin-bottom: 6px;
+  margin-bottom: var(--sp-3);
 }
 
 .toolInputArrow {
@@ -118,9 +118,9 @@
 
 .toolInputPre {
   background: var(--bg-base);
-  border: 1px solid var(--border-subtle);
+  border: 0.5px solid var(--border-subtle);
   border-radius: 4px;
-  padding: 8px;
+  padding: var(--sp-4);
   max-height: 140px;
   overflow: auto;
   font-size: 10.5px;
@@ -133,9 +133,9 @@
   font-family: var(--font-data);
   font-size: 11px;
   background: var(--bg-base);
-  border: 1px solid var(--border-subtle);
+  border: 0.5px solid var(--border-subtle);
   border-radius: 4px;
-  padding: 8px;
+  padding: var(--sp-4);
   color: var(--ripple);
   white-space: pre-wrap;
   word-break: break-all;
@@ -150,10 +150,9 @@
   font-family: var(--font-data);
   font-size: 10px;
   background: var(--bg-base);
-  border: 1px solid var(--border-subtle);
+  border: 0.5px solid var(--border-subtle);
   border-radius: 4px;
-  padding: 8px;
-  font-size: 10px;
+  padding: var(--sp-4);
   color: var(--text-2);
   max-height: 120px;
   overflow: auto;

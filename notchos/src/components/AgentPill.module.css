@@ -2,9 +2,9 @@
   display: flex;
   align-items: center;
   gap: var(--sp-3);
-  padding: var(--sp-2) 10px;
+  padding: var(--sp-2) var(--sp-5);
   background: transparent;
-  border: 1px solid transparent;
+  border: 0.5px solid transparent;
   border-radius: var(--radius-pill);
   cursor: pointer;
   transition: all 120ms ease;
@@ -29,7 +29,7 @@
 
 .agentLabel {
   font-size: 11px;
-  font-family: var(--font-data);
+  font-family: var(--font-ui);
   letter-spacing: 0.08em;
   font-weight: 500;
 }

@@ -2,7 +2,7 @@
   grid-area: agents;
   display: flex;
   flex-direction: column;
-  padding: 12px;
+  padding: var(--sp-5);
   background: var(--zone-bg-side);
   border-right: 0.5px solid var(--zone-border);
   position: relative;
@@ -11,10 +11,10 @@
 }
 
 .agentList {
-  margin-top: 8px;
+  margin-top: var(--sp-4);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--sp-2);
   flex: 1;
 }
 
@@ -24,14 +24,14 @@
   color: var(--text-dim);
   letter-spacing: 0.08em;
   display: block;
-  padding: 4px 0 2px;
+  padding: var(--sp-2) 0 var(--sp-1);
 }
 
 .agentButton {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 6px 4px;
+  gap: var(--sp-1);
+  padding: var(--sp-3) var(--sp-2);
   background: transparent;
   border-radius: 4px;
   border: none;
@@ -53,7 +53,7 @@
 .nameRow {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--sp-2);
 }
 
 .agentName {
@@ -81,7 +81,7 @@
 
 .totalSection {
   border-top: 0.5px solid var(--border-subtle);
-  padding-top: 8px;
+  padding-top: var(--sp-4);
   margin-top: auto;
 }
 
