@@ -10,12 +10,27 @@ const STATUS_COLORS: Record<AgentStatus, string> = {
   error: 'var(--coral)',
 };
 
-const RING_ANIMATIONS: Record<AgentStatus, string> = {
-  idle: 'orbit-idle 3.5s ease-in-out infinite',
-  writing: 'orbit-write 0.9s ease-in-out infinite',
-  waiting: 'orbit-wait 2.4s ease-in-out infinite',
-  executing: 'orbit-exec 2s ease-in-out infinite',
-  error: 'orbit-error 0.3s ease-in-out infinite alternate',
+const ARC_CONFIGS: Record<AgentStatus, {
+  arcs: Array<{ degrees: number; animation: string; duration: string }>;
+}> = {
+  idle: {
+    arcs: [{ degrees: 90, animation: 'arc-idle', duration: '8s' }],
+  },
+  writing: {
+    arcs: [
+      { degrees: 60, animation: 'arc-write-cw', duration: '1.2s' },
+      { degrees: 60, animation: 'arc-write-ccw', duration: '1.2s' },
+    ],
+  },
+  waiting: {
+    arcs: [{ degrees: 120, animation: 'arc-wait', duration: '2.4s' }],
+  },
+  executing: {
+    arcs: [{ degrees: 270, animation: 'arc-exec', duration: '1.5s' }],
+  },
+  error: {
+    arcs: [{ degrees: 45, animation: 'arc-error', duration: '0.3s' }],
+  },
 };
 
 interface StatusOrbProps {
@@ -28,32 +43,50 @@ const LAYOUT_SPRING = { type: 'spring' as const, stiffness: 400, damping: 30, ma
 
 export function StatusOrb({ status, size = 5, layoutId }: StatusOrbProps) {
   const color = STATUS_COLORS[status];
-  const animation = RING_ANIMATIONS[status];
   const containerSize = size + 12;
+  const arcConfig = ARC_CONFIGS[status];
+  const svgSize = containerSize;
+  const cx = svgSize / 2;
+  const cy = svgSize / 2;
+  const arcRadius = (svgSize - 2) / 2;
+  const circumference = 2 * Math.PI * arcRadius;
 
   const children = (
     <>
-      {/* Primary orbital ring */}
-      <span
-        className={`orb-ring ${styles.ring}`}
-        style={{ borderColor: color, animation }}
-      />
+      <svg
+        className={`${styles.arcSvg} instrument-arc`}
+        viewBox={`0 0 ${svgSize} ${svgSize}`}
+      >
+        {arcConfig.arcs.map((arc, i) => {
+          const dashLength = (arc.degrees / 360) * circumference;
+          const gapLength = circumference - dashLength;
+          const rotateOffset = arcConfig.arcs.length > 1 && i === 1 ? 180 : 0;
 
-      {/* Second ring for writing state */}
-      {status === 'writing' && (
-        <span
-          className={`orb-ring ${styles.ringOuter}`}
-          style={{
-            borderColor: color,
-            animation: 'orbit-write 0.9s ease-in-out infinite 0.45s',
-          }}
-        />
-      )}
+          return (
+            <circle
+              key={i}
+              cx={cx}
+              cy={cy}
+              r={arcRadius}
+              fill="none"
+              stroke={color}
+              strokeWidth={0.5}
+              strokeLinecap="round"
+              strokeDasharray={`${dashLength} ${gapLength}`}
+              opacity={0.6}
+              style={{
+                transformOrigin: `${cx}px ${cy}px`,
+                transform: `rotate(${rotateOffset}deg)`,
+                animation: `${arc.animation} ${arc.duration} linear infinite`,
+              }}
+            />
+          );
+        })}
+      </svg>
 
-      {/* Bioluminescent glow for executing state */}
       {status === 'executing' && (
         <span
-          className={`orb-glow ${styles.glow}`}
+          className={styles.glow}
           style={{
             background: color,
             animation: 'glow-pulse 2s ease-in-out infinite',
@@ -62,7 +95,6 @@ export function StatusOrb({ status, size = 5, layoutId }: StatusOrbProps) {
         />
       )}
 
-      {/* Core orb */}
       <span
         className={styles.core}
         style={{ width: size, height: size, background: color }}

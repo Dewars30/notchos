@@ -132,42 +132,45 @@ html, body {
 ::-webkit-scrollbar-thumb:hover { background: var(--stroke); }
 
 /* ============================================
-   Orbital Frequency Animations
-   Each agent state has a distinct signature
+   Instrument Arc Animations
+   Each agent state has a distinct motion signature
    ============================================ */
 
-/* Idle — slow single-ring breath, 3.5s */
-@keyframes orbit-idle {
-  0%, 100% { transform: scale(1); opacity: 0; }
-  50% { transform: scale(1.8); opacity: 0.2; }
+/* Idle — slow continuous rotation, 8s/revolution */
+@keyframes arc-idle {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* Writing — double-ring pulse, 0.9s */
-@keyframes orbit-write {
-  0%, 100% { transform: scale(1); opacity: 0; }
-  50% { transform: scale(1.6); opacity: 0.35; }
+/* Writing — counter-rotation for dual arcs, 1.2s/revolution */
+@keyframes arc-write-cw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes arc-write-ccw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
 }
 
-/* Waiting — tension-hold-snap, 2.4s */
-@keyframes orbit-wait {
-  0%, 60% { transform: scale(1); opacity: 0.15; }
-  70% { transform: scale(1.4); opacity: 0.3; }
-  80%, 100% { transform: scale(1); opacity: 0.15; }
+/* Waiting — pendulum oscillation ±30 degrees, 2.4s */
+@keyframes arc-wait {
+  0%, 100% { transform: rotate(-30deg); }
+  50% { transform: rotate(30deg); }
 }
 
-/* Executing — bioluminescent ripple, 2s */
-@keyframes orbit-exec {
-  0% { transform: scale(1); opacity: 0.3; }
-  100% { transform: scale(2.2); opacity: 0; }
+/* Executing — steady rotation, 1.5s/revolution */
+@keyframes arc-exec {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* Error — lateral tremor, 0.3s */
-@keyframes orbit-error {
-  0% { transform: translateX(-1px); opacity: 0.3; }
-  100% { transform: translateX(1px); opacity: 0.5; }
+/* Error — rapid jitter ±5 degrees, 0.3s */
+@keyframes arc-error {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
 }
 
-/* Bioluminescent glow pulse for executing orbs */
+/* Executing glow pulse (kept from original) */
 @keyframes glow-pulse {
   0%, 100% { opacity: 0.03; }
   50% { opacity: 0.06; }
@@ -203,6 +206,5 @@ html, body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  .orb-ring { animation: none !important; }
-  .orb-glow { animation: none !important; display: none; }
+  .instrument-arc { animation: none !important; }
 }
