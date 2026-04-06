@@ -103,6 +103,7 @@ export function TopBar({ agents, selectedAgentId, metrics, onSelectAgent, onColl
         className={styles.collapseButton}
         aria-label="Collapse to pill (Esc)"
       >
+        <span className={styles.collapseHint}>esc</span>
         <span className={styles.collapseBar} />
       </button>
     </div>

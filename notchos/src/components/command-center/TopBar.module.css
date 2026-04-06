@@ -123,6 +123,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
+}
+
+.collapseHint {
+  font-family: var(--font-data);
+  font-size: 7px;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity 150ms ease-out;
+}
+
+.collapseButton:hover .collapseHint {
+  opacity: 1;
 }
 
 .collapseButton:hover .collapseBar {

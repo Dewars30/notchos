@@ -166,16 +166,18 @@
 
 .approveButtonLarge {
   composes: approveButton;
-  padding: var(--sp-3) var(--sp-6);
-  font-size: 11px;
+  padding: var(--sp-4) var(--sp-7);
+  font-size: 12px;
   font-weight: 600;
+  min-height: 36px;
 }
 
 .denyButtonLarge {
   composes: denyButton;
-  padding: var(--sp-3) var(--sp-6);
-  font-size: 11px;
+  padding: var(--sp-4) var(--sp-7);
+  font-size: 12px;
   font-weight: 600;
+  min-height: 36px;
 }
 
 /* DiffLineRow */
