@@ -117,12 +117,29 @@ Outer shell = warm. Inner data = sharp. Pill shape reserved for compact mode onl
 | Active      | `--teal` · 0.5px       | Selected agent, focused input      |
 | Signal      | `--coral`/`--gold` · 0.5px | Risk badges, semantic borders   |
 
-### Elevation — No Shadows, No Blur, No Glow
+### Elevation — Background Steps + Glass Vibrancy
 
-Depth is communicated exclusively through background color steps:
+Depth is communicated through background color steps and layered glass transparency:
 `--bg-base` → `--bg-surface` → `--bg-elevated` → `--bg-raised`
 
-Each step is 6-8 lightness points above the last. No box-shadow. No filter:blur. No backdrop-filter. The only exception: the `--ripple` color may have a subtle `box-shadow` spread of 4-8px during executing state.
+Each step is 6-8 lightness points above the last. The `--ripple` color may have a subtle `box-shadow` spread of 4-8px during executing state.
+
+#### Glass Vibrancy — Layered Transparency
+
+NotchOS uses backdrop-filter glass on all three mode shells. The glass creates depth hierarchy between the floating HUD and the desktop behind it.
+
+| Mode | Background | Blur | Saturation | Drop Shadow |
+|------|-----------|------|------------|-------------|
+| Notch | rgba(0,0,0,0.92) | 20px | 150% | None (attached to notch) |
+| Pill | rgba(10,12,18,0.92) | 24px | 130% | 0 8px 32px rgba(0,0,0,0.4) |
+| CC | rgba(10,12,18,0.90) | 28px | 140% | 0 12px 48px rgba(0,0,0,0.5) |
+
+**Rules:**
+- Opacity decreases as mode expands (larger surface = more transparency needed)
+- Blur increases as mode expands (more content behind = more blur for legibility)
+- Only the outermost shell gets backdrop-filter. No nested blur.
+- Interior zones use semi-transparent backgrounds (0.3-0.7 alpha), not glass.
+- Inner light catch: `inset 0 0.5px 0 rgba(255,255,255,0.04)` on top edge of each shell.
 
 ---
 
