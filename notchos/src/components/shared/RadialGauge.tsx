@@ -103,10 +103,8 @@ export function RadialGauge({ value, size = 56, label }: RadialGaugeProps) {
         })}
 
         <motion.circle
-          cx={dotX}
-          cy={dotY}
           r={3}
-          fill={dotColor}
+          initial={{ cx: dotX, cy: dotY, fill: dotColor }}
           animate={{ cx: dotX, cy: dotY, fill: dotColor }}
           transition={prefersReduced ? { duration: 0 } : SPRING}
         />
