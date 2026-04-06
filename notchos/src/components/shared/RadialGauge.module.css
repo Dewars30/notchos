@@ -1,4 +1,3 @@
-/* src/components/shared/MurmurationRing.module.css */
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -11,4 +10,5 @@
   font-size: 7px;
   color: var(--text-dim);
   letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
