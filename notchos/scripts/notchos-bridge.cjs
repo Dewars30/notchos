@@ -13,7 +13,9 @@ const net = require("net");
 const fs = require("fs");
 const path = require("path");
 
-const SOCKET_PATH = "/tmp/notchos.sock";
+const SOCKET_PATH = process.platform === 'win32'
+  ? '\\\\.\\pipe\\notchos'
+  : '/tmp/notchos.sock';
 const TIMEOUT_MS = 120_000; // 2 min - generous for human approval
 
 // --version flag

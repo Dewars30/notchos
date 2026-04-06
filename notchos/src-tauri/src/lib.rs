@@ -2,12 +2,12 @@ mod agents;
 mod editor;
 mod history;
 mod terminal;
+mod transport;
 
 use std::sync::{Arc, Mutex};
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager, State};
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::net::{UnixListener, UnixStream};
+use tokio::io::AsyncWriteExt;
 use uuid::Uuid;
 
 // ─── Event types matching Claude Code / Codex hook payloads ─────────────────
@@ -255,15 +255,12 @@ fn search_history(query: String, state: State<Arc<AppState>>) -> Vec<history::Hi
 
 // ─── Socket server ───────────────────────────────────────────────────────────
 
-const SOCKET_PATH: &str = "/tmp/notchos.sock";
-
 async fn handle_connection(
-    stream: UnixStream,
+    conn: transport::Connection,
     app: AppHandle,
     state: Arc<AppState>,
 ) {
-    let (reader, mut writer) = stream.into_split();
-    let mut lines = BufReader::new(reader).lines();
+    let transport::Connection { mut lines, mut writer } = conn;
 
     while let Ok(Some(line)) = lines.next_line().await {
         let Ok(event) = serde_json::from_str::<HookEvent>(&line) else {
@@ -546,19 +543,17 @@ pub fn run() {
                 *bp = home_bridge.to_string_lossy().to_string();
             }
 
-            // Start Unix socket server
+            // Start IPC server (Unix socket on macOS/Linux, named pipe on Windows)
             tauri::async_runtime::spawn(async move {
-                // Remove stale socket
-                let _ = std::fs::remove_file(SOCKET_PATH);
-                let listener = UnixListener::bind(SOCKET_PATH)
-                    .expect("Failed to bind socket");
+                let listener = transport::Listener::bind()
+                    .expect("Failed to bind IPC listener");
 
                 loop {
-                    if let Ok((stream, _)) = listener.accept().await {
+                    if let Ok(conn) = listener.accept().await {
                         let app = app_handle.clone();
                         let s = state_clone.clone();
                         tauri::async_runtime::spawn(async move {
-                            handle_connection(stream, app, s).await;
+                            handle_connection(conn, app, s).await;
                         });
                     }
                 }
