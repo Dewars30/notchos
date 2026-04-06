@@ -14,9 +14,9 @@ interface SpacetimeGridProps {
 }
 
 const RISK_CONFIG: Record<RiskTier, { opacity: number; cellSize: number; warpStrength: number }> = {
-  low:    { opacity: 0.025, cellSize: 28, warpStrength: 0 },
-  medium: { opacity: 0.04,  cellSize: 26, warpStrength: 16 },
-  high:   { opacity: 0.06,  cellSize: 22, warpStrength: 28 },
+  low:    { opacity: 0.025, cellSize: 32, warpStrength: 0 },
+  medium: { opacity: 0.04,  cellSize: 30, warpStrength: 16 },
+  high:   { opacity: 0.06,  cellSize: 26, warpStrength: 28 },
 };
 
 export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4, activeAgentCount = 1, hasHighRiskPending = false }: SpacetimeGridProps) {
@@ -108,6 +108,27 @@ export function SpacetimeGrid({ riskTier, warpX = 0.5, warpY = 0.4, activeAgentC
         }
         ctx!.stroke();
       }
+
+      // --- Instrument overlay: concentric rings ---
+      const ringRadii = [0.15, 0.30, 0.50];
+      for (const frac of ringRadii) {
+        const r = Math.min(w, h) * frac;
+        ctx!.beginPath();
+        ctx!.arc(centerX, centerY, r, 0, Math.PI * 2);
+        ctx!.strokeStyle = `rgba(56, 168, 154, ${opacity * 0.6})`;
+        ctx!.lineWidth = 0.5;
+        ctx!.stroke();
+      }
+
+      // --- Instrument overlay: crosshair reticle ---
+      ctx!.beginPath();
+      ctx!.moveTo(centerX, 0);
+      ctx!.lineTo(centerX, h);
+      ctx!.moveTo(0, centerY);
+      ctx!.lineTo(w, centerY);
+      ctx!.strokeStyle = `rgba(56, 168, 154, ${opacity * 0.4})`;
+      ctx!.lineWidth = 0.5;
+      ctx!.stroke();
 
       // Radial edge fade — grid concentrates around warp center
       ctx!.globalCompositeOperation = 'destination-in';
