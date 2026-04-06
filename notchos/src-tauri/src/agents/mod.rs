@@ -36,7 +36,7 @@ pub fn all_adapters() -> Vec<Box<dyn AgentAdapter>> {
 }
 
 pub fn discover_all(_bridge_path: &str) -> Vec<DiscoveredAgent> {
-    all_adapters().iter().map(|adapter| {
+    let mut agents: Vec<DiscoveredAgent> = all_adapters().iter().map(|adapter| {
         let installed = adapter.detect();
         let hooks_injected = if installed { adapter.verify_hooks() } else { false };
         DiscoveredAgent {
@@ -46,7 +46,25 @@ pub fn discover_all(_bridge_path: &str) -> Vec<DiscoveredAgent> {
             hooks_injected,
             config_path: adapter.config_path(),
         }
-    }).collect()
+    }).collect();
+
+    // Discover plugin agents
+    let plugins = crate::plugins::discover_plugins();
+    for plugin in plugins {
+        // Don't override built-in agents
+        if agents.iter().any(|a| a.agent_key == plugin.name) {
+            continue;
+        }
+        agents.push(DiscoveredAgent {
+            name: plugin.display_name,
+            agent_key: plugin.name,
+            installed: true,
+            hooks_injected: false,
+            config_path: plugin.config_path,
+        });
+    }
+
+    agents
 }
 
 pub fn setup_all(bridge_path: &str) -> Vec<(String, bool)> {

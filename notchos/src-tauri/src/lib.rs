@@ -1,6 +1,7 @@
 mod agents;
 mod editor;
 mod history;
+mod plugins;
 mod terminal;
 mod transport;
 
