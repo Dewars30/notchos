@@ -6,6 +6,14 @@ NotchOS is a native desktop control surface for monitoring Claude Code, Codex CL
 
 Built with Tauri 2, Rust, React, and TypeScript.
 
+## Install
+
+```bash
+brew tap Dewars30/notchos
+brew install --cask notchos
+open -a NotchOS
+```
+
 ## What it does
 
 - Discovers supported coding agents and connects through their hook systems.
@@ -32,4 +40,4 @@ The built application is written to `src-tauri/target/release/bundle/macos/Notch
 
 ## License
 
-MIT
+[MIT](LICENSE)
