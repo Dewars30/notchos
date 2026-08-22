@@ -46,11 +46,19 @@ Built with Tauri 2 (Rust + React). Open source.
 
 ## Install
 
-### macOS (build from source)
+### Homebrew
+
+```bash
+brew tap Dewars30/notchos
+brew install --cask notchos
+open -a NotchOS
+```
+
+### Build from source
 
 ```bash
 # Requirements: Node.js 18+, Rust, Xcode Command Line Tools
-git clone https://github.com/YOUR_USERNAME/notchos.git
+git clone https://github.com/Dewars30/notchos.git
 cd notchos/notchos
 npm install
 npx tauri build
@@ -150,7 +158,7 @@ See [DESIGN.md](DESIGN.md) for the full specification.
 
 ## License
 
-MIT
+[MIT](../LICENSE)
 
 ---
 
